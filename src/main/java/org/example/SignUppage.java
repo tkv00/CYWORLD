@@ -11,13 +11,8 @@ import java.util.regex.Pattern;
 import java.sql.SQLException;
 
 public class SignUppage {
-    static {
-        try {
-            Class.forName("org.sqlite.JDBC");
-        } catch (ClassNotFoundException e) {
-            e.printStackTrace();
-        }
-    }
+
+
     private JFrame frame;
     private JTextField usernameField;
     private JPasswordField passwordField;
