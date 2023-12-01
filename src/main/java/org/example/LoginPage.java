@@ -60,7 +60,7 @@ public class LoginPage {
     }
     private boolean authenticate(String username, String password) {
         try (Connection conn = DatabaseConfig.getConnection();
-             PreparedStatement pstmt = conn.prepareStatement("SELECT * FROM users WHERE username = ? AND password = ?")) {
+             PreparedStatement pstmt = conn.prepareStatement("SELECT * FROM user WHERE username = ? AND password = ?")) {
             pstmt.setString(1, username);
             pstmt.setString(2, password); // 실제 애플리케이션에서는 비밀번호를 해시하여 비교해야 함
             ResultSet rs = pstmt.executeQuery();
