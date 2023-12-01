@@ -2,15 +2,27 @@ package org.example;
 
 import javax.swing.*;
 import java.awt.*;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+
+import static java.awt.AWTEventMulticaster.add;
 
 public class MiniHomepage {
     private LoginPage loginPage;
     private SignUppage signUpPage;
+    private JLabel userIdLabel; // 사용자 ID를 표시할 레이블
+
 
     public MiniHomepage() {
         signUpPage = new SignUppage();
         loginPage = new LoginPage(signUpPage,this);
+        // 사용자 ID 레이블 초기화
+        userIdLabel = new JLabel();
+        add(userIdLabel); // 이 부분은 MiniHomepage의 레이아웃에 따라 달라질 수 있음
     }//
+
+    private void add(JLabel userIdLabel) {
+    }
 
     public static void main(String[] args) {
         new MiniHomepage().showLogin(); // 프로그램 시작 시 로그인 페이지를 표시
@@ -79,7 +91,23 @@ public class MiniHomepage {
         homePanel.add(newsSection, BorderLayout.CENTER);
         homePanel.add(profileSection, BorderLayout.EAST);
 
+        //게시판버튼
+        JButton boardButton=new JButton("게시판");
+        boardButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                new WriteBoard(); // 게시판 페이지 열기
+            }
+        });
+        menuBar.add(boardButton);
+
         // 프레임 보이기
         frame.setVisible(true);
+    }
+    // MiniHomepage 클래스 내부
+    public void setUserId(String userId) {
+        // userId를 사용하여 메인 페이지에 표시하는 로직
+        // 예: JLabel에 userId를 설정
+        userIdLabel.setText("Welcome, " + userId);
     }
 }

@@ -9,7 +9,7 @@ import java.sql.*;
 
 public class LoginPage {
 
-    String dbUrl = "jdbc:sqlite:identifier.sqlite";
+
 
     private JFrame frame;
     private SignUppage SignUppage; // 회원가입 페이지 참조
@@ -59,16 +59,22 @@ public class LoginPage {
         frame.setVisible(true);
     }
     private boolean authenticate(String username, String password) {
-        try (Connection conn = DriverManager.getConnection(dbUrl);
+        try (Connection conn = DatabaseConfig.getConnection();
              PreparedStatement pstmt = conn.prepareStatement("SELECT * FROM users WHERE username = ? AND password = ?")) {
             pstmt.setString(1, username);
             pstmt.setString(2, password); // 실제 애플리케이션에서는 비밀번호를 해시하여 비교해야 함
             ResultSet rs = pstmt.executeQuery();
-            return rs.next(); // 결과 집합에 데이터가 있으면 로그인 성공
+            if (rs.next()) {
+                // 로그인 성공 시 MiniHomepage에 사용자 ID 전달
+                miniHomepage.setUserId(username);
+                return true;
+            }
+            return false;
         } catch (SQLException e) {
             e.printStackTrace();
             return false;
         }
     }
+
 
 }

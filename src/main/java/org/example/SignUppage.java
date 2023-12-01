@@ -98,18 +98,20 @@ public class SignUppage {
             JOptionPane.showMessageDialog(frame, "유효하지 않은 이메일 형식입니다.", "유효성 오류", JOptionPane.ERROR_MESSAGE);
 
         }
-        String dbUrl = "jdbc:sqlite:identifier.sqlite";
 
 
 
-        try (Connection conn = DriverManager.getConnection(dbUrl);
-             PreparedStatement pstmt = conn.prepareStatement("INSERT INTO users (username, password, phone, name,email) VALUES (?, ?, ?, ?,?)")) {
+
+
+        try (Connection conn = DatabaseConfig.getConnection();
+             PreparedStatement pstmt = conn.prepareStatement("INSERT INTO user (username, password, phonenumber, name,email) VALUES (?, ?, ?, ?,?)")) {
 
             pstmt.setString(1, username);
             pstmt.setString(2, userPassword); // 추후 비밀번호 암호화 고려
             pstmt.setString(3, phone);
             pstmt.setString(4, name);
             pstmt.setString(5,email);
+
 
             int affectedRows = pstmt.executeUpdate();
 
