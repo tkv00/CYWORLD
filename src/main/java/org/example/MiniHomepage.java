@@ -80,7 +80,7 @@ public class MiniHomepage {
         profileSection.setLayout(new BoxLayout(profileSection, BoxLayout.Y_AXIS));
         JLabel profileTitle = new JLabel("내 프로필");
         profileSection.add(profileTitle);
-        // 프로필 섹션의 추가적인 구현...
+
 
         // 메뉴 바
         JPanel menuBar = new JPanel();
@@ -96,15 +96,19 @@ public class MiniHomepage {
         boardButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                new WriteBoard(username);
+                new BoardList();
                 // 게시판 페이지 열기
             }
         });
         menuBar.add(boardButton);
 
+
+
+
         // 프레임 보이기
         frame.setVisible(true);
     }
+
     // MiniHomepage 클래스 내부
     public void setUserId(String username) {
         this.username=username;
@@ -112,4 +116,5 @@ public class MiniHomepage {
         // 예: JLabel에 userId를 설정
         userIdLabel.setText("Welcome, " + username);
     }
+
 }
