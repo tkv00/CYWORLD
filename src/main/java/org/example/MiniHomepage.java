@@ -11,7 +11,7 @@ public class MiniHomepage {
     private LoginPage loginPage;
     private SignUppage signUpPage;
     private JLabel userIdLabel; // 사용자 ID를 표시할 레이블
-
+    private String username; // 사용자 id을 저장할 변수
 
     public MiniHomepage() {
         signUpPage = new SignUppage();
@@ -96,7 +96,8 @@ public class MiniHomepage {
         boardButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                new WriteBoard(); // 게시판 페이지 열기
+                new WriteBoard(username);
+                // 게시판 페이지 열기
             }
         });
         menuBar.add(boardButton);
@@ -105,9 +106,10 @@ public class MiniHomepage {
         frame.setVisible(true);
     }
     // MiniHomepage 클래스 내부
-    public void setUserId(String userId) {
+    public void setUserId(String username) {
+        this.username=username;
         // userId를 사용하여 메인 페이지에 표시하는 로직
         // 예: JLabel에 userId를 설정
-        userIdLabel.setText("Welcome, " + userId);
+        userIdLabel.setText("Welcome, " + username);
     }
 }

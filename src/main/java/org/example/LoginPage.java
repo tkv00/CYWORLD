@@ -38,6 +38,7 @@ public class LoginPage {
             String username = usernameField.getText();
             String password = new String(passwordField.getPassword());
             if (authenticate(username, password)) {
+                miniHomepage.setUserId(username);
                 miniHomepage.showMainPage(); // 메인 페이지 표시
                 frame.setVisible(false); // 로그인 창 숨김
             } else {
@@ -72,6 +73,7 @@ public class LoginPage {
             return false;
         } catch (SQLException e) {
             e.printStackTrace();
+
             return false;
         }
     }
