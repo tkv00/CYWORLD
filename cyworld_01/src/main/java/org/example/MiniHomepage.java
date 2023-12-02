@@ -96,7 +96,7 @@ public class MiniHomepage {
         boardButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                new WriteBoard(); // 게시판 페이지 열기
+                new BoardList(); // 게시판 목록 페이지 열기
             }
         });
         menuBar.add(boardButton);
