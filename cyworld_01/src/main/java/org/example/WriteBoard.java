@@ -5,10 +5,11 @@ import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.sql.*;
+import java.time.Instant;
 
 public class WriteBoard {
     //현재 로그인한 유저
-    private int currentUserId;
+   String currentUserId;
 
     private JFrame frame;
     private JTextField titleField;
@@ -16,9 +17,13 @@ public class WriteBoard {
     private JTextArea commentArea;
     private JSplitPane splitPane;
 
-    private static final String DB_URL = "jdbc:mysql://cyworld.cji1ftocbium.ap-northeast-2.rds.amazonaws.com:3306/cyworld";
-    private static final String DB_USER = "tkv00";
-    private static final String DB_PASSWORD = "rlaehdus00";
+
+    // 사용자 아이디를 설정하는 메서드
+    public WriteBoard(String userId){
+        this.currentUserId=userId;
+        initialize();
+    }
+
 
     public WriteBoard() {
         initialize();
@@ -74,6 +79,10 @@ public class WriteBoard {
     public static void main(String[] args) {
         EventQueue.invokeLater(() -> new WriteBoard());
     }
+
+
+
+
     private void submitPost() {
         // 사용자 입력 가져오기
         String title = titleField.getText();
@@ -87,11 +96,12 @@ public class WriteBoard {
 
         // 데이터베이스 연결 및 쿼리 실행
         try (Connection conn = DatabaseConfig.getConnection()) {
-            String sql = "INSERT INTO WriteBoard (title, content,username) VALUES (?, ?,?)";
+            String sql = "INSERT INTO WriteBoard (title, content,userId,time) VALUES (?, ?,?,?)";
             try (PreparedStatement pstmt = conn.prepareStatement(sql)) {
                 pstmt.setString(1, title);
                 pstmt.setString(2, content);
-                pstmt.setInt(3,currentUserId); // 현재 사용자 ID
+                pstmt.setString(3,currentUserId);
+                pstmt.setString(4, String.valueOf(Timestamp.from(Instant.now())));// 현재 사용자 ID
                 pstmt.executeUpdate();
 
                 // 성공 메시지
