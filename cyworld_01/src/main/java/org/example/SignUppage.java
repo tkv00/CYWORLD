@@ -79,18 +79,22 @@ public class SignUppage {
         // 유효성 검사 수행
         if (!isValidUsername(username)) {
             JOptionPane.showMessageDialog(frame, "아이디는 영문과 숫자를 포함한 6자 이상이어야 합니다.", "유효성 오류", JOptionPane.ERROR_MESSAGE);
+            return;
 
         }
         if (!isValidPassword(userPassword)) {
             JOptionPane.showMessageDialog(frame, "비밀번호는 최소 8자이며, 숫자, 대문자, 소문자, 특수문자를 모두 포함해야 합니다.", "유효성 오류", JOptionPane.ERROR_MESSAGE);
+            return;
 
         }
         if (!isValidPhoneNumber(phone)) {
             JOptionPane.showMessageDialog(frame, "휴대폰 번호는 숫자 11자리여야 합니다.", "유효성 오류", JOptionPane.ERROR_MESSAGE);
+            return;
 
         }
         if (!isValidEmail(email)) {
             JOptionPane.showMessageDialog(frame, "유효하지 않은 이메일 형식입니다.", "유효성 오류", JOptionPane.ERROR_MESSAGE);
+            return;
 
         }
         if (isUsernameTaken(username)) {
