@@ -40,33 +40,33 @@ public class MiniHomepage {
         }
         Image backgroundImage = imageIcon.getImage();
         BackgroundPanel backgroundPanel = new BackgroundPanel(backgroundImage);
-            backgroundPanel.setLayout(new BorderLayout());
-            backgroundPanel.setOpaque(false); // 배경 패널을 투명하게 설정
+        backgroundPanel.setLayout(new BorderLayout());
+        backgroundPanel.setOpaque(false); // 배경 패널을 투명하게 설정
 
 
 
         // 상단 바 구성
-            JPanel topBar = new JPanel(new BorderLayout());
-            topBar.setOpaque(false); // 투명도 설정
-            topBar.add(userIdLabel, BorderLayout.EAST); // 상단 바에 userIdLabel 추가
-            backgroundPanel.add(topBar, BorderLayout.NORTH);
+        JPanel topBar = new JPanel(new BorderLayout());
+        topBar.setOpaque(false); // 투명도 설정
+        topBar.add(userIdLabel, BorderLayout.EAST); // 상단 바에 userIdLabel 추가
+        backgroundPanel.add(topBar, BorderLayout.NORTH);
 
-            // 메뉴 바 구성
-            JPanel menuBar = createMenuBar();
-            menuBar.setOpaque(false); // 투명도 설정
-            backgroundPanel.add(menuBar, BorderLayout.WEST);
+        // 메뉴 바 구성
+        JPanel menuBar = createMenuBar();
+        menuBar.setOpaque(false); // 투명도 설정
+        backgroundPanel.add(menuBar, BorderLayout.WEST);
 
-            // 메인 컨텐츠 구성
-            JPanel mainContent = createMainContent();
-            mainContent.setOpaque(false); // 투명도 설정
-            backgroundPanel.add(mainContent, BorderLayout.CENTER);
+        // 메인 컨텐츠 구성
+        JPanel mainContent = createMainContent();
+        mainContent.setOpaque(false); // 투명도 설정
+        backgroundPanel.add(mainContent, BorderLayout.CENTER);
 
-            // 프레임에 컴포넌트 추가
-            frame.add(backgroundPanel);
+        // 프레임에 컴포넌트 추가
+        frame.add(backgroundPanel);
 
-            // 프레임 보이기
-            frame.setVisible(true);
-        }
+        // 프레임 보이기
+        frame.setVisible(true);
+    }
 
 
     private JPanel createMenuBar() {

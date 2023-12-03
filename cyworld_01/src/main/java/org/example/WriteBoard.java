@@ -9,7 +9,7 @@ import java.time.Instant;
 
 public class WriteBoard {
     //현재 로그인한 유저
-   String currentUserId;
+    String currentUserId;
 
     private JFrame frame;
     private JTextField titleField;
