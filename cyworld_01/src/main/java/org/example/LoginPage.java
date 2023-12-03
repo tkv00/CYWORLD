@@ -4,6 +4,7 @@ import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.net.URL;
 import java.sql.*;
 
 
@@ -18,22 +19,80 @@ public class LoginPage {
 
     private MiniHomepage miniHomepage;
 
+    //백그라운드 이미지 경로
+    String imagePath="/loginbackground.jpg";
+    URL imageUrl = getClass().getResource(imagePath);
+
     public LoginPage(SignUppage signUpPage, MiniHomepage miniHomepage) {
         this.SignUppage = signUpPage;
         this.miniHomepage = miniHomepage;
+
+        // 이미지 로드
+        ImageIcon imageIcon = new ImageIcon(imageUrl);
+        if (imageIcon.getIconWidth() == -1) {
+            System.err.println("Failed to load image: " + imagePath);
+            return;
+        }
+        Image backgroundImage = imageIcon.getImage();
+
+        // 배경 이미지가 있는 패널 생성
+        BackgroundPanel backgroundPanel = new BackgroundPanel(backgroundImage);
+
         frame = new JFrame("로그인");
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        frame.setSize(300, 200);
-        frame.setLayout(new GridLayout(3, 2));
+        frame.setSize(800, 467);
+        frame.setContentPane(backgroundPanel); // 배경 패널 설정
 
-        frame.add(new JLabel("아이디:"));
-        usernameField = new JTextField();
-        frame.add(usernameField);
-        frame.add(new JLabel("비밀번호:"));
-        passwordField = new JPasswordField();
-        frame.add(passwordField);
+        frame.setLayout(new GridBagLayout());
+        GridBagConstraints gbc = new GridBagConstraints();
+        gbc.insets = new Insets(5, 5, 5, 5); // 여백 설정
 
+        // 아이디 라벨 및 텍스트 필드
+        JLabel usernameLabel = new JLabel("아이디:");
+        usernameLabel.setOpaque(false);
+        gbc.gridx = 0;
+        gbc.gridy = 0;
+        frame.add(usernameLabel, gbc);
+
+        usernameField = new JTextField(15);
+        usernameField.setOpaque(false);
+        gbc.gridx = 1;
+        gbc.gridy = 0;
+        frame.add(usernameField, gbc);
+
+        // 비밀번호 라벨 및 텍스트 필드
+        JLabel passwordLabel = new JLabel("비밀번호:");
+        passwordLabel.setOpaque(false);
+        gbc.gridx = 0;
+        gbc.gridy = 1;
+        frame.add(passwordLabel, gbc);
+
+        passwordField = new JPasswordField(15);
+        passwordField.setOpaque(false);
+        gbc.gridx = 1;
+        gbc.gridy = 1;
+        frame.add(passwordField, gbc);
+
+        // 로그인 버튼
         JButton loginButton = new JButton("로그인");
+        loginButton.setOpaque(false);
+        loginButton.setContentAreaFilled(false);
+        loginButton.setBorderPainted(false);
+        gbc.gridx = 0;
+        gbc.gridy = 2;
+        frame.add(loginButton, gbc);
+
+        // 회원가입 버튼
+        JButton signUpButton = new JButton("회원가입");
+        signUpButton.setOpaque(false);
+        signUpButton.setContentAreaFilled(false);
+        signUpButton.setBorderPainted(false);
+        gbc.gridx = 1;
+        gbc.gridy = 2;
+        frame.add(signUpButton, gbc);
+
+
+        //로그인 로직 구현
         loginButton.addActionListener(e -> {
             String username = usernameField.getText();
             String password = new String(passwordField.getPassword());
@@ -46,14 +105,12 @@ public class LoginPage {
             }
 
         });
-        frame.add(loginButton);
-
-        JButton signUpButton = new JButton("회원가입");
+        //회원가입로직
         signUpButton.addActionListener(e -> {
             LoginPage.this.SignUppage.show(); // 회원가입 페이지 표시
             frame.setVisible(false);
         });
-        frame.add(signUpButton);
+
     }
 
     public void show() {

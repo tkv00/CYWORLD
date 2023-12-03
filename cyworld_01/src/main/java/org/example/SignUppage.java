@@ -93,10 +93,10 @@ public class SignUppage {
             JOptionPane.showMessageDialog(frame, "유효하지 않은 이메일 형식입니다.", "유효성 오류", JOptionPane.ERROR_MESSAGE);
 
         }
-
-
-
-
+        if (isUsernameTaken(username)) {
+            JOptionPane.showMessageDialog(frame, "이미 사용 중인 아이디입니다.", "아이디 중복 오류", JOptionPane.ERROR_MESSAGE);
+            return; // 중복된 아이디인 경우 회원가입 중단
+        }
 
         try (Connection conn = DatabaseConfig.getConnection();
              PreparedStatement pstmt = conn.prepareStatement("INSERT INTO user (username, password, phonenumber, name,email) VALUES (?, ?, ?, ?,?)")) {
@@ -105,7 +105,7 @@ public class SignUppage {
             pstmt.setString(2, userPassword); // 추후 비밀번호 암호화 고려
             pstmt.setString(3, phone);
             pstmt.setString(4, name);
-            pstmt.setString(5,email);
+            pstmt.setString(5, email);
 
 
             int affectedRows = pstmt.executeUpdate();
@@ -149,5 +149,14 @@ public class SignUppage {
         String usernameRegex = "^[A-Za-z0-9]{6,}$";
         return username.matches(usernameRegex);
     }
-
+    private boolean isUsernameTaken(String username) {
+        try (Connection conn = DatabaseConfig.getConnection();
+             PreparedStatement pstmt = conn.prepareStatement("SELECT * FROM user WHERE username = ?")) {
+            pstmt.setString(1, username);
+            return pstmt.executeQuery().next(); // 아이디가 이미 존재하면 true 반환
+        } catch (SQLException ex) {
+            ex.printStackTrace();
+            return true; // 오류 발생 시 중복으로 처리
+        }
+    }
 }
