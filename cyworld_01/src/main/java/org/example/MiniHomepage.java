@@ -22,12 +22,13 @@ public class MiniHomepage {
     }
 
     public static void main(String[] args) {
-        new MiniHomepage().showLogin();
+        MiniHomepage miniHomepage = new MiniHomepage();
+        new MiniHomepage().showMainPage();
     }
 
-    private void showLogin() {
-        loginPage.show();
-    }
+    // private void showLogin() {
+    //    loginPage.show();
+    //}
 
     public void showMainPage() {
         JFrame frame = new JFrame("싸이월드");
@@ -46,25 +47,25 @@ public class MiniHomepage {
         backgroundPanel.setOpaque(false); // 배경 패널을 투명하게 설정
 
         // 상단 바 구성
-        JPanel topBar = new JPanel(new BorderLayout());
-        topBar.setOpaque(false); // 투명도 설정
-
-        // 노래 재생 버튼 추가
-        JButton playMusicButton = new JButton("Play Music");
-        playMusicButton.addActionListener(e -> {
-            // 노래 재생 버튼 클릭 시 음악을 재생하도록 수정
-            musicPlayer.playMusicFromURL("https://youtu.be/hLvWy2b857I?si=ybuyiaX4CXilwAXU");
-        });
-
-        topBar.add(playMusicButton, BorderLayout.EAST); // 오른쪽 상단에 버튼 추가
-        topBar.add(userIdLabel, BorderLayout.EAST); // 상단 바에 userIdLabel 추가
-        backgroundPanel.add(topBar, BorderLayout.NORTH);
+        JPanel topBar = new JPanel(new BorderLayout()); // BorderLayout으로 변경
+        topBar.add(userIdLabel, BorderLayout.CENTER); // 중앙에 userIdLabel 추가
 
         // 메뉴 바 구성
         JPanel menuBar = createMenuBar();
         menuBar.setOpaque(false); // 투명도 설정
         backgroundPanel.add(menuBar, BorderLayout.WEST);
 
+        topBar.add(menuBar, BorderLayout.WEST); // 왼쪽에 메뉴 바 추가
+
+        // 노래 재생 버튼 추가
+        JButton playMusicButton = new JButton("노래 재생");
+        playMusicButton.addActionListener(e -> {
+            // 노래 재생 버튼 클릭 시 음악을 재생하도록 수정
+            musicPlayer.playMusicFromFile("/music.mp3");
+        });
+
+        topBar.add(playMusicButton, BorderLayout.EAST); // 오른쪽에 버튼 추가
+        backgroundPanel.add(topBar, BorderLayout.NORTH);
         // 메인 컨텐츠 구성
         JPanel mainContent = createMainContent();
         mainContent.setOpaque(false); // 투명도 설정
