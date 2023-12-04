@@ -3,6 +3,7 @@ package org.example;
 import javax.swing.*;
 import java.awt.*;
 import java.net.URL;
+import java.awt.event.ActionEvent;
 
 public class MiniHomepage {
     String imagePath = "/cyworldmain.jpg";
@@ -10,11 +11,12 @@ public class MiniHomepage {
     private LoginPage loginPage;
     private SignUppage signUpPage;
     private JLabel userIdLabel; // 사용자 ID를 표시할 레이블
-
+    private MusicPlayer musicPlayer; // MusicPlayer 객체 추가
     public MiniHomepage() {
         signUpPage = new SignUppage();
         loginPage = new LoginPage(signUpPage, this);
         userIdLabel = new JLabel();
+        musicPlayer = new MusicPlayer();
         // 초기 레이블 텍스트 설정 (예시)
         userIdLabel.setText("Welcome, Guest");
     }
@@ -43,11 +45,18 @@ public class MiniHomepage {
         backgroundPanel.setLayout(new BorderLayout());
         backgroundPanel.setOpaque(false); // 배경 패널을 투명하게 설정
 
-
-
         // 상단 바 구성
         JPanel topBar = new JPanel(new BorderLayout());
         topBar.setOpaque(false); // 투명도 설정
+
+        // 노래 재생 버튼 추가
+        JButton playMusicButton = new JButton("Play Music");
+        playMusicButton.addActionListener(e -> {
+            // 노래 재생 버튼 클릭 시 음악을 재생하도록 수정
+            musicPlayer.playMusicFromURL("https://youtu.be/hLvWy2b857I?si=ybuyiaX4CXilwAXU");
+        });
+
+        topBar.add(playMusicButton, BorderLayout.EAST); // 오른쪽 상단에 버튼 추가
         topBar.add(userIdLabel, BorderLayout.EAST); // 상단 바에 userIdLabel 추가
         backgroundPanel.add(topBar, BorderLayout.NORTH);
 
