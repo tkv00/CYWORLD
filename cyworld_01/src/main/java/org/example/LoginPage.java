@@ -10,13 +10,10 @@ import java.sql.*;
 
 public class LoginPage {
 
-
-
     private JFrame frame;
     private SignUppage SignUppage; // 회원가입 페이지 참조
     private JTextField usernameField;
     private JPasswordField passwordField;
-
     private MiniHomepage miniHomepage;
 
     //백그라운드 이미지 경로
@@ -117,6 +114,11 @@ public class LoginPage {
         frame.setVisible(true);
     }
     private boolean authenticate(String username, String password) {
+        if (username.isEmpty() || password.isEmpty()) {
+            JOptionPane.showMessageDialog(frame, "아이디와 비밀번호를 모두 입력해주세요.", "로그인 실패", JOptionPane.ERROR_MESSAGE);
+            return false; // 로그인 차단
+        }
+
         try (Connection conn = DatabaseConfig.getConnection();
              PreparedStatement pstmt = conn.prepareStatement("SELECT * FROM user WHERE username = ? AND password = ?")) {
             pstmt.setString(1, username);

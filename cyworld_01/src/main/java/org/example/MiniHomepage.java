@@ -21,14 +21,11 @@ public class MiniHomepage {
         userIdLabel.setText("Welcome, Guest");
     }
 
-    public static void main(String[] args) {
-        MiniHomepage miniHomepage = new MiniHomepage();
-        new MiniHomepage().showMainPage();
-    }
+    public static void main(String[] args) { new MiniHomepage().showLogin(); }
 
-    // private void showLogin() {
-    //    loginPage.show();
-    //}
+    private void showLogin() {
+       loginPage.show();
+    }
 
     public void showMainPage() {
         JFrame frame = new JFrame("싸이월드");
@@ -61,7 +58,7 @@ public class MiniHomepage {
         JButton playMusicButton = new JButton("노래 재생");
         playMusicButton.addActionListener(e -> {
             // 노래 재생 버튼 클릭 시 음악을 재생하도록 수정
-            musicPlayer.playMusicFromFile("/music.mp3");
+            musicPlayer.playMusicFromFile("/music1.wav");
         });
 
         topBar.add(playMusicButton, BorderLayout.EAST); // 오른쪽에 버튼 추가
