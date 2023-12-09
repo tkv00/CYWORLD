@@ -17,7 +17,7 @@ public class LoginPage {
     private MiniHomepage miniHomepage;
 
     //백그라운드 이미지 경로
-    String imagePath="/loginbackground.jpg";
+    String imagePath="/main.png";
     URL imageUrl = getClass().getResource(imagePath);
 
     public LoginPage(SignUppage signUpPage, MiniHomepage miniHomepage) {
@@ -51,8 +51,10 @@ public class LoginPage {
         gbc.gridy = 0;
         frame.add(usernameLabel, gbc);
 
-        usernameField = new JTextField(15);
+        usernameField = new JTextField(10);
         usernameField.setOpaque(false);
+        usernameLabel.setFont(new Font("Nanum Font", Font.PLAIN, 10));
+
         gbc.gridx = 1;
         gbc.gridy = 0;
         frame.add(usernameField, gbc);
@@ -64,29 +66,45 @@ public class LoginPage {
         gbc.gridy = 1;
         frame.add(passwordLabel, gbc);
 
-        passwordField = new JPasswordField(15);
+        passwordField = new JPasswordField(10);
+        passwordLabel.setFont(new Font("Nanum Font", Font.PLAIN, 10));
+
         passwordField.setOpaque(false);
         gbc.gridx = 1;
         gbc.gridy = 1;
         frame.add(passwordField, gbc);
+        // 로그인 버튼 텍스트용 레이블
+        JLabel loginLabel = new JLabel("로그인");
+        loginLabel.setFont(new Font("Nanum Font", Font.BOLD, 13));
+        loginLabel.setForeground(Color.WHITE); // 텍스트 색상을 흰색으로 설정
+        loginLabel.setHorizontalAlignment(SwingConstants.CENTER); // 가로 정렬을 중앙으로 설정
+        loginLabel.setVerticalAlignment(SwingConstants.CENTER); // 세로 정렬을 중앙으로 설정
 
         // 로그인 버튼
-        JButton loginButton = new JButton("로그인");
-        loginButton.setOpaque(false);
-        loginButton.setContentAreaFilled(false);
-        loginButton.setBorderPainted(false);
+        JButton loginButton = new JButton();
+        loginButton.setLayout(new BorderLayout());
+        loginButton.add(loginLabel, BorderLayout.CENTER);
+        loginButton.setOpaque(true);
+        loginButton.setBackground(new Color(255, 102, 6)); // 배경 색상을 오렌지 색으로 설정
+        loginButton.setBorder(BorderFactory.createLineBorder(new Color(255, 102, 6))); // 테두리 색상을 주황색으로 설정
+
         gbc.gridx = 0;
-        gbc.gridy = 2;
+        gbc.gridy = 3;
         frame.add(loginButton, gbc);
 
         // 회원가입 버튼
         JButton signUpButton = new JButton("회원가입");
+        signUpButton.setFont(new Font("Nanum Font", Font.BOLD, 13));
+        signUpButton.setForeground(new Color(255, 102, 6)); // 텍스트 색상을 주황색으로 설정
         signUpButton.setOpaque(false);
         signUpButton.setContentAreaFilled(false);
-        signUpButton.setBorderPainted(false);
+        signUpButton.setBorderPainted(true); // 테두리를 그림
+        signUpButton.setBorder(BorderFactory.createLineBorder(new Color(255, 102, 6))); // 테두리 색상을 주황색으로 설정
+        loginButton.setPreferredSize(signUpButton.getPreferredSize()); // 회원가입 버튼의 크기를 기준으로 설정
         gbc.gridx = 1;
-        gbc.gridy = 2;
+        gbc.gridy = 3;
         frame.add(signUpButton, gbc);
+
 
 
         //로그인 로직 구현
