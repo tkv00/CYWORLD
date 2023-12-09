@@ -1,18 +1,36 @@
 package org.example;
 
 
+<<<<<<< HEAD
+=======
+import org.Friend.FriendManager;
+import org.Friend.FriendRequestDialog;
+import org.Friend.FriendSearchDialog;
+import org.Utility.ChatWindow;
+import org.Utility.UserSession;
+>>>>>>> 9507dc342094ec0ffd768183bbe33b85939f5117
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
 import java.net.URL;
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+<<<<<<< HEAD
 import javax.swing.JPanel;
 
+=======
+>>>>>>> 9507dc342094ec0ffd768183bbe33b85939f5117
 
 public class MiniHomepage {
-
+    private JButton notificationButton;
+    private FriendManager friendManager;
+    private JFrame frame;
 
 
     private Timer playTimeUpdateTimer; // 재생 시간 업데이트 타이머
@@ -57,8 +75,14 @@ public class MiniHomepage {
 
 
     public MiniHomepage() {
+        this.friendManager = new FriendManager();
         signUpPage = new SignUppage();
+<<<<<<< HEAD
         //loginPage = new LoginPage(signUpPage, this);
+=======
+        notificationButton=new JButton();
+        loginPage = new LoginPage(signUpPage, this);
+>>>>>>> 9507dc342094ec0ffd768183bbe33b85939f5117
         userIdLabel = new JLabel();
         // 재생 시간 레이블
         playTimeLabel = new JLabel("00:00");
@@ -258,7 +282,7 @@ public class MiniHomepage {
     }
     // 수평 패널을 생성하는 메서드
     public void showMainPage() {
-        JFrame frame = new JFrame("싸이월드");
+        frame = new JFrame("싸이월드");
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         frame.setSize(900, 600);
 
@@ -326,6 +350,36 @@ public class MiniHomepage {
         mainContent.setBounds(0, 0, gifPanel.getWidth(), gifPanel.getHeight());
         mainContent.setOpaque(false); // 메인 컨텐츠를 투명하게 설정
 
+        // 알림 버튼 추가
+        URL notificationIconUrl = getClass().getResource("/bell.jpg");
+        ImageIcon notificationIcon = new ImageIcon(notificationIconUrl);
+        JButton notificationButton = new JButton(notificationIcon);
+        notificationButton.setBounds(850, 5, 30, 30);
+        layeredPane.add(notificationButton, Integer.valueOf(JLayeredPane.POPUP_LAYER));
+        notificationButton.addActionListener(e -> {
+            showFriendRequestsDialog();
+            updateFriendRequestCount(); // 친구 요청 다이얼로그를 표시한 후 요청 수를 업데이트
+            gifPanel.requestFocusInWindow();
+        });
+        layeredPane.add(notificationButton, Integer.valueOf(JLayeredPane.POPUP_LAYER));
+
+        //쪽지 버튼 추가
+        URL messageUrl=getClass().getResource("/message.jpeg");
+        ImageIcon messageIcon=new ImageIcon(messageUrl);
+        JButton messageButton=new JButton(messageIcon);
+        messageButton.setBounds(800,5,30,30);
+        layeredPane.add(messageButton,Integer.valueOf(JLayeredPane.POPUP_LAYER));
+        messageButton.addActionListener(e->{
+            try {
+                showMessageListDialog();
+            } catch (SQLException ex) {
+                throw new RuntimeException(ex);
+            }
+            gifPanel.requestFocusInWindow();
+        });
+
+
+
         // 프레임에 레이어드 패인 추가 및 표시
         frame.setLayeredPane(layeredPane); // 프레임에 레이어드 판을 설정
         frame.setVisible(true);
@@ -375,6 +429,157 @@ public class MiniHomepage {
 
         // 여기에 추가적으로 작성할 부분이 있는 경우 계속해서 코드를 보완하실 수 있습니다.
     }
+    //쪽지 다이얼로그 띄우기
+    private void showMessageListDialog() throws SQLException {
+        JDialog messageListDialog = new JDialog(frame, "쪽지 목록", true);
+        messageListDialog.setLayout(new BorderLayout());
+
+        // 쪽지 목록을 가져오는 로직
+        List<Message> messages = getMessagesForUser(UserSession.getInstance().getUserId());
+
+        DefaultListModel<String> model = new DefaultListModel<>();
+        for (Message msg : messages) {
+            model.addElement(msg.getSender() + ": " + msg.getContent()); // 예시 형식
+        }
+
+        JList<String> messageList = new JList<>(model);
+        messageListDialog.add(new JScrollPane(messageList), BorderLayout.CENTER);
+        messageList.addListSelectionListener(e -> {
+            if (!e.getValueIsAdjusting() && !messageList.isSelectionEmpty()) {
+                // 선택한 메시지의 전체 내용을 보여주는 다이얼로그 생성 및 표시
+                Message selectedMsg = messages.get(messageList.getSelectedIndex());
+                showFullMessageDialog(selectedMsg);
+            }
+        });
+
+
+        JButton replyButton = new JButton("답장 보내기");
+        replyButton.addActionListener(e -> {
+            if (!messageList.isSelectionEmpty()) {
+                // 선택한 메시지의 발신자를 가져와 답장을 보냄
+                Message selectedMsg = messages.get(messageList.getSelectedIndex());
+                sendNoteToFriend(selectedMsg.getSender());
+            }
+        });
+
+        JButton newMessageButton = new JButton("새 쪽지 보내기");
+        newMessageButton.addActionListener(e -> sendNewMessage());
+
+        JPanel buttonPanel = new JPanel();
+        buttonPanel.add(replyButton);
+        buttonPanel.add(newMessageButton);
+        messageListDialog.add(buttonPanel, BorderLayout.SOUTH);
+
+        messageListDialog.setSize(400, 300);
+        messageListDialog.setLocationRelativeTo(frame);
+        messageListDialog.setVisible(true);
+    }
+    private void sendNoteToFriend(String friend) {
+        JDialog noteDialog = new JDialog(frame, "쪽지 보내기: " + friend, true);
+        noteDialog.setLayout(new BorderLayout());
+
+        JTextArea noteTextArea = new JTextArea();
+        noteDialog.add(new JScrollPane(noteTextArea), BorderLayout.CENTER);
+
+        JButton sendButton = new JButton("보내기");
+        sendButton.addActionListener(e -> {
+            String note = noteTextArea.getText();
+            // 쪽지 보내는 로직 구현
+            sendNote(friend, note);
+            noteDialog.dispose();
+        });
+        noteDialog.add(sendButton, BorderLayout.SOUTH);
+
+        noteDialog.setSize(300, 200);
+        noteDialog.setLocationRelativeTo(frame);
+        noteDialog.setVisible(true);
+    }
+
+    private void showFullMessageDialog(Message message) {
+        JDialog fullMessageDialog = new JDialog(frame, "쪽지 내용", true);
+        fullMessageDialog.setLayout(new BorderLayout());
+
+        JTextArea messageTextArea = new JTextArea();
+        messageTextArea.setText("From: " + message.getSender() + "\n\n" + message.getContent());
+        messageTextArea.setEditable(false);
+        fullMessageDialog.add(new JScrollPane(messageTextArea), BorderLayout.CENTER);
+
+        JButton closeButton = new JButton("닫기");
+        closeButton.addActionListener(e -> fullMessageDialog.dispose());
+        fullMessageDialog.add(closeButton, BorderLayout.SOUTH);
+
+        fullMessageDialog.setSize(400, 300);
+        fullMessageDialog.setLocationRelativeTo(frame);
+        fullMessageDialog.setVisible(true);
+    }
+
+
+    private List<Message> getMessagesForUser(String userId) throws SQLException {
+        List<Message> messages = new ArrayList<>();
+        try (Connection connection = DatabaseConfig.getConnection()) {
+            String sql = "SELECT sender_id, message FROM messages WHERE receiver_id = ?";
+            try (PreparedStatement statement = connection.prepareStatement(sql)) {
+                statement.setString(1, userId);
+                try (ResultSet resultSet = statement.executeQuery()) {
+                    while (resultSet.next()) {
+                        String sender = resultSet.getString("sender_id");
+                        String content = resultSet.getString("message");
+                        messages.add(new Message(sender, userId, content));
+                    }
+                }
+            }
+        }
+        return messages;
+    }
+
+    private void sendNewMessage() {
+        // 새 쪽지를 보내는 다이얼로그를 표시
+        String recipient = JOptionPane.showInputDialog(frame, "쪽지를 받을 사용자 ID:");
+        if (recipient != null && !recipient.isEmpty()) {
+            sendNoteToFriend(recipient);
+        }
+    }
+
+
+    private void updateFriendRequestCount() {
+        try {
+            // 현재 사용자 ID를 가져옵니다.
+            String currentUserId = UserSession.getInstance().getUserId();
+
+            // FriendManager를 사용하여 현재 사용자에 대한 대기중인 친구 요청 목록을 가져옵니다.
+            List<String> pendingRequests = friendManager.getPendingFriendRequests(currentUserId);
+
+            // 대기중인 요청의 수를 계산합니다.
+            int requestCount = pendingRequests.size();
+
+            // 버튼에 알림 수를 텍스트로 표시합니다.
+            if (requestCount > 0&&this.notificationButton!=null) {
+                notificationButton.setText(String.valueOf(requestCount));
+            } else {
+                notificationButton.setText(""); // 요청이 없으면 텍스트를 비웁니다.
+            }
+
+            // 버튼을 다시 그려 변경사항을 적용합니다.
+            notificationButton.repaint();
+        } catch (Exception e) {
+            e.printStackTrace();
+            // 오류 처리
+        }
+    }
+
+    private void showFriendRequestsDialog() {
+        try {
+            if (friendManager == null) {
+                throw new IllegalStateException("FriendManager is not initialized");
+            }
+            List<String> friendRequests = friendManager.getPendingFriendRequests(UserSession.getInstance().getUserId());
+            FriendRequestDialog requestsDialog = new FriendRequestDialog(frame, UserSession.getInstance().getUserId(), friendRequests);
+            requestsDialog.setVisible(true);
+        } catch (Exception e) {
+            e.printStackTrace();
+            // 오류 처리 (예: 오류 메시지 표시)
+        }
+    }
 
     private JPanel createRecentPostPanel(JPanel recentPostPanel) {
         return recentPostPanel;
@@ -417,6 +622,7 @@ public class MiniHomepage {
 
 
         // 게시판 버튼 클릭 시 수행할 동작
+<<<<<<< HEAD
         //boardButton1.addActionListener(e -> new BoardList()); // 게시판 페이지 열기
         menuBar.add(boardButton1);
         boardButton2.addActionListener(e -> new BoardList()); // 게시판 페이지 열기
@@ -427,6 +633,37 @@ public class MiniHomepage {
         menuBar.add(boardButton4);
         //boardButton5.addActionListener(e -> new BoardList()); // 게시판 페이지 열기
         menuBar.add(boardButton5);
+
+=======
+        boardButton.addActionListener(e -> new BoardList()); // 게시판 페이지 열기판
+        gifPanel.requestFocusInWindow();
+        menuBar.add(boardButton);
+>>>>>>> 9507dc342094ec0ffd768183bbe33b85939f5117
+
+        //일촌신청
+        JButton friendsButton=new JButton("일촌신청");
+        boardButton.setOpaque(false);
+
+        friendsButton.addActionListener(e -> {
+            FriendSearchDialog searchDialog = new FriendSearchDialog(frame, UserSession.getInstance().getUserId());
+            searchDialog.setVisible(true);
+        });
+        menuBar.add(friendsButton);
+
+        JButton friendListButton = new JButton("일촌 목록");
+        boardButton.setOpaque(false);
+
+        friendListButton.addActionListener(e -> {
+            try {
+                showFriendListDialog();
+                gifPanel.requestFocusInWindow();
+            } catch (Exception ex) {
+                throw new RuntimeException(ex);
+            }
+        });
+        menuBar.add(friendListButton);
+
+
 
 
         // 추가 버튼들을 여기에 추가
@@ -466,9 +703,83 @@ public class MiniHomepage {
 
         return menuBar;
     }
+    //친구리스트보여주는 메소드
+    private void showFriendListDialog() throws Exception {
+        String userId=UserSession.getInstance().getUserId();
+        JDialog friendListDialog = new JDialog(frame, "친구 목록", true);
+        friendListDialog.setLayout(new BorderLayout());
+
+        // 친구 목록을 가져오는 코드 (예시)
+        List<String> friends = friendManager.getAcceptedFriendRequests(userId); // 친구 목록을 가져오는 메소드 구현 필요
+
+        DefaultListModel<String> model = new DefaultListModel<>();
+        for (String friend : friends) {
+            model.addElement(friend);
+        }
+
+        JList<String> friendList = new JList<>(model);
+        friendListDialog.add(new JScrollPane(friendList), BorderLayout.CENTER);
+
+        // 채팅 및 쪽지 버튼을 추가하기 위한 패널
+        JPanel buttonPanel = new JPanel();
+        buttonPanel.setLayout(new FlowLayout(FlowLayout.CENTER));
+
+        // 1대1 채팅 버튼 추가
+        JButton chatButton = new JButton("1대1 채팅");
+        chatButton.addActionListener(e -> {
+            if (!friendList.isSelectionEmpty()) {
+                String selectedFriend = friendList.getSelectedValue();
+                // 1대1 채팅 로직 구현
+                try {
+                    startChatWithFriend(selectedFriend);
+                } catch (SQLException ex) {
+                    throw new RuntimeException(ex);
+                }
+            }
+        });
+        buttonPanel.add(chatButton);
+
+        // 쪽지 보내기 버튼 추가
+        JButton messageButton = new JButton("쪽지 보내기");
+        messageButton.addActionListener(e -> {
+            if (!friendList.isSelectionEmpty()) {
+                String selectedFriend = friendList.getSelectedValue();
+                // 쪽지 보내기 로직 구현
+                sendNoteToFriend(selectedFriend);
+            }
+        });
+        buttonPanel.add(messageButton);
+
+        friendListDialog.add(buttonPanel, BorderLayout.SOUTH);
+
+        friendListDialog.setSize(300, 400);
+        friendListDialog.setLocationRelativeTo(frame);
+        friendListDialog.setVisible(true);
+    }
+    //1대 1채팅 구현
+    private void startChatWithFriend(String friend) throws SQLException {
+        String currentUser = UserSession.getInstance().getUserId(); // 현재 사용자의 ID
+        ChatWindow chatWindow = new ChatWindow(friend, currentUser);
+        chatWindow.setVisible(true);
+    }
 
 
+    private void sendNote(String friend, String note) {
+        try (Connection connection = DatabaseConfig.getConnection()) {
+            String sql = "INSERT INTO messages (sender_id, receiver_id, message) VALUES (?, ?, ?)";
+            try (PreparedStatement statement = connection.prepareStatement(sql)) {
+                statement.setString(1, UserSession.getInstance().getUserId()); // 현재 사용자 ID
+                statement.setString(2, friend); // 받는 사람의 ID
+                statement.setString(3, note); // 쪽지 내용
+                statement.executeUpdate();
 
+                JOptionPane.showMessageDialog(frame, "쪽지가 성공적으로 보내졌습니다.", "알림", JOptionPane.INFORMATION_MESSAGE);
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+            JOptionPane.showMessageDialog(frame, "쪽지 보내기에 실패했습니다.", "오류", JOptionPane.ERROR_MESSAGE);
+        }
+    }
 
 
 
@@ -518,6 +829,8 @@ public class MiniHomepage {
         currentCharacterFrame = (currentCharacterFrame + 1) % 4; // 각 방향별 4개의 프레임
         gifPanel.repaint();
     }
+
+
 
 
     // ... 기타 필요한 메소드...

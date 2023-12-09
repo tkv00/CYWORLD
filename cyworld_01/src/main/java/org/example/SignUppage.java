@@ -116,6 +116,10 @@ public class SignUppage {
 
             if (affectedRows > 0) {
                 JOptionPane.showMessageDialog(frame, "회원가입에 성공했습니다.");
+                frame.dispose(); // 회원가입 창 닫기
+                // 로그인 창 보여주기
+                LoginPage loginPage = new LoginPage(new SignUppage(), new MiniHomepage());
+                loginPage.show();
             } else {
                 JOptionPane.showMessageDialog(frame, "회원가입에 실패했습니다.", "회원가입 오류", JOptionPane.ERROR_MESSAGE);
             }
