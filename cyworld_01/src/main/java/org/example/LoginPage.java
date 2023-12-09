@@ -1,9 +1,10 @@
 package org.example;
 
+import org.Friend.FriendSearchDialog;
+import org.Utility.UserSession;
+
 import javax.swing.*;
 import java.awt.*;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
 import java.net.URL;
 import java.sql.*;
 
@@ -15,6 +16,7 @@ public class LoginPage {
     private JTextField usernameField;
     private JPasswordField passwordField;
     private MiniHomepage miniHomepage;
+    private FriendSearchDialog friendSearchDialog;
 
     //백그라운드 이미지 경로
     String imagePath="/loginbackground.jpg";
@@ -127,6 +129,9 @@ public class LoginPage {
             if (rs.next()) {
                 // 로그인 성공 시 MiniHomepage에 사용자 ID 전달
                 miniHomepage.setUserId(username);
+                // UserSession에 사용자 ID 저장
+                UserSession.getInstance().setUserId(username);
+
                 return true;
             }
             return false;

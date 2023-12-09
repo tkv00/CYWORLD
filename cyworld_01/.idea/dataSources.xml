@@ -27,7 +27,27 @@
         </library>
       </libraries>
     </data-source>
-    <data-source source="LOCAL" name="@cyworld.cji1ftocbium.ap-northeast-2.rds.amazonaws.com" uuid="3e16c9ef-7998-45cd-8e14-60a0b89283cc">
+    <data-source source="LOCAL" name="cyworld@cyworld.cji1ftocbium.ap-northeast-2.rds.amazonaws.com" uuid="3e16c9ef-7998-45cd-8e14-60a0b89283cc">
+      <driver-ref>mysql.8</driver-ref>
+      <synchronize>true</synchronize>
+      <jdbc-driver>com.mysql.cj.jdbc.Driver</jdbc-driver>
+      <jdbc-url>jdbc:mysql://cyworld.cji1ftocbium.ap-northeast-2.rds.amazonaws.com:3306/cyworld</jdbc-url>
+      <working-dir>$ProjectFileDir$</working-dir>
+    </data-source>
+    <data-source source="LOCAL" name="cyworld" uuid="b49cf1a1-6c32-4af2-bbcb-9fc713acaa9c">
+      <driver-ref>mysql.8</driver-ref>
+      <synchronize>true</synchronize>
+      <jdbc-driver>com.mysql.cj.jdbc.Driver</jdbc-driver>
+      <jdbc-url>jdbc:mysql://cyworld.cji1ftocbium.ap-northeast-2.rds.amazonaws.com:3306/cyworld</jdbc-url>
+      <jdbc-additional-properties>
+        <property name="AWS.RdsSigningPort" value="3306" />
+        <property name="AWS.RegionId" value="ap-northeast-2" />
+        <property name="AWS.CredentialId" value="profile:default" />
+        <property name="AWS.RdsSigningHost" value="cyworld.cji1ftocbium.ap-northeast-2.rds.amazonaws.com" />
+      </jdbc-additional-properties>
+      <working-dir>$ProjectFileDir$</working-dir>
+    </data-source>
+    <data-source source="LOCAL" name="cyworld123" uuid="65ff3598-d523-4a54-bc15-10ed98d22f6e">
       <driver-ref>mysql.8</driver-ref>
       <synchronize>true</synchronize>
       <jdbc-driver>com.mysql.cj.jdbc.Driver</jdbc-driver>
