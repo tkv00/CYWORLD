@@ -1,14 +1,11 @@
 package org.example;
 
 
-<<<<<<< HEAD
-=======
 import org.Friend.FriendManager;
 import org.Friend.FriendRequestDialog;
 import org.Friend.FriendSearchDialog;
-import org.Utility.ChatWindow;
-import org.Utility.UserSession;
->>>>>>> 9507dc342094ec0ffd768183bbe33b85939f5117
+import org.Utility.*;
+import java.io.File;
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.KeyAdapter;
@@ -21,11 +18,9 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-<<<<<<< HEAD
+
 import javax.swing.JPanel;
 
-=======
->>>>>>> 9507dc342094ec0ffd768183bbe33b85939f5117
 
 public class MiniHomepage {
     private JButton notificationButton;
@@ -34,15 +29,15 @@ public class MiniHomepage {
 
 
     private Timer playTimeUpdateTimer; // 재생 시간 업데이트 타이머
-    String imagePath = "/main.jpg";
+    String imagePath = "/image/main.jpg";
     URL imageUrl = getClass().getResource(imagePath);
     private MusicPlayer musicPlayer; // MusicPlayer 객체 추가
     // 추가: 음악 파일 리스트
     private List<String> musicFiles = Arrays.asList(
-            "/music1.wav",
-            "/music2.wav",
-            "/music3.wav",
-            "/music4.wav"
+            "/music/music1.wav",
+            "/music/music2.wav",
+            "/music/music3.wav",
+            "/music/music4.wav"
     );
 
     private String[][] songInfo = {
@@ -77,12 +72,8 @@ public class MiniHomepage {
     public MiniHomepage() {
         this.friendManager = new FriendManager();
         signUpPage = new SignUppage();
-<<<<<<< HEAD
-        //loginPage = new LoginPage(signUpPage, this);
-=======
         notificationButton=new JButton();
         loginPage = new LoginPage(signUpPage, this);
->>>>>>> 9507dc342094ec0ffd768183bbe33b85939f5117
         userIdLabel = new JLabel();
         // 재생 시간 레이블
         playTimeLabel = new JLabel("00:00");
@@ -99,12 +90,12 @@ public class MiniHomepage {
 
     private void initializeGifAndAvatar() {
         // 움직이는 GIF 불러오기
-        gifIcon = new ImageIcon(getClass().getResource("/MainRoom.gif")); // GIF 파일 경로 수정 필요
+        gifIcon = new ImageIcon(getClass().getResource("/image/MainRoom.gif")); // GIF 파일 경로 수정 필요
 
         // 캐릭터 이미지 로드
         characterImages = new ImageIcon[16]; // 총 16개의 이미지
         for (int i = 0; i < 16; i++) {
-            characterImages[i] = new ImageIcon(getClass().getResource("/character_" + (i + 1) + ".png"));
+            characterImages[i] = new ImageIcon(getClass().getResource("/image/character_" + (i + 1) + ".png"));
         }
 
         // 아바타 초기화 추가
@@ -132,7 +123,7 @@ public class MiniHomepage {
 
 
     public static void main(String[] args) {
-        new MiniHomepage().showMainPage();
+        new MiniHomepage().showLogin();
     }
 
     private void showLogin() {
@@ -303,6 +294,21 @@ public class MiniHomepage {
 
         // 배경 패널 추가
         layeredPane.add(backgroundPanel, JLayeredPane.DEFAULT_LAYER);
+        //프로필패널메소드
+        ImageIcon profileImageIcon = new ImageIcon(getClass().getResource("/image/DefaultImage.jpg"));
+        Image profileImage = profileImageIcon.getImage();
+        ProfilePanel profilePanel = new ProfilePanel(profileImage);
+        profilePanel.setBounds(75, 135, profileImageIcon.getIconWidth(), profileImageIcon.getIconHeight());
+        layeredPane.add(profilePanel, Integer.valueOf(500));
+
+        JButton newButton = new JButton("사진변경");
+        newButton.setBounds(60, 200 + profileImageIcon.getIconHeight(), 85, 20); // 위치 설정 (가로: 100, 세로: 30)
+        layeredPane.add(newButton, Integer.valueOf(501)); // 새로운 버튼을 적절한 레이어에 추가
+        // '사진변경'에 파일 선택 기능 추가
+        newButton.addActionListener(e -> {
+            profilePanel.uploadAndResizeImage();
+        });
+
 
         // gifPanel 및 아바타 초기화 및 추가
         initializeGifAndAvatar();
@@ -351,7 +357,7 @@ public class MiniHomepage {
         mainContent.setOpaque(false); // 메인 컨텐츠를 투명하게 설정
 
         // 알림 버튼 추가
-        URL notificationIconUrl = getClass().getResource("/bell.jpg");
+        URL notificationIconUrl = getClass().getResource("/image/bell.jpg");
         ImageIcon notificationIcon = new ImageIcon(notificationIconUrl);
         JButton notificationButton = new JButton(notificationIcon);
         notificationButton.setBounds(850, 5, 30, 30);
@@ -364,7 +370,7 @@ public class MiniHomepage {
         layeredPane.add(notificationButton, Integer.valueOf(JLayeredPane.POPUP_LAYER));
 
         //쪽지 버튼 추가
-        URL messageUrl=getClass().getResource("/message.jpeg");
+        URL messageUrl=getClass().getResource("/image/message.jpeg");
         ImageIcon messageIcon=new ImageIcon(messageUrl);
         JButton messageButton=new JButton(messageIcon);
         messageButton.setBounds(800,5,30,30);
@@ -396,14 +402,6 @@ public class MiniHomepage {
 
         // 수직 여백 추가
         recentPost.add(Box.createVerticalStrut(10));
-
-        // 게시판 패널 생성 및 추가
-        JPanel boardPanel = new JPanel();
-        JLabel boardLabel = new JLabel("게시판");
-        boardLabel.setForeground(Color.WHITE); // 텍스트 색상을 하얀색으로 설정
-        boardPanel.add(boardLabel);
-        recentPost.add(boardPanel);
-        boardPanel.setOpaque(false); // 패널의 불투명성을 비활성화
 
         // 수직 여백 추가
         recentPost.add(Box.createVerticalStrut(10));
@@ -622,7 +620,6 @@ public class MiniHomepage {
 
 
         // 게시판 버튼 클릭 시 수행할 동작
-<<<<<<< HEAD
         //boardButton1.addActionListener(e -> new BoardList()); // 게시판 페이지 열기
         menuBar.add(boardButton1);
         boardButton2.addActionListener(e -> new BoardList()); // 게시판 페이지 열기
@@ -634,15 +631,14 @@ public class MiniHomepage {
         //boardButton5.addActionListener(e -> new BoardList()); // 게시판 페이지 열기
         menuBar.add(boardButton5);
 
-=======
-        boardButton.addActionListener(e -> new BoardList()); // 게시판 페이지 열기판
+
+        boardButton3.addActionListener(e -> new BoardList()); // 게시판 페이지 열기판
         gifPanel.requestFocusInWindow();
-        menuBar.add(boardButton);
->>>>>>> 9507dc342094ec0ffd768183bbe33b85939f5117
+        menuBar.add(boardButton3);
 
         //일촌신청
         JButton friendsButton=new JButton("일촌신청");
-        boardButton.setOpaque(false);
+        //boardButton.setOpaque(false);
 
         friendsButton.addActionListener(e -> {
             FriendSearchDialog searchDialog = new FriendSearchDialog(frame, UserSession.getInstance().getUserId());
@@ -651,7 +647,7 @@ public class MiniHomepage {
         menuBar.add(friendsButton);
 
         JButton friendListButton = new JButton("일촌 목록");
-        boardButton.setOpaque(false);
+        //boardButton.setOpaque(false);
 
         friendListButton.addActionListener(e -> {
             try {
@@ -850,8 +846,4 @@ public class MiniHomepage {
         }
         return baseIndex + currentCharacterFrame % 4; // 각 방향별로 4개의 이미지
     }
-
-
-    // 기타 필요한 메소드...
-
 }

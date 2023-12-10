@@ -1,6 +1,8 @@
 package org.example;
 
 import org.Friend.FriendSearchDialog;
+import org.Utility.BackgroundPanel;
+import org.Utility.DatabaseConfig;
 import org.Utility.UserSession;
 
 import javax.swing.*;
@@ -19,7 +21,7 @@ public class LoginPage {
     private FriendSearchDialog friendSearchDialog;
 
     //백그라운드 이미지 경로
-    String imagePath="/main.png";
+    String imagePath= "/image/loginpage.png";
     URL imageUrl = getClass().getResource(imagePath);
 
     public LoginPage(SignUppage signUpPage, MiniHomepage miniHomepage) {

@@ -1,5 +1,7 @@
 package org.example;
 
+import org.Utility.DatabaseConfig;
+
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
