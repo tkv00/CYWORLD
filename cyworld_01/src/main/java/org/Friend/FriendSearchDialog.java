@@ -62,6 +62,9 @@ public class FriendSearchDialog extends JDialog {
 
                     JButton addButton = new JButton("일촌 추가");
                     addButton.addActionListener(e -> sendFriendRequest(friend));
+                    addButton.setPreferredSize(new Dimension(100, 20)); // 가로 150, 세로 30 크기로 설정
+                    addButton.setMinimumSize(new Dimension(100, 20));
+                    addButton.setMaximumSize(new Dimension(100, 20));
                     userPanel.add(addButton, BorderLayout.WEST);
 
                     resultsPanel.add(userPanel);
