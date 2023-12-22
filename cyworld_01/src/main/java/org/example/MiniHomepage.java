@@ -183,8 +183,7 @@ public class MiniHomepage extends JFrame {
 
 
     public static void main(String[] args) {
-        MiniHomepage homepage = new MiniHomepage();
-        homepage.showMainPage();
+        new MiniHomepage().showLogin();
 
     }
 
