@@ -4,8 +4,8 @@ package org.example;
 import org.Friend.FriendManager;
 import org.Friend.FriendRequestDialog;
 import org.Friend.FriendSearchDialog;
-import org.Utility.ChatWindow;
-import org.Utility.UserSession;
+import org.Utility.*;
+import java.io.File;
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.KeyAdapter;
@@ -18,23 +18,36 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import javax.swing.*;
+import java.awt.*;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 
-public class MiniHomepage {
+import javax.swing.JPanel;
+import org.Friend.FriendAddListener;
+
+
+public class MiniHomepage extends JFrame {
+    private JButton friendSearchButton;
+
+
     private JButton notificationButton;
     private FriendManager friendManager;
+
+
     private JFrame frame;
 
 
     private Timer playTimeUpdateTimer; // 재생 시간 업데이트 타이머
-    String imagePath = "/cyworldmain.jpg";
+    String imagePath = "/image/main.jpg";
     URL imageUrl = getClass().getResource(imagePath);
     private MusicPlayer musicPlayer; // MusicPlayer 객체 추가
     // 추가: 음악 파일 리스트
     private List<String> musicFiles = Arrays.asList(
-            "/music1.wav",
-            "/music2.wav",
-            "/music3.wav",
-            "/music4.wav"
+            "/music/music1.wav",
+            "/music/music2.wav",
+            "/music/music3.wav",
+            "/music/music4.wav"
     );
 
     private String[][] songInfo = {
@@ -64,8 +77,9 @@ public class MiniHomepage {
 
     private JLabel playTimeLabel; // 재생 시간을 표시할 레이블
     private JSlider musicSlider; // 뮤직 바
+    private JButton addFriendButton;
 
-
+    private JPanel friendsPanel;
     public MiniHomepage() {
         this.friendManager = new FriendManager();
         signUpPage = new SignUppage();
@@ -82,17 +96,66 @@ public class MiniHomepage {
         initializeGifAndAvatar();
 
         initializePlayTimeUpdater();
+
+
+
+
+
+
+
+        // 일촌을 표시할 패널 생성
+        friendsPanel = new JPanel();
+        friendsPanel.setLayout(new BoxLayout(friendsPanel, BoxLayout.Y_AXIS));
+
+        // JScrollPane로 감싸서 스크롤 기능 추가
+        JScrollPane friendsScrollPane = new JScrollPane(friendsPanel);
+        friendsScrollPane.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_ALWAYS);
+
+
     }
 
+    private void openFriendSearchDialog() {
+        // '일촌 검색' 버튼 클릭 시 수행할 동작
+        FriendSearchDialog friendSearchDialog = new FriendSearchDialog(this, UserSession.getInstance().getUserId());
+        friendSearchDialog.setFriendAddListener(new FriendAddListener() {
+
+            public void onFriendAdded(String friendName) {
+                addFriendButton(friendName);
+            }
+        });
+        friendSearchDialog.setVisible(true);
+        JOptionPane.showMessageDialog(null, "Friend Search Dialog will open here.");
+
+    }
+
+    private void addFriendButton(String friendName) {
+        // 선택한 일촌을 표시할 버튼 생성
+        JButton friendButton = new JButton("일촌: " + friendName);
+        friendButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                // 일촌 버튼 클릭 시 수행할 동작
+                // 예: 해당 일촌의 프로필을 표시하거나 다른 동작 수행
+                JOptionPane.showMessageDialog(MiniHomepage.this, "일촌 버튼 클릭: " + friendName);
+            }
+        });
+
+        // 일촌을 표시하는 패널에 버튼 추가
+        friendsPanel.add(friendButton);
+
+        // 패널을 다시 그리고 레이아웃을 업데이트
+        friendsPanel.revalidate();
+        friendsPanel.repaint();
+    }
 
     private void initializeGifAndAvatar() {
         // 움직이는 GIF 불러오기
-        gifIcon = new ImageIcon(getClass().getResource("/MainRoom.gif")); // GIF 파일 경로 수정 필요
+        gifIcon = new ImageIcon(getClass().getResource("/image/MainRoom.gif")); // GIF 파일 경로 수정 필요
 
         // 캐릭터 이미지 로드
         characterImages = new ImageIcon[16]; // 총 16개의 이미지
         for (int i = 0; i < 16; i++) {
-            characterImages[i] = new ImageIcon(getClass().getResource("/character_" + (i + 1) + ".png"));
+            characterImages[i] = new ImageIcon(getClass().getResource("/image/character_" + (i + 1) + ".png"));
         }
 
         // 아바타 초기화 추가
@@ -120,10 +183,15 @@ public class MiniHomepage {
 
 
     public static void main(String[] args) {
-        new MiniHomepage().showLogin();
+        MiniHomepage homepage = new MiniHomepage();
+        homepage.showMainPage();
+
     }
 
-    private void showLogin() {
+    private void showLogin(){loginPage.show();}
+
+
+    private void showMiniHomepage() {
         loginPage.show();
     }
 
@@ -150,6 +218,8 @@ public class MiniHomepage {
             }
         }
     }
+    // 최근 게시물 패널을 생성하는 메서드
+
 
     private JPanel createTopBar() {
         // 음악 컨트롤 패널 설정
@@ -249,6 +319,7 @@ public class MiniHomepage {
 
 
     }
+
     private JButton createTransparentButton(String text) {
         JButton button = new JButton(text);
 
@@ -265,25 +336,22 @@ public class MiniHomepage {
 
         return button;
     }
-
+    // 수평 패널을 생성하는 메서드
     public void showMainPage() {
         frame = new JFrame("싸이월드");
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        frame.setSize(888, 598);
+        frame.setSize(900, 600);
 
         // 이미지 로드 부분
         ImageIcon imageIcon = new ImageIcon(imageUrl);
         if (imageIcon.getIconWidth() == -1) {
-            System.err.println("Failed to load image: " + imagePath);
-            return;
+            System.err.println("이미지 로딩 실패: " + imagePath);
+            return; // return 문이 없을 경우 에러가 나므로, 일단 null을 반환하도록 변경
         }
         Image backgroundImage = imageIcon.getImage();
         BackgroundPanel backgroundPanel = new BackgroundPanel(backgroundImage);
         backgroundPanel.setBounds(0, 0, 888, 598);
-
         backgroundPanel.setOpaque(false); // 배경 이미지 패널 투명도 설정
-
-
 
         // JLayeredPane 생성 및 설정
         JLayeredPane layeredPane = new JLayeredPane();
@@ -292,6 +360,51 @@ public class MiniHomepage {
         // 배경 패널 추가
         layeredPane.add(backgroundPanel, JLayeredPane.DEFAULT_LAYER);
 
+        //프로필패널메소드
+        ImageIcon profileImageIcon = new ImageIcon(getClass().getResource("/image/DefaultImage.jpg"));
+        Image profileImage = profileImageIcon.getImage();
+        ProfilePanel profilePanel = new ProfilePanel(profileImage);
+        profilePanel.setBounds(75, 135, profileImageIcon.getIconWidth(), profileImageIcon.getIconHeight());
+        layeredPane.add(profilePanel, Integer.valueOf(500));
+
+        JButton newButton = new JButton("사진변경");
+        newButton.setBounds(95, 120 + profileImageIcon.getIconHeight(), 100, 20); // 위치 설정 (가로: 100, 세로: 30)
+        layeredPane.add(newButton, Integer.valueOf(501)); // 새로운 버튼을 적절한 레이어에 추가
+
+
+
+        JButton newButton2 = new JButton("일촌신청");
+        newButton2.setBounds(95, 240 + profileImageIcon.getIconHeight(), 100, 20); // 위치 설정 (가로: 100, 세로: 30)
+        layeredPane.add(newButton2, Integer.valueOf(501)); // 새로운 버튼을 적절한 레이어에 추가
+
+        JButton newButton3 = new JButton("일촌목록");
+        newButton3.setBounds(95, 270  + profileImageIcon.getIconHeight(), 100, 20); // 위치 설정 (가로: 100, 세로: 30)
+        layeredPane.add(newButton3, Integer.valueOf(501)); // 새로운 버튼을 적절한 레이어에 추가
+
+
+        JButton rightButton1 = new JButton("사진첩");
+        rightButton1.setBounds(520, 120, 100, 20);
+        layeredPane.add(rightButton1, Integer.valueOf(501)); // 새로운 버튼을 적절한 레이어에 추가
+        rightButton1.setOpaque(true);  // 배경색을 투명으로 설정
+        rightButton1.setContentAreaFilled(false);  // 내용 영역을 투명으로 설정
+        rightButton1.setBorderPainted(false);  // 테두리를 숨김
+
+        JButton rightButton2 = new JButton("방명록");
+        rightButton2.setBounds(520, 155, 100, 20);
+        layeredPane.add(rightButton2, Integer.valueOf(501)); // 새로운 버튼을 적절한 레이어에 추가
+        rightButton2.setOpaque(true);  // 배경색을 투명으로 설정
+        rightButton2.setContentAreaFilled(false);  // 내용 영역을 투명으로 설정
+
+        rightButton2.setBorderPainted(false);  // 테두리를 숨김
+
+
+
+        // '사진변경'에 파일 선택 기능 추가
+        newButton.addActionListener(e -> {
+            profilePanel.uploadAndResizeImage();
+        });
+
+
         // gifPanel 및 아바타 초기화 및 추가
         initializeGifAndAvatar();
         gifPanel.setBounds(350, 250, gifIcon.getIconWidth(), gifIcon.getIconHeight());
@@ -299,18 +412,38 @@ public class MiniHomepage {
 
         // 상단 바 패널을 생성합니다.
         JPanel topBar = createTopBar();
-        //topBar.setOpaque(false); // 상단 바 패널 투명도 설정
+        topBar.setOpaque(false); // 상단 바 패널 투명도 설정
         // 상단 바를 레이어드 패널에 추가
         layeredPane.add(topBar, Integer.valueOf(JLayeredPane.PALETTE_LAYER));
         topBar.setBounds(0, 0, 888, 30); // 위치와 크기를 지정합니다.
 
-        // 상단 바를 배경 이미지 패널에 추가합니다.
-// 메뉴 바 패널을 생성합니다.
+        // 메뉴 바 패널을 생성합니다.
         JPanel menuBar = createMenuBar();
         menuBar.setOpaque(false);
-        menuBar.setBounds(0, 30, 100, 568);
+        menuBar.setBounds(700, 75, 200, 190);
         layeredPane.add(menuBar, JLayeredPane.MODAL_LAYER); // 메뉴 바를 적절한 레이어에 추가
 
+        // 최근 게시물 패널 초기화
+        JPanel recentPostPanel = new JPanel();
+        recentPostPanel.setBounds(255, 86, 150, 150);
+        recentPostPanel.setOpaque(false); // 패널의 불투명성을 비활성화
+
+        // 최근 게시물 패널을 생성하고 추가합니다.
+        JPanel recentPost = createRecentPostPanel(recentPostPanel);
+        layeredPane.add(recentPost, JLayeredPane.MODAL_LAYER);
+
+        // 레이아웃 매니저 설정 (세로 방향으로 정렬)
+        recentPost.setLayout(new BoxLayout(recentPost, BoxLayout.Y_AXIS));
+
+        // 최근 게시물 텍스트
+        JLabel recentPostLabel = new JLabel("최근 게시물");
+        recentPostLabel.setOpaque(false); // 레이블의 배경을 투명하게 설정
+        recentPost.add(recentPostLabel);
+
+        // 수평 여백 추가
+        recentPost.add(Box.createVerticalStrut(5));
+
+        // ...
 
         // 메인 컨텐츠를 gifPanel 내부에 추가
         JPanel mainContent = createMainContent();
@@ -319,10 +452,12 @@ public class MiniHomepage {
         mainContent.setOpaque(false); // 메인 컨텐츠를 투명하게 설정
 
         // 알림 버튼 추가
-        URL notificationIconUrl = getClass().getResource("/bell.jpg");
+        URL notificationIconUrl = getClass().getResource("/image/notification.png");
         ImageIcon notificationIcon = new ImageIcon(notificationIconUrl);
         JButton notificationButton = new JButton(notificationIcon);
-        notificationButton.setBounds(850, 5, 30, 30);
+        notificationButton.setContentAreaFilled(false);  // 내용 영역을 투명으로 설정
+        notificationButton.setBorderPainted(false);  // 테두리를 숨김
+        notificationButton.setBounds(170, 100, 20, 20);
         layeredPane.add(notificationButton, Integer.valueOf(JLayeredPane.POPUP_LAYER));
         notificationButton.addActionListener(e -> {
             showFriendRequestsDialog();
@@ -332,10 +467,14 @@ public class MiniHomepage {
         layeredPane.add(notificationButton, Integer.valueOf(JLayeredPane.POPUP_LAYER));
 
         //쪽지 버튼 추가
-        URL messageUrl=getClass().getResource("/message.jpeg");
+        URL messageUrl=getClass().getResource("/image/email.png");
         ImageIcon messageIcon=new ImageIcon(messageUrl);
         JButton messageButton=new JButton(messageIcon);
-        messageButton.setBounds(800,5,30,30);
+
+        messageButton.setContentAreaFilled(false);  // 내용 영역을 투명으로 설정
+        messageButton.setBorderPainted(false);  // 테두리를 숨김
+
+        messageButton.setBounds(200,100,20,20);
         layeredPane.add(messageButton,Integer.valueOf(JLayeredPane.POPUP_LAYER));
         messageButton.addActionListener(e->{
             try {
@@ -349,11 +488,55 @@ public class MiniHomepage {
 
 
         // 프레임에 레이어드 패인 추가 및 표시
-
         frame.setLayeredPane(layeredPane); // 프레임에 레이어드 판을 설정
         frame.setVisible(true);
 
         gifPanel.requestFocusInWindow();
+
+        // 동영상 패널 생성 및 추가
+        JPanel videoPanel = new JPanel();
+        JLabel videoLabel = new JLabel("동영상");
+        videoLabel.setForeground(Color.WHITE); // 텍스트 색상을 하얀색으로 설정
+        videoPanel.add(videoLabel);
+        recentPost.add(videoPanel);
+        videoPanel.setOpaque(false); // 패널의 불투명성을 비활성화
+
+        // 수직 여백 추가
+        recentPost.add(Box.createVerticalStrut(10));
+
+// 게시판 패널 생성 및 추가
+        JPanel boardPanel = new JPanel();
+        JLabel boardLabel = new JLabel("게시판");
+        boardLabel.setForeground(Color.WHITE); // 텍스트 색상을 하얀색으로 설정
+        boardPanel.add(boardLabel);
+        recentPost.add(boardPanel);
+        boardPanel.setOpaque(false); // 패널의 불투명성을 비활성화
+
+        // 수직 여백 추가
+        recentPost.add(Box.createVerticalStrut(10));
+
+        // 갤러리 패널 생성 및 추가
+        JPanel galleryPanel = new JPanel();
+        JLabel galleryLabel = new JLabel("갤러리");
+        galleryLabel.setForeground(Color.WHITE); // 텍스트 색상을 하얀색으로 설정
+        galleryPanel.add(galleryLabel);
+        recentPost.add(galleryPanel);
+        galleryPanel.setOpaque(false); // 패널의 불투명성을 비활성화
+
+        // 수직 여백 추가
+        recentPost.add(Box.createVerticalStrut(10));
+
+        // 사진첩 패널 생성 및 추가
+        JPanel photoGalleryPanel = new JPanel();
+        JLabel photoGalleryLabel = new JLabel("사진첩");
+        photoGalleryLabel.setForeground(Color.WHITE); // 텍스트 색상을 하얀색으로 설정
+        photoGalleryPanel.add(photoGalleryLabel);
+        recentPost.add(photoGalleryPanel);
+        photoGalleryPanel.setOpaque(false); // 패널의 불투명성을 비활성화
+
+
+
+        // 여기에 추가적으로 작성할 부분이 있는 경우 계속해서 코드를 보완하실 수 있습니다.
     }
     //쪽지 다이얼로그 띄우기
     private void showMessageListDialog() throws SQLException {
@@ -507,52 +690,81 @@ public class MiniHomepage {
         }
     }
 
+    private JPanel createRecentPostPanel(JPanel recentPostPanel) {
+        return recentPostPanel;
+    }
+
+
     private JPanel createMenuBar() {
         JPanel menuBar = new JPanel();
-        menuBar.setLayout(new BoxLayout(menuBar, BoxLayout.Y_AXIS)); // 세로 방향 레이아웃 설정
+        menuBar.setLayout(new BoxLayout(menuBar, BoxLayout.Y_AXIS));
 
-        // 예시 버튼 추가
-        JButton boardButton = new JButton("게시판");
-        boardButton.setOpaque(false);
+        JButton boardButton1 = new JButton("홈화면");
+        JButton boardButton2 = new JButton("프로필");
+        JButton boardButton3 = new JButton("게시판");
+        JButton boardButton4 = new JButton("방명록");
+        JButton boardButton5 = new JButton("사진첩");
 
-        // 게시판 버튼 클릭 시 수행할 동작
-        boardButton.addActionListener(e -> new BoardList()); // 게시판 페이지 열기판
-        gifPanel.requestFocusInWindow();
-        menuBar.add(boardButton);
+        menuBar.add(Box.createHorizontalStrut(0)); // 수평 간격 추가
 
-        //일촌신청
-        JButton friendsButton=new JButton("일촌신청");
-        boardButton.setOpaque(false);
 
-        friendsButton.addActionListener(e -> {
-            FriendSearchDialog searchDialog = new FriendSearchDialog(frame, UserSession.getInstance().getUserId());
-            searchDialog.setVisible(true);
+        // 원하는 순서로 버튼을 추가로 변경
+        menuBar.add(boardButton1); // 홈화면 버튼을 마지막으로 추가
+
+        menuBar.add(boardButton3); // 게시판 버튼을 먼저 추가
+        menuBar.add(boardButton2); // 프로필 버튼을 다음으로 추가
+        menuBar.add(boardButton4); // 방명록 버튼을 다음으로 추가
+        menuBar.add(boardButton5); // 사진첩 버튼을 다음으로 추가
+
+        // 버튼에 대한 동작 설정
+
+        boardButton1.addActionListener(e -> {
+            // 홈화면 버튼 클릭 시 수행할 동작 추가
         });
-        menuBar.add(friendsButton);
 
-        JButton friendListButton = new JButton("일촌 목록");
-        boardButton.setOpaque(false);
-
-        friendListButton.addActionListener(e -> {
-            try {
-                showFriendListDialog();
-                gifPanel.requestFocusInWindow();
-            } catch (Exception ex) {
-                throw new RuntimeException(ex);
-            }
+        boardButton2.addActionListener(e -> {
+            // 프로필 버튼 클릭 시 수행할 동작 추가
         });
-        menuBar.add(friendListButton);
 
+        boardButton3.addActionListener(e -> new BoardList());
+        // 게시판 버튼 클릭 시 수행할 동작 추가
 
+        boardButton4.addActionListener(e -> {
+            // 방명록 버튼 클릭 시 수행할 동작 추가
+        });
 
+        boardButton5.addActionListener(e -> {
+            // 사진첩 버튼 클릭 시 수행할 동작 추가
+        });
 
-        // 추가 버튼들을 여기에 추가
-        // 예: JButton otherButton = new JButton("다른 메뉴");
-        // menuBar.add(otherButton);
+        // 다른 버튼에 대한 동작 설정
+
+        // 버튼 크기 설정
+        Dimension buttonSize = new Dimension(10, 50);
+        for (JButton button : Arrays.asList(boardButton1, boardButton2, boardButton3, boardButton4, boardButton5)) {
+            button.setPreferredSize(buttonSize);
+            button.setHorizontalAlignment(SwingConstants.CENTER);
+            button.setAlignmentX(Component.RIGHT_ALIGNMENT);
+            button.setOpaque(false);
+            button.setContentAreaFilled(false);
+            button.setBorderPainted(false);
+            button.setForeground(Color.WHITE);
+        }
+
+        // 패널 속성 설정
+        menuBar.setOpaque(false);
+
+        // 버튼 사이 간격 설정
+        int HorizontalStrutHeight = 11;
+        menuBar.add(Box.createHorizontalStrut(HorizontalStrutHeight));
+        menuBar.add(Box.createHorizontalStrut(HorizontalStrutHeight));
+        menuBar.add(Box.createHorizontalStrut(HorizontalStrutHeight));
+        menuBar.add(Box.createHorizontalStrut(HorizontalStrutHeight));
+        menuBar.add(Box.createHorizontalStrut(HorizontalStrutHeight));
 
         return menuBar;
-
     }
+
     //친구리스트보여주는 메소드
     private void showFriendListDialog() throws Exception {
         String userId=UserSession.getInstance().getUserId();
@@ -631,6 +843,9 @@ public class MiniHomepage {
         }
     }
 
+
+
+
     private JPanel createMainContent() {
         JPanel mainContent = new JPanel(new BorderLayout());
 
@@ -697,7 +912,5 @@ public class MiniHomepage {
         }
         return baseIndex + currentCharacterFrame % 4; // 각 방향별로 4개의 이미지
     }
-
-
-    // 기타 필요한 메소드...
 }
+

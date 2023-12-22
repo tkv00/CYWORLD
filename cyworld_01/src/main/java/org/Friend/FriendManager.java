@@ -1,6 +1,6 @@
 package org.Friend;
 
-import org.example.DatabaseConfig;
+import org.Utility.DatabaseConfig;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;

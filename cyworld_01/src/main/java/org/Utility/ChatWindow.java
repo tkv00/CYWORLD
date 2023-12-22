@@ -1,5 +1,4 @@
 package org.Utility;
-import org.example.DatabaseConfig;
 
 import javax.swing.*;
 import java.awt.*;
