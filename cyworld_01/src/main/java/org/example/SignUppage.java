@@ -18,6 +18,7 @@ public class SignUppage {
     private JTextField phoneField;
     private JTextField nameField;
     private JTextField emailField;
+    private LoginPage loginPage;
 
     public SignUppage() {
         initializeUI();
@@ -45,7 +46,7 @@ public class SignUppage {
         // 취소 버튼
         JButton cancelButton = createStyledButton("취소", 15);// 텍스트 색을 검은색으로 설정
         cancelButton.setForeground(Color.BLACK);
-        cancelButton.addActionListener(e -> frame.dispose());
+        cancelButton.addActionListener(e ->loginPage.show() );
         frame.add(cancelButton);
     }
 
