@@ -93,7 +93,7 @@ public class WriteBoard {
         // 입력 검증
         if (title.isEmpty() || content.isEmpty()) {
             JOptionPane.showMessageDialog(frame, "제목과 내용을 모두 입력해주세요.", "오류", JOptionPane.ERROR_MESSAGE);
-            return;
+
         }
 
         // 데이터베이스 연결 및 쿼리 실행

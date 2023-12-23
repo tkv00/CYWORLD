@@ -1,4 +1,4 @@
-package org.Utility;
+package org.example.Panel;
 
 import javax.sound.sampled.*;
 import javax.swing.*;

@@ -1,4 +1,4 @@
-package org.example;
+package org.example.Panel;
 
 import org.Utility.BackgroundPanel;
 
@@ -39,7 +39,7 @@ public class ProfilePanel extends BackgroundPanel {
         repaint(); // 변경된 이미지를 다시 그리도록 repaint() 호출
     }
     // DefaultImage의 크기에 맞춰 이미지 크기 조정
-    private Image scaleImageToDefaultSize(Image img) {
+    public Image scaleImageToDefaultSize(Image img) {
         if (img == null) {
             return null;
         }
