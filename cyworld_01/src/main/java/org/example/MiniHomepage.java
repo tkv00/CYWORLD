@@ -3,7 +3,11 @@ import org.Friend.*;
 import org.Utility.*;
 import javax.swing.*;
 import java.awt.*;
+import java.io.File;
+import java.io.IOException;
 import java.net.URL;
+import java.nio.file.Files;
+import java.text.SimpleDateFormat;
 import java.util.Arrays;
 import java.util.List;
 import javax.swing.JPanel;
@@ -12,20 +16,17 @@ import org.example.Panel.MusicPlayerPanel;
 import org.example.Panel.ProfilePanel;
 public class MiniHomepage extends JFrame {
     private JButton notificationButton;
-    private JButton homeScreenButton, boardButton, profileButton, guestbookButton, photoAlbumButton;
-    private JPanel fixedTopPanel, fixedBottomPanel, cards;
-    private CardLayout cardLayout;
     private FriendManager friendManager;
     private JFrame frame;
     String imagePath = "/image/main.jpg";
+    private  int DEFAULT_WIDTH = 143;
+    private int DEFAULT_HEIGHT = 190;
     URL imageUrl = getClass().getResource(imagePath);
     private LoginPage loginPage;
     private SignUppage signUpPage;
-    private JLabel userIdLabel; // 사용자 ID를 표시할 레이블
-
-    private JButton addFriendButton;
     private FriendListManager friendListManager; // 친구 목록 관리자 추가
     private JPanel friendsPanel;
+    private ProfilePanel profilePanel;
     public MiniHomepage() {
         // 기본 프레임 설정
         this.friendManager = new FriendManager();
@@ -35,7 +36,6 @@ public class MiniHomepage extends JFrame {
         this.friendsPanel = new JPanel();
         this.friendsPanel.setLayout(new BoxLayout(this.friendsPanel, BoxLayout.Y_AXIS));
         loginPage = new LoginPage(signUpPage, this);
-        userIdLabel = new JLabel();
         this.friendListManager = new FriendListManager(this, friendManager, friendsPanel, notificationButton);
         // JScrollPane로 감싸서 스크롤 기능 추가
         JScrollPane friendsScrollPane = new JScrollPane(friendsPanel);
@@ -43,23 +43,16 @@ public class MiniHomepage extends JFrame {
         // 창을 화면에 표시
         setLocationRelativeTo(null); // 창을 화면 중앙에 배치
         setVisible(true);
+        Image defaultImage = new ImageIcon(getClass().getResource("/image/DefaultImage.jpg")).getImage();
+        // profilePanel 생성 및 추가
+        profilePanel = new ProfilePanel(defaultImage);
+        profilePanel.setBounds(75, 135, DEFAULT_WIDTH, DEFAULT_HEIGHT); // 위치 및 크기 설정
+        friendsScrollPane.add(profilePanel, Integer.valueOf(500)); // 적절한 레이
 
     }
-    //첫 메인 홈페이지 ui/ux띄우기
-    private void openDefaultPage()
-    {
-
-    }
-    //캐릭터 배경 나머지 버튼들
-    private void MainButtonAndCharacter()
-    {
-
-    }
-
     public static void main(String[] args) {
         new MiniHomepage().showLogin();
     }
-
     private void showLogin(){loginPage.show();}
     // 수평 패널을 생성하는 메서드
     public void showMainPage() {
@@ -100,16 +93,88 @@ public class MiniHomepage extends JFrame {
         JButton newButton = new JButton("사진변경");
         newButton.setBounds(95, 120 + profileImageIcon.getIconHeight(), 100, 20); // 위치 설정 (가로: 100, 세로: 30)
         layeredPane.add(newButton, Integer.valueOf(501)); // 새로운 버튼을 적절한 레이어에 추가
+        ProfilePanel finalProfilePanel = profilePanel;
+        newButton.addActionListener(e->{
+            // 파일 선택 다이얼로그 열기
+            JFileChooser fileChooser = new JFileChooser();
+            int returnValue = fileChooser.showOpenDialog(null);
 
+            if (returnValue == JFileChooser.APPROVE_OPTION) {
+                try {
+                    // 선택된 이미지 파일을 읽어 byte 배열로 변환
+                    File selectedFile = fileChooser.getSelectedFile();
+                    UserSession userSession = UserSession.getInstance();
+                    byte[] imageData = Files.readAllBytes(selectedFile.toPath());
+                    // 이미지 파일 이름 설정
+                    String fileName = selectedFile.getName();
+                    // 데이터베이스에 이미지 정보 저장
+                    String userId = userSession.getUserId();
+                    SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+                    String uploadTime = sdf.format(new java.util.Date());
+
+                    // 이미지 정보를 ImageDetails 객체에 저장
+                    ImageDetails imageDetails = new ImageDetails(imageData, fileName, uploadTime, userId);
+
+                    ProfileImageUpload imageUpload = new ProfileImageUpload();
+                    imageUpload.uploadProfileImage(selectedFile,imageDetails);
+
+                    // 프로필 이미지 변경
+                    ImageIcon changedImageIcon = new ImageIcon(imageData);
+                    Image changedImage = changedImageIcon.getImage();
+                    // 이미지 크기 조정
+                    Image resizedImage = finalProfilePanel.scaleImageToDefaultSize(changedImage);
+                    finalProfilePanel.changeProfileImage(resizedImage); // 새로운 이미지로 변경
+                } catch (IOException ex) {
+                    ex.printStackTrace();
+                    // 오류 처리 로직 추가
+                }
+            }
+        });
+        // 이미지 변경 여부 확인
+        String userId = ""; // 사용자 아이디를 저장할 변수
+        UserSession userSession = UserSession.getInstance();
+        if (userSession.isLoggedIn()) {
+            userId = userSession.getUserId();
+        }
+        ProfileImageUpload imageUpload = new ProfileImageUpload();
+        boolean isImageChanged = imageUpload.isImageChanged(userId);
+
+        if (isImageChanged) {
+            // 이미지가 변경된 경우
+            // 데이터베이스에서 이미지 불러오기
+            byte[] profileImageData = imageUpload.getLatestProfileImage(userId);
+            if (profileImageData != null) {
+                // 이미지를 ImageIcon으로 변환하고 프로필 패널에 적용
+                ImageIcon changedImageIcon = new ImageIcon(profileImageData);
+                Image changedImage = changedImageIcon.getImage();
+                // 이미지 크기 조정
+                Image resizedImage =profilePanel.scaleImageToDefaultSize(changedImage);
+                profilePanel = new ProfilePanel(resizedImage);
+                profilePanel.setBounds(75, 135, DEFAULT_WIDTH, DEFAULT_HEIGHT);
+                layeredPane.add(profilePanel, Integer.valueOf(500));
+                profileImageIcon = changedImageIcon;
+            }
+        }
+        else {
+            // 이미지가 변경되지 않은 경우
+            // 기본 이미지 로드
+            profileImageIcon = new ImageIcon((getClass().getResource("/image/DefaultImage.jpg")));
+            Image defaultImage = profileImageIcon.getImage();
+            // 이미지 크기 조정
+            Image resizedImage = profilePanel.scaleImageToDefaultSize(defaultImage);
+            profilePanel = new ProfilePanel(resizedImage);
+            profilePanel.setBounds(75, 135, DEFAULT_WIDTH, DEFAULT_HEIGHT);
+            layeredPane.add(profilePanel, Integer.valueOf(500));
+        }
 
 
         JButton newButton2 = new JButton("일촌신청");
-        newButton2.setBounds(95, 240 + profileImageIcon.getIconHeight(), 100, 20); // 위치 설정 (가로: 100, 세로: 30)
+        newButton2.setBounds(95, 450, 100, 20); // 위치 설정 (가로: 100, 세로: 30)
         layeredPane.add(newButton2, Integer.valueOf(501)); // 새로운 버튼을 적절한 레이어에 추가
         newButton2.addActionListener(e->friendListManager.openFriendSearchDialog());
 
         JButton newButton3 = new JButton("일촌목록");
-        newButton3.setBounds(95, 270  + profileImageIcon.getIconHeight(), 100, 20); // 위치 설정 (가로: 100, 세로: 30)
+        newButton3.setBounds(95, 470  , 100, 20); // 위치 설정 (가로: 100, 세로: 30)
         layeredPane.add(newButton3, Integer.valueOf(501)); // 새로운 버튼을 적절한 레이어에 추가
         newButton3.addActionListener(e-> {
             try {
@@ -134,10 +199,7 @@ public class MiniHomepage extends JFrame {
         rightButton2.setContentAreaFilled(false);  // 내용 영역을 투명으로 설정
 
         rightButton2.setBorderPainted(false);  // 테두리를 숨김
-        // '사진변경'에 파일 선택 기능 추가
-        newButton.addActionListener(e -> {
-            profilePanel.uploadAndResizeImage();
-        });
+
         // gifPanel 및 아바타 초기화 및 추가
         GifPanel gifPanel = new GifPanel(); // GifPanel 인스턴스 생성
         gifPanel.setBounds(380, 250, gifPanel.getPreferredSize().width, gifPanel.getPreferredSize().height);
@@ -211,6 +273,7 @@ public class MiniHomepage extends JFrame {
         messageButton.setBounds(200,100,20,20);
         layeredPane.add(messageButton,Integer.valueOf(JLayeredPane.POPUP_LAYER));
 
+
         // 프레임에 레이어드 패인 추가 및 표시
         frame.setLayeredPane(layeredPane); // 프레임에 레이어드 판을 설정
         frame.setVisible(true);
@@ -259,12 +322,9 @@ public class MiniHomepage extends JFrame {
         photoGalleryPanel.setOpaque(false); // 패널의 불투명성을 비활성화
 
     }
-
-
     private JPanel createRecentPostPanel(JPanel recentPostPanel) {
         return recentPostPanel;
     }
-
 
     private JPanel createMenuBar() {
         JPanel menuBar = new JPanel();
@@ -327,7 +387,6 @@ public class MiniHomepage extends JFrame {
 
         return menuBar;
     }
-
     private JPanel createMainContent() {
         JPanel mainContent = new JPanel(new BorderLayout());
 
@@ -335,9 +394,4 @@ public class MiniHomepage extends JFrame {
         mainContent.setOpaque(false); // 메인 컨텐츠 투명하게 설정
         return mainContent;
     }
-    // ... 기타 필요한 메소드...
-    public void setUserId(String username) {
-        userIdLabel.setText("Welcome, " + username);
-    }
 }
-

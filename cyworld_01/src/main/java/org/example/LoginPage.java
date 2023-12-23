@@ -116,7 +116,6 @@ public class LoginPage {
             String username = usernameField.getText();
             String password = new String(passwordField.getPassword());
             if (authenticate(username, password)) {
-                miniHomepage.setUserId(username);
                 miniHomepage.showMainPage(); // 메인 페이지 표시
                 frame.setVisible(false); // 로그인 창 숨김
             } else {
@@ -147,8 +146,7 @@ public class LoginPage {
             pstmt.setString(2, password); // 실제 애플리케이션에서는 비밀번호를 해시하여 비교해야 함
             ResultSet rs = pstmt.executeQuery();
             if (rs.next()) {
-                // 로그인 성공 시 MiniHomepage에 사용자 ID 전달
-                miniHomepage.setUserId(username);
+
                 // UserSession에 사용자 ID 저장
                 UserSession.getInstance().setUserId(username);
 
