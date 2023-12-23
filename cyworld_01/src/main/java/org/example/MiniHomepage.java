@@ -1,6 +1,17 @@
 package org.example;
-import org.Friend.*;
-import org.Utility.*;
+
+import org.Friend.FriendListManager;
+import org.Friend.FriendManager;
+import org.Friend.FriendRequestDialog;
+import org.Utility.BackgroundPanel;
+import org.Utility.ImageDetails;
+import org.Utility.ProfileImageUpload;
+import org.Utility.UserSession;
+import org.Utility.WriteBoardManager;
+import org.example.Panel.GifPanel;
+import org.example.Panel.MusicPlayerPanel;
+import org.example.Panel.ProfilePanel;
+
 import javax.swing.*;
 import java.awt.*;
 import java.io.File;
@@ -10,10 +21,6 @@ import java.nio.file.Files;
 import java.text.SimpleDateFormat;
 import java.util.Arrays;
 import java.util.List;
-import javax.swing.JPanel;
-import org.example.Panel.GifPanel;
-import org.example.Panel.MusicPlayerPanel;
-import org.example.Panel.ProfilePanel;
 public class MiniHomepage extends JFrame {
     private JButton notificationButton;
     private FriendManager friendManager;
@@ -296,6 +303,13 @@ public class MiniHomepage extends JFrame {
         JLabel boardLabel = new JLabel("게시판");
         boardLabel.setForeground(Color.WHITE); // 텍스트 색상을 하얀색으로 설정
         boardPanel.add(boardLabel);
+        // 최근 게시물 제목 가져오기
+        WriteBoardManager writeBoardManager = new WriteBoardManager();
+        String latestPostTitle = writeBoardManager.getLatestPostTitle();
+        // 최근 게시물 레이블 생성 및 설정
+        JLabel recentPostTitleLabel = new JLabel("최근 게시물: " + latestPostTitle);
+        recentPostTitleLabel.setForeground(Color.WHITE); // 텍스트 색상 설정
+        boardPanel.add(recentPostTitleLabel); // 최근 게시물 레이블을 게시판 패널에 추가
         recentPost.add(boardPanel);
         boardPanel.setOpaque(false); // 패널의 불투명성을 비활성화
 

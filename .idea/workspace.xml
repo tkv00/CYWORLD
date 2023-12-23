@@ -5,24 +5,19 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="8ad32b2f-77a1-48af-b65e-dc605abe6719" name="변경" comment="변경">
-      <change afterPath="$PROJECT_DIR$/cyworld_01/src/main/java/org/Friend/FriendAddListener.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/cyworld_01/src/main/resources/image/email.png" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/.idea/dataSources.local.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/.idea/dataSources.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/.idea/dataSources/51f66bf6-cc5b-4bfc-9078-23a7dcfe1fa5.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/.idea/dataSources/51f66bf6-cc5b-4bfc-9078-23a7dcfe1fa5/storage_v2/_src_/schema/cyworld.3GhESg.meta" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/.idea/dataSources/51f66bf6-cc5b-4bfc-9078-23a7dcfe1fa5/storage_v2/_src_/schema/information_schema.FNRwLQ.meta" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/.idea/dataSources/51f66bf6-cc5b-4bfc-9078-23a7dcfe1fa5/storage_v2/_src_/schema/mysql.osA4Bg.meta" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/.idea/dataSources/51f66bf6-cc5b-4bfc-9078-23a7dcfe1fa5/storage_v2/_src_/schema/performance_schema.kIw0nw.meta" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/.idea/dataSources/51f66bf6-cc5b-4bfc-9078-23a7dcfe1fa5/storage_v2/_src_/schema/sys.zb4BAA.meta" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/.idea/shelf/2023-12-23__9_03__________.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/.idea/shelf/2023-12-23_오후_9_03,_업데이트_전에_커밋되지_않은_변경_내용_[변경]/shelved.patch" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/cyworld_01/src/main/java/org/Utility/WriteBoardManager.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/gradle.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/gradle.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/misc.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/misc.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/shelf/2023-12-03__10_42__________.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/shelf/2023-12-03__10_42__________.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/shelf/2023-12-03__10_42__________1.xml" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/shelf/2023-12-03_오전_10_42,_업데이트_전에_커밋되지_않은_변경_내용_[변경]1/BoardList.class" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/shelf/2023-12-03_오전_10_42,_업데이트_전에_커밋되지_않은_변경_내용_[변경]1/MiniHomepage$1.class" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/shelf/2023-12-03_오전_10_42,_업데이트_전에_커밋되지_않은_변경_내용_[변경]1/MiniHomepage.class" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/shelf/2023-12-03_오전_10_42,_업데이트_전에_커밋되지_않은_변경_내용_[변경]1/buildOutputCleanup.lock" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/shelf/2023-12-03_오전_10_42,_업데이트_전에_커밋되지_않은_변경_내용_[변경]1/executionHistory.bin" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/shelf/2023-12-03_오전_10_42,_업데이트_전에_커밋되지_않은_변경_내용_[변경]1/executionHistory.lock" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/shelf/2023-12-03_오전_10_42,_업데이트_전에_커밋되지_않은_변경_내용_[변경]1/file-system.probe" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/shelf/2023-12-03_오전_10_42,_업데이트_전에_커밋되지_않은_변경_내용_[변경]1/fileHashes.bin" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/shelf/2023-12-03_오전_10_42,_업데이트_전에_커밋되지_않은_변경_내용_[변경]1/fileHashes.lock" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/shelf/2023-12-03_오전_10_42,_업데이트_전에_커밋되지_않은_변경_내용_[변경]1/previous-compilation-data.bin" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/shelf/2023-12-03_오전_10_42,_업데이트_전에_커밋되지_않은_변경_내용_[변경]1/resourceHashesCache.bin" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/shelf/2023-12-03_오전_10_42,_업데이트_전에_커밋되지_않은_변경_내용_[변경]1/shelved.patch" beforeDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/cyworld_01/.gradle/8.2/executionHistory/executionHistory.bin" beforeDir="false" afterPath="$PROJECT_DIR$/cyworld_01/.gradle/8.2/executionHistory/executionHistory.bin" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/cyworld_01/.gradle/8.2/executionHistory/executionHistory.lock" beforeDir="false" afterPath="$PROJECT_DIR$/cyworld_01/.gradle/8.2/executionHistory/executionHistory.lock" afterDir="false" />
@@ -32,17 +27,22 @@
       <change beforePath="$PROJECT_DIR$/cyworld_01/.gradle/buildOutputCleanup/outputFiles.bin" beforeDir="false" afterPath="$PROJECT_DIR$/cyworld_01/.gradle/buildOutputCleanup/outputFiles.bin" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/cyworld_01/.gradle/file-system.probe" beforeDir="false" afterPath="$PROJECT_DIR$/cyworld_01/.gradle/file-system.probe" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/cyworld_01/build/classes/java/main/org/example/BoardList.class" beforeDir="false" afterPath="$PROJECT_DIR$/cyworld_01/build/classes/java/main/org/example/BoardList.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/cyworld_01/src/main/java/org/Friend/FriendSearchDialog.java" beforeDir="false" afterPath="$PROJECT_DIR$/cyworld_01/src/main/java/org/Friend/FriendSearchDialog.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/cyworld_01/src/main/java/org/Utility/DatabaseConfig.java" beforeDir="false" afterPath="$PROJECT_DIR$/cyworld_01/src/main/java/org/Utility/DatabaseConfig.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/cyworld_01/src/main/java/org/example/MiniHomepage.java" beforeDir="false" afterPath="$PROJECT_DIR$/cyworld_01/src/main/java/org/example/MiniHomepage.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/cyworld_01/src/main/java/org/example/SignUppage.java" beforeDir="false" afterPath="$PROJECT_DIR$/cyworld_01/src/main/java/org/example/SignUppage.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/cyworld_01/src/main/resources/image/notification.png" beforeDir="false" afterPath="$PROJECT_DIR$/cyworld_01/src/main/resources/image/notification.png" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/cyworld_01/src/main/java/org/example/WriteBoard.java" beforeDir="false" afterPath="$PROJECT_DIR$/cyworld_01/src/main/java/org/example/WriteBoard.java" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
     <option name="LAST_RESOLUTION" value="IGNORE" />
   </component>
+  <component name="CodeInsightWorkspaceSettings">
+    <option name="optimizeImportsOnTheFly" value="true" />
+  </component>
   <component name="ExternalProjectsData">
+    <projectState path="$PROJECT_DIR$">
+      <ProjectState />
+    </projectState>
     <projectState path="$PROJECT_DIR$/cyworld_01">
       <ProjectState />
     </projectState>
@@ -70,7 +70,13 @@
     </option>
   </component>
   <component name="Git.Settings">
+    <option name="RECENT_BRANCH_BY_REPOSITORY">
+      <map>
+        <entry key="$PROJECT_DIR$" value="main" />
+      </map>
+    </option>
     <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
+    <option name="UPDATE_TYPE" value="REBASE" />
   </component>
   <component name="GitHubPullRequestSearchHistory">{
   &quot;lastFilter&quot;: {
@@ -96,31 +102,37 @@
   &quot;associatedIndex&quot;: 6
 }</component>
   <component name="ProjectId" id="2YyY10GRkDOySsIxqStf1COmJ2L" />
+  <component name="ProjectLevelVcsManager" settingsEditedManually="true" />
   <component name="ProjectViewState">
     <option name="hideEmptyMiddlePackages" value="true" />
     <option name="showLibraryContents" value="true" />
   </component>
-  <component name="PropertiesComponent"><![CDATA[{
-  "keyToString": {
-    "RunOnceActivity.OpenProjectViewOnStart": "true",
-    "RunOnceActivity.ShowReadmeOnStart": "true",
-    "SHARE_PROJECT_CONFIGURATION_FILES": "true",
-    "WebServerToolWindowFactoryState": "false",
-    "codeWithMe.voiceChat.enabledByDefault": "false",
-    "git-widget-placeholder": "main",
-    "last_opened_file_path": "C:/Users/허준우/IdeaProjects/싸이월드/cyworld_01/src/main/resources/image",
-    "node.js.detected.package.eslint": "true",
-    "node.js.detected.package.tslint": "true",
-    "node.js.selected.package.eslint": "(autodetect)",
-    "node.js.selected.package.tslint": "(autodetect)",
-    "nodejs_package_manager_path": "npm",
-    "project.structure.last.edited": "Project",
-    "project.structure.proportion": "0.15",
-    "project.structure.side.proportion": "0.2",
-    "settings.editor.selected.configurable": "reference.idesettings.quicklists",
-    "vue.rearranger.settings.migration": "true"
+  <component name="PropertiesComponent">{
+  &quot;keyToString&quot;: {
+    &quot;RunOnceActivity.OpenProjectViewOnStart&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.ShowReadmeOnStart&quot;: &quot;true&quot;,
+    &quot;SHARE_PROJECT_CONFIGURATION_FILES&quot;: &quot;true&quot;,
+    &quot;WebServerToolWindowFactoryState&quot;: &quot;false&quot;,
+    &quot;codeWithMe.voiceChat.enabledByDefault&quot;: &quot;false&quot;,
+    &quot;git-widget-placeholder&quot;: &quot;js&quot;,
+    &quot;last_opened_file_path&quot;: &quot;C:/Users/허준우/IdeaProjects/싸이월드/cyworld_01/src/main/resources/image&quot;,
+    &quot;node.js.detected.package.eslint&quot;: &quot;true&quot;,
+    &quot;node.js.detected.package.tslint&quot;: &quot;true&quot;,
+    &quot;node.js.selected.package.eslint&quot;: &quot;(autodetect)&quot;,
+    &quot;node.js.selected.package.tslint&quot;: &quot;(autodetect)&quot;,
+    &quot;nodejs_package_manager_path&quot;: &quot;npm&quot;,
+    &quot;project.structure.last.edited&quot;: &quot;Project&quot;,
+    &quot;project.structure.proportion&quot;: &quot;0.15&quot;,
+    &quot;project.structure.side.proportion&quot;: &quot;0.2&quot;,
+    &quot;settings.editor.selected.configurable&quot;: &quot;reference.settingsdialog.project.gradle&quot;,
+    &quot;vue.rearranger.settings.migration&quot;: &quot;true&quot;
+  },
+  &quot;keyToStringList&quot;: {
+    &quot;DatabaseDriversLRU&quot;: [
+      &quot;mysql&quot;
+    ]
   }
-}]]></component>
+}</component>
   <component name="RecentsManager">
     <key name="CopyFile.RECENT_KEYS">
       <recent name="C:\Users\허준우\IdeaProjects\싸이월드\cyworld_01\src\main\resources\image" />
@@ -158,6 +170,8 @@
       <workItem from="1703156005199" duration="67000" />
       <workItem from="1703163225758" duration="736000" />
       <workItem from="1703163979497" duration="10021000" />
+      <workItem from="1703332606839" duration="1273000" />
+      <workItem from="1703341041492" duration="5509000" />
     </task>
     <task id="LOCAL-00001" summary=".">
       <option name="closed" value="true" />
@@ -249,20 +263,8 @@
     <MESSAGE value="MusicPlayer" />
     <option name="LAST_COMMIT_MESSAGE" value="MusicPlayer" />
   </component>
-  <component name="XDebuggerManager">
-    <breakpoint-manager>
-      <breakpoints>
-        <line-breakpoint enabled="true" type="java-line">
-          <url>file://$PROJECT_DIR$/cyworld_01/src/main/java/org/example/MiniHomepage.java</url>
-          <line>204</line>
-          <option name="timeStamp" value="1" />
-        </line-breakpoint>
-        <line-breakpoint enabled="true" type="java-line">
-          <url>file://$PROJECT_DIR$/cyworld_01/src/main/java/org/example/MiniHomepage.java</url>
-          <line>633</line>
-          <option name="timeStamp" value="3" />
-        </line-breakpoint>
-      </breakpoints>
-    </breakpoint-manager>
+  <component name="XSLT-Support.FileAssociations.UIState">
+    <expand />
+    <select />
   </component>
 </project>
