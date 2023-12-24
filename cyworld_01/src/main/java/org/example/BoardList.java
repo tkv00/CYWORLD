@@ -41,11 +41,6 @@ public class BoardList {
 
         boardFrame.add(topPanel, BorderLayout.NORTH); // 프레임에 패널 추가
 
-
-
-
-
-
         JPanel boardPanel = new JPanel();
         boardPanel.setLayout(new BoxLayout(boardPanel, BoxLayout.Y_AXIS)); // 상하로 정렬되는 레이아웃
 
@@ -117,8 +112,6 @@ public class BoardList {
                 // 작성 내용 섹션
                 JPanel contentPanel = createSectionPanel("작성 내용: " , postContent);
                 mainPanel.add(contentPanel);
-
-
             }
         } catch (SQLException e) {
             e.printStackTrace();

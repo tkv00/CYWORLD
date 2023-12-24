@@ -30,7 +30,6 @@ public class WriteBoard {
         initialize();
     }
 
-
     public WriteBoard() {
         initialize();
     }

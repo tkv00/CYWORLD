@@ -8,7 +8,7 @@ import org.Utility.ImageDetails;
 import org.Utility.ProfileImageUpload;
 import org.Utility.UserSession;
 import org.Utility.WriteBoardManager;
-import org.Utility.ProfileButton;
+import org.Utility.ProfileEditor;
 import org.example.Panel.GifPanel;
 import org.example.Panel.MusicPlayerPanel;
 import org.example.Panel.ProfilePanel;
@@ -35,6 +35,10 @@ public class MiniHomepage extends JFrame {
     private JPanel friendsPanel;
     private ProfilePanel profilePanel;
     private WriteBoardManager writeBoardManager;
+    private UserSession userSession;
+    private String username;
+    private ProfileEditor profileEditor; // 클래스 레벨에 profileEditor 선언
+
     public MiniHomepage() {
         // 기본 프레임 설정
         this.friendManager = new FriendManager();
@@ -57,6 +61,7 @@ public class MiniHomepage extends JFrame {
         profilePanel.setBounds(75, 135, DEFAULT_WIDTH, DEFAULT_HEIGHT); // 위치 및 크기 설정
         friendsScrollPane.add(profilePanel, Integer.valueOf(500));
         this.writeBoardManager = new WriteBoardManager();
+        this.profileEditor = new ProfileEditor(this.profilePanel, this.username);
     }
     public static void main(String[] args) {
         new MiniHomepage().showLogin();
@@ -379,10 +384,10 @@ public class MiniHomepage extends JFrame {
         boardButton1.addActionListener(e -> {
             // 홈화면 버튼 클릭 시 수행할 동작 추가
         });
-
         boardButton2.addActionListener(e -> {
-            ProfileButton profileButton = new ProfileButton(profilePanel);
-            profileButton.handleProfileButtonClick();
+            if (profileEditor != null) {
+                profileEditor.handleProfileButtonClick();
+            }
         });
 
         boardButton3.addActionListener(e -> new BoardList());
@@ -427,4 +432,9 @@ public class MiniHomepage extends JFrame {
         mainContent.setOpaque(false); // 메인 컨텐츠 투명하게 설정
         return mainContent;
     }
+    void setUserId(String username){
+        this.username = username;
+        ProfileEditor profileEditor = new ProfileEditor(this.profilePanel, this.username);
+    }
+
 }
