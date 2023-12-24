@@ -149,7 +149,7 @@ public class LoginPage {
 
                 // UserSession에 사용자 ID 저장
                 UserSession.getInstance().setUserId(username);
-
+                miniHomepage.setUserId(username);
                 return true;
             }
             return false;

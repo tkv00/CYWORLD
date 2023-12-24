@@ -16,7 +16,7 @@ public class FriendRequestDialog extends JDialog {
         this.currentUserId = currentUserId;
 
         friendRequestList = new JList<>(new Vector<>(friendRequest)); // 친구 신청 목록 설정
-        add(new JScrollPane(friendRequestList), BorderLayout.CENTER);
+        add(new JScrollPane(friendRequestList), BorderLayout.SOUTH);
 
 
         JButton acceptButton = new JButton("수락");
