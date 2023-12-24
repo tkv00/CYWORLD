@@ -8,6 +8,7 @@ import org.Utility.ImageDetails;
 import org.Utility.ProfileImageUpload;
 import org.Utility.UserSession;
 import org.Utility.WriteBoardManager;
+import org.Utility.ProfileButton;
 import org.example.Panel.GifPanel;
 import org.example.Panel.MusicPlayerPanel;
 import org.example.Panel.ProfilePanel;
@@ -325,11 +326,11 @@ public class MiniHomepage extends JFrame {
         recentPostButton.setContentAreaFilled(false);
         recentPostButton.setBorderPainted(false);
         recentPostButton.addActionListener(e -> {
-            int[] latestPostInfo = writeBoardManager.getLatestPostIdAndUserId(); // 게시글의 ID와 userId를 가져오는 메서드
-            int postId = latestPostInfo[0]; // 게시글 ID
+            int latestPostId = writeBoardManager.getLatestPostId(); // 최신 게시글 ID 가져오기
+            String postId = writeBoardManager.getLatestUserId();
 
             // BoardList 클래스의 showPostDetailsInNewWindow 메서드를 호출하여 게시글을 새 창에 표시
-            writeBoardManager.showPostDetailsInNewWindow(postId);
+            writeBoardManager.showPostDetailsInNewWindow(latestPostId);
         });
 
         // 최근 게시물 버튼을 최근 게시물 패널에 추가
@@ -380,7 +381,8 @@ public class MiniHomepage extends JFrame {
         });
 
         boardButton2.addActionListener(e -> {
-            // 프로필 버튼 클릭 시 수행할 동작 추가
+            ProfileButton profileButton = new ProfileButton(profilePanel);
+            profileButton.handleProfileButtonClick();
         });
 
         boardButton3.addActionListener(e -> new BoardList());
