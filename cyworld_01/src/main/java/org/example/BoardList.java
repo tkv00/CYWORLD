@@ -1,160 +1,174 @@
 package org.example;
 
 import org.Utility.DatabaseConfig;
-import org.Utility.WriteBoardManager;
+
 import javax.swing.*;
-import javax.swing.border.EmptyBorder;
-import javax.swing.border.LineBorder;
+import javax.swing.table.DefaultTableModel;
 import java.awt.*;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.Vector;
+import javax.swing.table.DefaultTableCellRenderer;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
 
 public class BoardList {
+    private JFrame boardFrame;
+    private UneditableTableModel tableModel;  // 수정 불가능한 모델로 변경
+    private JTable boardTable;  // JTable 추가
+    private JScrollPane scrollPane;
+    private WriteBoardManager writeBoardManager;  // WriteBoardManager 추가
+
     public BoardList() {
-        JFrame boardFrame = new JFrame("게시판 목록");
+        boardFrame = new JFrame("게시판 목록");
         boardFrame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
         boardFrame.setSize(800, 600);
         boardFrame.setLayout(new BorderLayout());
         JButton createPostButton = new JButton("게시글 작성");
-        WriteBoardManager writeBoardManager = new WriteBoardManager();
+        writeBoardManager = new WriteBoardManager();  // WriteBoardManager 초기화
 
-        writeBoardManager.setPostClickListener(new WriteBoardManager.PostClickListener() {
-            @Override
-            public void onPostClick(int postId) {
-                showPostDetailsInNewWindow(postId);
-            }
-        });
-        createPostButton.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                // 게시판 작성 클래스로 이동
-                new WriteBoard();
-            }
-        });
+        writeBoardManager.setPostClickListener(postId -> showPostDetailsInNewWindow(postId));
+
+        createPostButton.addActionListener(e -> new WriteBoard());
+
         JPanel topPanel = new JPanel(); // 패널 생성
         topPanel.setLayout(new FlowLayout(FlowLayout.RIGHT)); // 패널에 레이아웃 설정
         topPanel.add(createPostButton); // 패널에 버튼 추가
 
         boardFrame.add(topPanel, BorderLayout.NORTH); // 프레임에 패널 추가
 
+        // 수정 불가능한 모델로 JTable 초기화
+        tableModel = new UneditableTableModel();
+        tableModel.addColumn("No.");
+        tableModel.addColumn("Title");
+        tableModel.addColumn("NAME");
+        tableModel.addColumn("DATE");
 
+        boardTable = new JTable(tableModel);
+        boardTable.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
 
-
-
-
-        JPanel boardPanel = new JPanel();
-        boardPanel.setLayout(new BoxLayout(boardPanel, BoxLayout.Y_AXIS)); // 상하로 정렬되는 레이아웃
-
-        // 데이터베이스 연결
-        try (Connection connection = DatabaseConfig.getConnection()) {
-            String sql = "SELECT WriteBoardNum, userId, time,title  FROM WriteBoard"; // 게시글을 가져오는 쿼리문 (테이블 이름에 맞게 수정 필요)
-            PreparedStatement statement = connection.prepareStatement(sql);
-            ResultSet resultSet = statement.executeQuery();
-
-            // 데이터베이스에서 가져온 결과를 이용하여 버튼 생성
-            while (resultSet.next()) {
-                String userId = resultSet.getString("userId"); // 게시글 작성자 ID 컬럼에 맞게 수정 필요
-                String postTitle = resultSet.getString("title"); // 게시글 제목 컬럼에 맞게 수정 필요
-                int WriteBoardNum = resultSet.getInt("WriteBoardNum");
-                String time=resultSet.getString("time");
-
-                JButton postButton = new JButton(WriteBoardNum + ". 게시글 작성자: " + userId + " / 제목: " + postTitle+"   "+time);
-                postButton.addActionListener(e -> {
-                    // 버튼 클릭 시 해당 게시글을 보여주는 동작 수행
-                    showPostDetailsInNewWindow(WriteBoardNum);
-                });
-
-                boardPanel.add(postButton);
-                // 게시판 작성 버튼
-
-            }
-        } catch (SQLException e) {
-            e.printStackTrace();
-            // 데이터베이스 연결 실패 또는 쿼리 실행 중 오류가 발생한 경우 처리
-        }
-
-        JScrollPane scrollPane = new JScrollPane(boardPanel);
+        // JScrollPane에 JTable을 추가
+        scrollPane = new JScrollPane(boardTable);
         boardFrame.add(scrollPane, BorderLayout.CENTER);
 
+        fetchBoardData();
+
         boardFrame.setVisible(true);
+
+        // 텍스트 가운데 정렬을 위한 DefaultTableCellRenderer 설정
+        DefaultTableCellRenderer centerRenderer = new DefaultTableCellRenderer();
+        centerRenderer.setHorizontalAlignment(JLabel.CENTER);
+        for (int i = 0; i < boardTable.getColumnCount(); i++) {
+            boardTable.getColumnModel().getColumn(i).setCellRenderer(centerRenderer);
+        }
     }
-    // 게시글 세부 정보를 보여주는 새 창
-    public void showPostDetailsInNewWindow(int postId) {
-        JFrame detailsFrame = new JFrame("게시글 세부 정보");
-        detailsFrame.setSize(500, 400);
-        detailsFrame.setLayout(new BorderLayout());
 
-        JPanel mainPanel = new JPanel();
-        mainPanel.setLayout(new BoxLayout(mainPanel, BoxLayout.Y_AXIS));
-
+    private void fetchBoardData() {
         try (Connection connection = DatabaseConfig.getConnection()) {
-            String sql = "SELECT * FROM WriteBoard WHERE WriteBoardNum= ?";
+            String sql = "SELECT WriteBoardNum, userId, time, title FROM WriteBoard";
             PreparedStatement statement = connection.prepareStatement(sql);
-            statement.setInt(1, postId);
             ResultSet resultSet = statement.executeQuery();
 
-            if (resultSet.next()) {
-                String postTitle = resultSet.getString("title");
+            // 기존 데이터 삭제
+            tableModel.setRowCount(0);
+
+            while (resultSet.next()) {
+                int writeBoardNum = resultSet.getInt("WriteBoardNum");
+                String title = resultSet.getString("title");
                 String userId = resultSet.getString("userId");
-                String postDate = resultSet.getString("time");
-                String postContent = resultSet.getString("content");
+                String time = resultSet.getString("time").substring(0, 10);
 
-                // 제목 섹션
-                JPanel titlePanel = createSectionPanel("제목: " , postTitle);
-                mainPanel.add(titlePanel);
+                Vector<Object> row = new Vector<>();
+                row.add(writeBoardNum);
+                row.add(title);
+                row.add(userId);
+                row.add(time);
 
-                // 작성자 섹션
-                JPanel authorPanel = createSectionPanel("작성자: " , userId);
-                mainPanel.add(authorPanel);
-
-                // 작성 날짜 섹션
-                JPanel datePanel = createSectionPanel("작성 날짜: " , postDate);
-                mainPanel.add(datePanel);
-                // 작성 내용 섹션
-                JPanel contentPanel = createSectionPanel("작성 내용: " , postContent);
-                mainPanel.add(contentPanel);
-
-
+                // 새로운 행 추가
+                tableModel.addRow(row);
             }
         } catch (SQLException e) {
             e.printStackTrace();
-            JPanel errorPanel = createSectionPanel("게시글 세부 정보를 불러오는 데 실패했습니다.","");
-            mainPanel.add(errorPanel);
         }
-
-        JScrollPane scrollPane = new JScrollPane(mainPanel);
-        detailsFrame.add(scrollPane, BorderLayout.CENTER);
-        detailsFrame.setVisible(true);
     }
-    // 섹션 패널 생성 도우미 메소드
-    private JPanel createSectionPanel(String labelText, String text) {
-        JPanel panel = new JPanel(new BorderLayout());
-        panel.setBorder(new LineBorder(Color.GRAY, 1, true));
-        JLabel label = new JLabel(labelText);
-        label.setBorder(new EmptyBorder(10, 10, 10, 10)); // 상하좌우 10픽셀의 패딩을 추가합니다.
-        panel.add(label, BorderLayout.NORTH);
 
-        JTextArea textArea = new JTextArea(text);
-        textArea.setWrapStyleWord(true);
-        textArea.setLineWrap(true);
-        textArea.setEditable(false);
-        textArea.setBorder(new EmptyBorder(10, 10, 10, 10)); // 상하좌우 10픽셀의 패딩을 추가합니다.
+    private void showPostDetailsInNewWindow(int postId) {
+        // 여기에 showPostDetailsInNewWindow 메서드의 구현을 추가
+    }
 
-        // 내용이 길 경우 스크롤바를 자동으로 나타나게 합니다.
-        JScrollPane scrollPane = new JScrollPane(textArea);
-        panel.add(scrollPane, BorderLayout.CENTER);
+    private JPanel createSectionPanel(String label, String value, int postId) {
+        JPanel panel = new JPanel();
+        panel.setLayout(new BoxLayout(panel, BoxLayout.X_AXIS));
+
+        JLabel labelComponent = new JLabel(label);
+        JLabel valueComponent = new JLabel(value);
+
+        panel.add(labelComponent);
+        panel.add(valueComponent);
+
+        // 제목 패널에 MouseListener 추가
+        if (label.equals("제목: ")) {
+            panel.addMouseListener(new MouseAdapter() {
+                @Override
+                public void mouseClicked(MouseEvent e) {
+                    showPostDetailsInNewWindow(postId);
+                }
+
+                @Override
+                public void mouseEntered(MouseEvent e) {
+                    panel.setCursor(new Cursor(Cursor.HAND_CURSOR));
+                }
+
+                @Override
+                public void mouseExited(MouseEvent e) {
+                    panel.setCursor(new Cursor(Cursor.DEFAULT_CURSOR));
+                }
+            });
+        }
 
         return panel;
     }
 
-
-
-
     public static void main(String[] args) {
         SwingUtilities.invokeLater(() -> new BoardList());
+    }
+}
+
+class WriteBoardManager {
+
+    public interface PostClickListener {
+        void onPostClick(int postId);
+    }
+
+    private PostClickListener postClickListener;
+
+    public void setPostClickListener(PostClickListener postClickListener) {
+        this.postClickListener = postClickListener;
+    }
+
+    // WriteBoardManager에서 수행할 다양한 기능을 추가할 수 있습니다.
+
+    // 예: 게시글 작성 기능
+    public void writePost(String userId, String title, String content) {
+        // 여기에 게시글 작성에 관한 로직을 추가하세요.
+        // 예를 들어, 데이터베이스에 새로운 게시글을 추가하거나 필요한 동작을 수행할 수 있습니다.
+    }
+
+    // 예: 게시글 삭제 기능
+    public void deletePost(int postId) {
+        // 여기에 게시글 삭제에 관한 로직을 추가하세요.
+        // 예를 들어, 데이터베이스에서 해당 게시글을 삭제하거나 필요한 동작을 수행할 수 있습니다.
+    }
+}
+
+
+// 수정 불가능한 모델로 확장한 클래스
+class UneditableTableModel extends DefaultTableModel {
+    @Override
+    public boolean isCellEditable(int row, int column) {
+        // 모든 열에 대해 수정 불가능하게 만듦
+        return false;
     }
 }
