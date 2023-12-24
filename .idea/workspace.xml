@@ -5,31 +5,21 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="8ad32b2f-77a1-48af-b65e-dc605abe6719" name="변경" comment="변경">
-      <change afterPath="$PROJECT_DIR$/.idea/dataSources.local.xml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/.idea/dataSources.xml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/.idea/dataSources/51f66bf6-cc5b-4bfc-9078-23a7dcfe1fa5.xml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/.idea/dataSources/51f66bf6-cc5b-4bfc-9078-23a7dcfe1fa5/storage_v2/_src_/schema/cyworld.3GhESg.meta" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/.idea/dataSources/51f66bf6-cc5b-4bfc-9078-23a7dcfe1fa5/storage_v2/_src_/schema/information_schema.FNRwLQ.meta" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/.idea/dataSources/51f66bf6-cc5b-4bfc-9078-23a7dcfe1fa5/storage_v2/_src_/schema/mysql.osA4Bg.meta" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/.idea/dataSources/51f66bf6-cc5b-4bfc-9078-23a7dcfe1fa5/storage_v2/_src_/schema/performance_schema.kIw0nw.meta" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/.idea/dataSources/51f66bf6-cc5b-4bfc-9078-23a7dcfe1fa5/storage_v2/_src_/schema/sys.zb4BAA.meta" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/.idea/shelf/2023-12-23__9_03__________.xml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/.idea/shelf/2023-12-23_오후_9_03,_업데이트_전에_커밋되지_않은_변경_내용_[변경]/shelved.patch" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/cyworld_01/src/main/java/org/Utility/WriteBoardManager.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/gradle.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/gradle.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/misc.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/misc.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/dataSources/51f66bf6-cc5b-4bfc-9078-23a7dcfe1fa5.xml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/dataSources/51f66bf6-cc5b-4bfc-9078-23a7dcfe1fa5/storage_v2/_src_/schema/cyworld.3GhESg.meta" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/dataSources/51f66bf6-cc5b-4bfc-9078-23a7dcfe1fa5/storage_v2/_src_/schema/information_schema.FNRwLQ.meta" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/dataSources/51f66bf6-cc5b-4bfc-9078-23a7dcfe1fa5/storage_v2/_src_/schema/mysql.osA4Bg.meta" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/dataSources/51f66bf6-cc5b-4bfc-9078-23a7dcfe1fa5/storage_v2/_src_/schema/performance_schema.kIw0nw.meta" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/dataSources/51f66bf6-cc5b-4bfc-9078-23a7dcfe1fa5/storage_v2/_src_/schema/sys.zb4BAA.meta" beforeDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/cyworld_01/.gradle/8.2/executionHistory/executionHistory.bin" beforeDir="false" afterPath="$PROJECT_DIR$/cyworld_01/.gradle/8.2/executionHistory/executionHistory.bin" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/cyworld_01/.gradle/8.2/executionHistory/executionHistory.lock" beforeDir="false" afterPath="$PROJECT_DIR$/cyworld_01/.gradle/8.2/executionHistory/executionHistory.lock" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/cyworld_01/.gradle/8.2/fileHashes/fileHashes.bin" beforeDir="false" afterPath="$PROJECT_DIR$/cyworld_01/.gradle/8.2/fileHashes/fileHashes.bin" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/cyworld_01/.gradle/8.2/fileHashes/fileHashes.lock" beforeDir="false" afterPath="$PROJECT_DIR$/cyworld_01/.gradle/8.2/fileHashes/fileHashes.lock" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/cyworld_01/.gradle/buildOutputCleanup/buildOutputCleanup.lock" beforeDir="false" afterPath="$PROJECT_DIR$/cyworld_01/.gradle/buildOutputCleanup/buildOutputCleanup.lock" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/cyworld_01/.gradle/buildOutputCleanup/outputFiles.bin" beforeDir="false" afterPath="$PROJECT_DIR$/cyworld_01/.gradle/buildOutputCleanup/outputFiles.bin" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/cyworld_01/.gradle/file-system.probe" beforeDir="false" afterPath="$PROJECT_DIR$/cyworld_01/.gradle/file-system.probe" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/cyworld_01/build/classes/java/main/org/example/BoardList.class" beforeDir="false" afterPath="$PROJECT_DIR$/cyworld_01/build/classes/java/main/org/example/BoardList.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/cyworld_01/src/main/java/org/Utility/DatabaseConfig.java" beforeDir="false" afterPath="$PROJECT_DIR$/cyworld_01/src/main/java/org/Utility/DatabaseConfig.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/cyworld_01/src/main/java/org/example/LoginPage.java" beforeDir="false" afterPath="$PROJECT_DIR$/cyworld_01/src/main/java/org/example/LoginPage.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/cyworld_01/src/main/java/org/example/MiniHomepage.java" beforeDir="false" afterPath="$PROJECT_DIR$/cyworld_01/src/main/java/org/example/MiniHomepage.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/cyworld_01/src/main/java/org/example/WriteBoard.java" beforeDir="false" afterPath="$PROJECT_DIR$/cyworld_01/src/main/java/org/example/WriteBoard.java" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -172,6 +162,7 @@
       <workItem from="1703163979497" duration="10021000" />
       <workItem from="1703332606839" duration="1273000" />
       <workItem from="1703341041492" duration="5509000" />
+      <workItem from="1703389373972" duration="2380000" />
     </task>
     <task id="LOCAL-00001" summary=".">
       <option name="closed" value="true" />

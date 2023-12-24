@@ -34,6 +34,7 @@ public class MiniHomepage extends JFrame {
     private FriendListManager friendListManager; // 친구 목록 관리자 추가
     private JPanel friendsPanel;
     private ProfilePanel profilePanel;
+    private WriteBoardManager writeBoardManager;
     public MiniHomepage() {
         // 기본 프레임 설정
         this.friendManager = new FriendManager();
@@ -54,7 +55,8 @@ public class MiniHomepage extends JFrame {
         // profilePanel 생성 및 추가
         profilePanel = new ProfilePanel(defaultImage);
         profilePanel.setBounds(75, 135, DEFAULT_WIDTH, DEFAULT_HEIGHT); // 위치 및 크기 설정
-        friendsScrollPane.add(profilePanel, Integer.valueOf(500)); // 적절한 레이
+        friendsScrollPane.add(profilePanel, Integer.valueOf(500));
+        this.writeBoardManager = new WriteBoardManager();
 
     }
     public static void main(String[] args) {
@@ -223,6 +225,7 @@ public class MiniHomepage extends JFrame {
         recentPostPanel.setBounds(255, 86, 150, 150);
         recentPostPanel.setOpaque(false); // 패널의 불투명성을 비활성화
 
+
         // 최근 게시물 패널을 생성하고 추가합니다.
         JPanel recentPost = createRecentPostPanel(recentPostPanel);
         layeredPane.add(recentPost, JLayeredPane.MODAL_LAYER);
@@ -290,7 +293,7 @@ public class MiniHomepage extends JFrame {
         // 동영상 패널 생성 및 추가
         JPanel videoPanel = new JPanel();
         JLabel videoLabel = new JLabel("동영상");
-        videoLabel.setForeground(Color.WHITE); // 텍스트 색상을 하얀색으로 설정
+        videoLabel.setForeground(Color.BLACK); // 텍스트 색상을 하얀색으로 설정
         videoPanel.add(videoLabel);
         recentPost.add(videoPanel);
         videoPanel.setOpaque(false); // 패널의 불투명성을 비활성화
@@ -299,17 +302,20 @@ public class MiniHomepage extends JFrame {
         recentPost.add(Box.createVerticalStrut(10));
 
         // 게시판 패널 생성 및 추가
-        JPanel boardPanel = new JPanel();
-        JLabel boardLabel = new JLabel("게시판");
-        boardLabel.setForeground(Color.WHITE); // 텍스트 색상을 하얀색으로 설정
-        boardPanel.add(boardLabel);
+        JPanel boardPanel = new JPanel(new BorderLayout());
+        JLabel boardTextLabel = new JLabel("게시판");
+        boardTextLabel.setForeground(Color.BLACK); // 텍스트 색상을 설정
+        boardPanel.add(boardTextLabel);
         // 최근 게시물 제목 가져오기
-        WriteBoardManager writeBoardManager = new WriteBoardManager();
         String latestPostTitle = writeBoardManager.getLatestPostTitle();
-        // 최근 게시물 레이블 생성 및 설정
+
+        // 최근 게시물 제목 레이블
         JLabel recentPostTitleLabel = new JLabel("최근 게시물: " + latestPostTitle);
-        recentPostTitleLabel.setForeground(Color.WHITE); // 텍스트 색상 설정
-        boardPanel.add(recentPostTitleLabel); // 최근 게시물 레이블을 게시판 패널에 추가
+        recentPostTitleLabel.setForeground(Color.BLACK); // 텍스트 색상 설정
+        // 각 레이블을 패널에 추가
+        boardPanel.add(boardTextLabel, BorderLayout.WEST);
+        boardPanel.add(recentPostTitleLabel, BorderLayout.EAST);
+        recentPostPanel.add(recentPostTitleLabel); // 최근 게시물 레이블을 패널에 추가
         recentPost.add(boardPanel);
         boardPanel.setOpaque(false); // 패널의 불투명성을 비활성화
 
@@ -319,7 +325,7 @@ public class MiniHomepage extends JFrame {
         // 갤러리 패널 생성 및 추가
         JPanel galleryPanel = new JPanel();
         JLabel galleryLabel = new JLabel("갤러리");
-        galleryLabel.setForeground(Color.WHITE); // 텍스트 색상을 하얀색으로 설정
+        galleryLabel.setForeground(Color.BLACK); // 텍스트 색상을 하얀색으로 설정
         galleryPanel.add(galleryLabel);
         recentPost.add(galleryPanel);
         galleryPanel.setOpaque(false); // 패널의 불투명성을 비활성화
@@ -330,7 +336,7 @@ public class MiniHomepage extends JFrame {
         // 사진첩 패널 생성 및 추가
         JPanel photoGalleryPanel = new JPanel();
         JLabel photoGalleryLabel = new JLabel("사진첩");
-        photoGalleryLabel.setForeground(Color.WHITE); // 텍스트 색상을 하얀색으로 설정
+        photoGalleryLabel.setForeground(Color.BLACK); // 텍스트 색상을 하얀색으로 설정
         photoGalleryPanel.add(photoGalleryLabel);
         recentPost.add(photoGalleryPanel);
         photoGalleryPanel.setOpaque(false); // 패널의 불투명성을 비활성화
@@ -403,7 +409,6 @@ public class MiniHomepage extends JFrame {
     }
     private JPanel createMainContent() {
         JPanel mainContent = new JPanel(new BorderLayout());
-
         // 상단 타이틀
         mainContent.setOpaque(false); // 메인 컨텐츠 투명하게 설정
         return mainContent;

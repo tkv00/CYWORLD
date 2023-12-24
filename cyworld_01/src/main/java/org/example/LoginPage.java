@@ -121,14 +121,12 @@ public class LoginPage {
             } else {
                 JOptionPane.showMessageDialog(frame, "아이디 또는 비밀번호가 잘못되었습니다.", "로그인 실패", JOptionPane.ERROR_MESSAGE);
             }
-
         });
         //회원가입로직
         signUpButton.addActionListener(e -> {
             LoginPage.this.SignUppage.show(); // 회원가입 페이지 표시
             frame.setVisible(false);
         });
-
     }
 
     public void show() {
@@ -146,19 +144,14 @@ public class LoginPage {
             pstmt.setString(2, password); // 실제 애플리케이션에서는 비밀번호를 해시하여 비교해야 함
             ResultSet rs = pstmt.executeQuery();
             if (rs.next()) {
-
                 // UserSession에 사용자 ID 저장
                 UserSession.getInstance().setUserId(username);
-
                 return true;
             }
             return false;
         } catch (SQLException e) {
             e.printStackTrace();
-
             return false;
         }
     }
-
-
 }
