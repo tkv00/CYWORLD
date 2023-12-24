@@ -1,6 +1,12 @@
 package org.example;
-import org.Friend.*;
+
+import org.Friend.FriendListManager;
+import org.Friend.FriendManager;
+import org.Friend.FriendRequestDialog;
 import org.Utility.*;
+import org.example.Panel.GifPanel;
+import org.example.Panel.MusicPlayerPanel;
+import org.example.Panel.ProfilePanel;
 import javax.swing.*;
 import java.awt.*;
 import java.io.File;
@@ -10,10 +16,6 @@ import java.nio.file.Files;
 import java.text.SimpleDateFormat;
 import java.util.Arrays;
 import java.util.List;
-import javax.swing.JPanel;
-import org.example.Panel.GifPanel;
-import org.example.Panel.MusicPlayerPanel;
-import org.example.Panel.ProfilePanel;
 public class MiniHomepage extends JFrame {
     private JButton notificationButton;
     private PhotoGalleryManager photoGalleryManager;
@@ -31,6 +33,9 @@ public class MiniHomepage extends JFrame {
     private JPanel friendsPanel;
     private ProfilePanel profilePanel;
     private String userId;
+
+
+    private WriteBoardManager writeBoardManager;
 
     public MiniHomepage() {
 
@@ -55,8 +60,8 @@ public class MiniHomepage extends JFrame {
         // profilePanel 생성 및 추가
         profilePanel = new ProfilePanel(defaultImage);
         profilePanel.setBounds(75, 135, DEFAULT_WIDTH, DEFAULT_HEIGHT); // 위치 및 크기 설정
-        friendsScrollPane.add(profilePanel, Integer.valueOf(500)); // 적절한 레이
-
+        friendsScrollPane.add(profilePanel, Integer.valueOf(500));
+        this.writeBoardManager = new WriteBoardManager();
     }
     // 로그인 성공 후 userId를 설정하는 메서드
 
@@ -236,6 +241,7 @@ public class MiniHomepage extends JFrame {
         recentPostPanel.setBounds(255, 86, 150, 150);
         recentPostPanel.setOpaque(false); // 패널의 불투명성을 비활성화
 
+
         // 최근 게시물 패널을 생성하고 추가합니다.
         JPanel recentPost = createRecentPostPanel(recentPostPanel);
         layeredPane.add(recentPost, JLayeredPane.MODAL_LAYER);
@@ -293,7 +299,6 @@ public class MiniHomepage extends JFrame {
         messageButton.setBounds(200, 100, 20, 20);
         layeredPane.add(messageButton, Integer.valueOf(JLayeredPane.POPUP_LAYER));
 
-
         // 프레임에 레이어드 패인 추가 및 표시
         frame.setLayeredPane(layeredPane); // 프레임에 레이어드 판을 설정
         frame.setVisible(true);
@@ -303,7 +308,7 @@ public class MiniHomepage extends JFrame {
         // 동영상 패널 생성 및 추가
         JPanel videoPanel = new JPanel();
         JLabel videoLabel = new JLabel("동영상");
-        videoLabel.setForeground(Color.WHITE); // 텍스트 색상을 하얀색으로 설정
+        videoLabel.setForeground(Color.BLACK); // 텍스트 색상을 하얀색으로 설정
         videoPanel.add(videoLabel);
         recentPost.add(videoPanel);
         videoPanel.setOpaque(false); // 패널의 불투명성을 비활성화
@@ -312,20 +317,46 @@ public class MiniHomepage extends JFrame {
         recentPost.add(Box.createVerticalStrut(10));
 
         // 게시판 패널 생성 및 추가
-        JPanel boardPanel = new JPanel();
-        JLabel boardLabel = new JLabel("게시판");
-        boardLabel.setForeground(Color.WHITE); // 텍스트 색상을 하얀색으로 설정
-        boardPanel.add(boardLabel);
+        JPanel boardPanel = new JPanel(new BorderLayout());
+        JLabel boardTextLabel = new JLabel("게시판");
+        boardTextLabel.setForeground(Color.BLACK); // 텍스트 색상을 설정
+        boardPanel.add(boardTextLabel);
+        // 최근 게시물 제목 가져오기
+        String latestPostTitle = writeBoardManager.getLatestPostTitle();
+
+        // 최근 게시물 제목 레이블
+        JLabel recentPostTitleLabel = new JLabel("최근 게시물: " + latestPostTitle);
+        recentPostTitleLabel.setForeground(Color.BLACK); // 텍스트 색상 설정
+        // 각 레이블을 패널에 추가
+        boardPanel.add(boardTextLabel, BorderLayout.WEST);
+        boardPanel.add(recentPostTitleLabel, BorderLayout.EAST);
+        recentPostPanel.add(recentPostTitleLabel); // 최근 게시물 레이블을 패널에 추가
         recentPost.add(boardPanel);
         boardPanel.setOpaque(false); // 패널의 불투명성을 비활성화
 
         // 수직 여백 추가
         recentPost.add(Box.createVerticalStrut(10));
+        // 최근 게시물을 클릭할 수 있는 버튼 생성
+        JButton recentPostButton = new JButton();
+        recentPostButton.setLayout(new BorderLayout());
+        recentPostButton.add(recentPostTitleLabel, BorderLayout.CENTER);
+        recentPostButton.setContentAreaFilled(false);
+        recentPostButton.setBorderPainted(false);
+        recentPostButton.addActionListener(e -> {
+            int[] latestPostInfo = writeBoardManager.getLatestPostIdAndUserId(); // 게시글의 ID와 userId를 가져오는 메서드
+            int postId = latestPostInfo[0]; // 게시글 ID
+
+            // BoardList 클래스의 showPostDetailsInNewWindow 메서드를 호출하여 게시글을 새 창에 표시
+            writeBoardManager.showPostDetailsInNewWindow(postId);
+        });
+
+        // 최근 게시물 버튼을 최근 게시물 패널에 추가
+        recentPost.add(recentPostButton);
 
         // 갤러리 패널 생성 및 추가
         JPanel galleryPanel = new JPanel();
         JLabel galleryLabel = new JLabel("갤러리");
-        galleryLabel.setForeground(Color.WHITE); // 텍스트 색상을 하얀색으로 설정
+        galleryLabel.setForeground(Color.BLACK); // 텍스트 색상을 하얀색으로 설정
         galleryPanel.add(galleryLabel);
         recentPost.add(galleryPanel);
         galleryPanel.setOpaque(false); // 패널의 불투명성을 비활성화
@@ -336,11 +367,10 @@ public class MiniHomepage extends JFrame {
         // 사진첩 패널 생성 및 추가
         JPanel photoGalleryPanel = new JPanel();
         JLabel photoGalleryLabel = new JLabel("사진첩");
-        photoGalleryLabel.setForeground(Color.WHITE); // 텍스트 색상을 하얀색으로 설정
+        photoGalleryLabel.setForeground(Color.BLACK); // 텍스트 색상을 하얀색으로 설정
         photoGalleryPanel.add(photoGalleryLabel);
         recentPost.add(photoGalleryPanel);
         photoGalleryPanel.setOpaque(false); // 패널의 불투명성을 비활성화
-
     }
     // 사진첩 다이얼로그를 열기 위한 메서드
     private void openPhotoGalleryWindow() {
@@ -421,7 +451,6 @@ public class MiniHomepage extends JFrame {
 
     private JPanel createMainContent() {
         JPanel mainContent = new JPanel(new BorderLayout());
-
         // 상단 타이틀
         mainContent.setOpaque(false); // 메인 컨텐츠 투명하게 설정
         return mainContent;
