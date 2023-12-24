@@ -11,7 +11,6 @@ import org.Utility.WriteBoardManager;
 import org.example.Panel.GifPanel;
 import org.example.Panel.MusicPlayerPanel;
 import org.example.Panel.ProfilePanel;
-
 import javax.swing.*;
 import java.awt.*;
 import java.io.File;
@@ -57,7 +56,6 @@ public class MiniHomepage extends JFrame {
         profilePanel.setBounds(75, 135, DEFAULT_WIDTH, DEFAULT_HEIGHT); // 위치 및 크기 설정
         friendsScrollPane.add(profilePanel, Integer.valueOf(500));
         this.writeBoardManager = new WriteBoardManager();
-
     }
     public static void main(String[] args) {
         new MiniHomepage().showLogin();
@@ -283,7 +281,6 @@ public class MiniHomepage extends JFrame {
         messageButton.setBounds(200,100,20,20);
         layeredPane.add(messageButton,Integer.valueOf(JLayeredPane.POPUP_LAYER));
 
-
         // 프레임에 레이어드 패인 추가 및 표시
         frame.setLayeredPane(layeredPane); // 프레임에 레이어드 판을 설정
         frame.setVisible(true);
@@ -321,6 +318,22 @@ public class MiniHomepage extends JFrame {
 
         // 수직 여백 추가
         recentPost.add(Box.createVerticalStrut(10));
+        // 최근 게시물을 클릭할 수 있는 버튼 생성
+        JButton recentPostButton = new JButton();
+        recentPostButton.setLayout(new BorderLayout());
+        recentPostButton.add(recentPostTitleLabel, BorderLayout.CENTER);
+        recentPostButton.setContentAreaFilled(false);
+        recentPostButton.setBorderPainted(false);
+        recentPostButton.addActionListener(e -> {
+            int[] latestPostInfo = writeBoardManager.getLatestPostIdAndUserId(); // 게시글의 ID와 userId를 가져오는 메서드
+            int postId = latestPostInfo[0]; // 게시글 ID
+
+            // BoardList 클래스의 showPostDetailsInNewWindow 메서드를 호출하여 게시글을 새 창에 표시
+            writeBoardManager.showPostDetailsInNewWindow(postId);
+        });
+
+        // 최근 게시물 버튼을 최근 게시물 패널에 추가
+        recentPost.add(recentPostButton);
 
         // 갤러리 패널 생성 및 추가
         JPanel galleryPanel = new JPanel();
@@ -340,7 +353,6 @@ public class MiniHomepage extends JFrame {
         photoGalleryPanel.add(photoGalleryLabel);
         recentPost.add(photoGalleryPanel);
         photoGalleryPanel.setOpaque(false); // 패널의 불투명성을 비활성화
-
     }
     private JPanel createRecentPostPanel(JPanel recentPostPanel) {
         return recentPostPanel;

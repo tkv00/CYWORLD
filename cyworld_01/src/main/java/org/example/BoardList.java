@@ -1,7 +1,7 @@
 package org.example;
 
 import org.Utility.DatabaseConfig;
-
+import org.Utility.WriteBoardManager;
 import javax.swing.*;
 import javax.swing.border.EmptyBorder;
 import javax.swing.border.LineBorder;
@@ -20,6 +20,14 @@ public class BoardList {
         boardFrame.setSize(800, 600);
         boardFrame.setLayout(new BorderLayout());
         JButton createPostButton = new JButton("게시글 작성");
+        WriteBoardManager writeBoardManager = new WriteBoardManager();
+
+        writeBoardManager.setPostClickListener(new WriteBoardManager.PostClickListener() {
+            @Override
+            public void onPostClick(int postId) {
+                showPostDetailsInNewWindow(postId);
+            }
+        });
         createPostButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
@@ -75,7 +83,7 @@ public class BoardList {
         boardFrame.setVisible(true);
     }
     // 게시글 세부 정보를 보여주는 새 창
-    private void showPostDetailsInNewWindow(int postId) {
+    public void showPostDetailsInNewWindow(int postId) {
         JFrame detailsFrame = new JFrame("게시글 세부 정보");
         detailsFrame.setSize(500, 400);
         detailsFrame.setLayout(new BorderLayout());
@@ -84,7 +92,7 @@ public class BoardList {
         mainPanel.setLayout(new BoxLayout(mainPanel, BoxLayout.Y_AXIS));
 
         try (Connection connection = DatabaseConfig.getConnection()) {
-            String sql = "SELECT * FROM WriteBoard WHERE WriteBoardNum = ?";
+            String sql = "SELECT * FROM WriteBoard WHERE WriteBoardNum= ?";
             PreparedStatement statement = connection.prepareStatement(sql);
             statement.setInt(1, postId);
             ResultSet resultSet = statement.executeQuery();
