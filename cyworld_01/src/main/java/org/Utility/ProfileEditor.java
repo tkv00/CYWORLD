@@ -6,6 +6,7 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.regex.Pattern;
 
 public class ProfileEditor {
     private String username;
@@ -39,13 +40,14 @@ public class ProfileEditor {
             String[] userInformation = getUserInformation(username);
             String currentPassword = userInformation[1]; // 유저의 비밀번호 가져오기
 
+
             if (newID.isEmpty() && newPassword.isEmpty()) {
                 JOptionPane.showMessageDialog(profileFrame, "ID나 비밀번호 중 하나는 입력되어야 합니다.", "입력 오류", JOptionPane.ERROR_MESSAGE);
             }
             else {
                 try {
                     Connection conn = DatabaseConfig.getConnection();
-                    if (!newID.isEmpty()) {
+                    if (!newID.isEmpty() && isValidUsername(newID)) {
                         // 유저 ID 변경
                         String updateIdQuery = "UPDATE user SET username = ? WHERE username = ?";
                         try (PreparedStatement statement = conn.prepareStatement(updateIdQuery)) {
@@ -56,9 +58,11 @@ public class ProfileEditor {
                         } catch (SQLException ex) {
                             throw new RuntimeException(ex);
                         }
+                    }else {
+                        JOptionPane.showMessageDialog(profileFrame, "올바른 형식의 ID를 입력하세요.", "입력 오류", JOptionPane.ERROR_MESSAGE);
+                        return;
                     }
-
-                    if (!newPassword.isEmpty() && !newPassword.equals(currentPassword)) {
+                    if (!newPassword.isEmpty() && !newPassword.equals(currentPassword) && isValidPassword(newPassword)) {
                         // 비밀번호 변경
                         String updatePasswordQuery = "UPDATE user SET password = ? WHERE username = ?";
                         try (PreparedStatement statement = conn.prepareStatement(updatePasswordQuery)) {
@@ -67,7 +71,10 @@ public class ProfileEditor {
                             statement.executeUpdate();
                         }
                     }
-                    // 성공적으로 업데이트되었다는 안내 메시지
+                    else if (!isValidPassword(newPassword)) {
+                        JOptionPane.showMessageDialog(profileFrame, "비밀번호는 최소 8자리이며, 문자와 숫자를 포함해야 합니다.", "입력 오류", JOptionPane.ERROR_MESSAGE);
+                        return;
+                    }
                     JOptionPane.showMessageDialog(profileFrame, "정보가 업데이트되었습니다.", "업데이트 완료", JOptionPane.INFORMATION_MESSAGE);
                 } catch (SQLException ex) {
                     ex.printStackTrace();
@@ -107,7 +114,17 @@ public class ProfileEditor {
         } catch (SQLException ex) {
             ex.printStackTrace();
         }
-
         return userInformation;
+    }
+    private boolean isValidUsername(String username) {
+        // 아이디는 영문, 숫자 포함 6자 이상
+        String usernameRegex = "^[A-Za-z0-9]{6,}$";
+        return username.matches(usernameRegex);
+    }
+    private boolean isValidPassword(String password) {
+        // 비밀번호는 최소 8자, 최소 하나의 문자와 하나의 숫자를 포함
+        String passwordRegex = "^(?=.*[A-Za-z])(?=.*\\d)[A-Za-z\\d]{8,}$";
+        Pattern pattern = Pattern.compile(passwordRegex);
+        return pattern.matcher(password).matches();
     }
 }
