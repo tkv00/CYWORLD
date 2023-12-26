@@ -7,9 +7,9 @@ import java.sql.SQLException;
 public class DatabaseConfig {
     // 데이터베이스 연결을 위한 기본 설정
 
-    private static final String DATABASE_URL = "jdbc:mysql://34.64.208.208:3306/cyworld";
-    private static final String DATABASE_USER = "root";
-    private static final String DATABASE_PASSWORD = "rlaehdus00";
+    private static final String DATABASE_URL =
+    private static final String DATABASE_USER = 
+    private static final String DATABASE_PASSWORD =
     private static final String JDBC_DRIVER = "com.mysql.cj.jdbc.Driver";
 
 
