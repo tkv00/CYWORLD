@@ -356,8 +356,8 @@ public class FriendListManager {
         friendCyworld.getNotificationButton().setEnabled(false);
         friendCyworld.getFriend().setEnabled(false);
         friendCyworld.getFriendList().setEnabled(false);
-        friendCyworld.getCommentButton().setEnabled(false);
-        friendCyworld.getCommentButton().setEnabled(false);
+        friendCyworld.getNotificationButton().setEnabled(false);
+
 
     }
     private void openFriendPhotoGallery(MiniHomepage friendCyworld, String friendId) {
@@ -409,28 +409,21 @@ public class FriendListManager {
         LOGGER.log(Level.INFO, "Creating messages list panel: " + title);
         JPanel panel = new JPanel(new BorderLayout());
         panel.setBorder(BorderFactory.createTitledBorder(title));
-
         DefaultListModel<String> model = new DefaultListModel<>();
         JList<String> messageList = new JList<>(model);
         List<Message> messages = isSent ? sentMessages : receivedMessages;
-
         for (Message msg : messages) {
             model.addElement(msg.getTitle() + " (" + (isSent ? "To: " + msg.getReceiver() : "From: " + msg.getSender()) + ")");
         }
-
         messageList.addListSelectionListener(e -> {
             if (!e.getValueIsAdjusting() && !messageList.isSelectionEmpty()) {
                 Message selectedMessage = messages.get(messageList.getSelectedIndex());
-
                 showDetailedMessageDialog(selectedMessage, isSent);
             }
         });
-
         panel.add(new JScrollPane(messageList), BorderLayout.CENTER);
         return panel;
     }
-
-
 }
 
 class PanelListRenderer implements ListCellRenderer<JPanel> {

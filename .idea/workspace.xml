@@ -6,6 +6,10 @@
   <component name="ChangeListManager">
     <list default="true" id="8ad32b2f-77a1-48af-b65e-dc605abe6719" name="변경" comment="변경">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/cyworld_01/.gradle/file-system.probe" beforeDir="false" afterPath="$PROJECT_DIR$/cyworld_01/.gradle/file-system.probe" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/cyworld_01/src/main/java/org/Friend/FriendListManager.java" beforeDir="false" afterPath="$PROJECT_DIR$/cyworld_01/src/main/java/org/Friend/FriendListManager.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/cyworld_01/src/main/java/org/Utility/DatabaseConfig.java" beforeDir="false" afterPath="$PROJECT_DIR$/cyworld_01/src/main/java/org/Utility/DatabaseConfig.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/cyworld_01/src/main/java/org/example/MiniHomepage.java" beforeDir="false" afterPath="$PROJECT_DIR$/cyworld_01/src/main/java/org/example/MiniHomepage.java" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -153,6 +157,7 @@
       <workItem from="1703407005410" duration="11615000" />
       <workItem from="1703426621361" duration="7173000" />
       <workItem from="1703552066229" duration="34628000" />
+      <workItem from="1703594941698" duration="2413000" />
     </task>
     <task id="LOCAL-00001" summary=".">
       <option name="closed" value="true" />

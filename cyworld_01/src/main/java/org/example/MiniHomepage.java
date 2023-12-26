@@ -4,12 +4,6 @@ import org.Friend.FriendListManager;
 import org.Friend.FriendManager;
 import org.Friend.FriendRequestDialog;
 import org.Utility.*;
-import org.Utility.BackgroundPanel;
-import org.Utility.ImageDetails;
-import org.Utility.ProfileImageUpload;
-import org.Utility.UserSession;
-import org.Utility.WriteBoardManager;
-import org.Utility.ProfileEditor;
 import org.example.Panel.GifPanel;
 import org.example.Panel.MusicPlayerPanel;
 import org.example.Panel.ProfilePanel;
@@ -17,9 +11,8 @@ import javax.swing.*;
 import java.awt.*;
 import java.io.File;
 import java.io.IOException;
+import java.io.InputStream;
 import java.net.URL;
-import java.nio.file.Files;
-import java.text.SimpleDateFormat;
 import java.util.Arrays;
 import java.util.List;
 public class MiniHomepage extends JFrame {
@@ -68,7 +61,19 @@ public class MiniHomepage extends JFrame {
     private UserSession userSession;
     private String username;
     private ProfileEditor profileEditor; // 클래스 레벨에 profileEditor 선언
-
+    public static class FontManager {
+        public  static Font loadFont(String fontPath, int style, float size) {
+            try {
+                InputStream is = org.Utility.FontManager.class.getResourceAsStream(fontPath);
+                Font customFont = Font.createFont(Font.TRUETYPE_FONT, is);
+                return customFont.deriveFont(style, size);
+            } catch (IOException | FontFormatException e) {
+                e.printStackTrace();
+                System.err.println("폰트를 불러오는데 문제가 발생했습니다.");
+                return new Font("SansSerif", style, (int) size);
+            }
+        }
+    }
     public MiniHomepage() {
         //버튼 초기화
         changeImageButton=new JButton("사진 변경");
@@ -366,6 +371,8 @@ public class MiniHomepage extends JFrame {
 
         JPanel ProfiletextPanel = new JPanel();
         JLabel ProfiletextLabel = new JLabel(profileComment);
+        Font f1 = FontManager.loadFont("/Font/KOTRA HOPE.ttf", Font.PLAIN, 15);
+        ProfiletextLabel.setFont(f1);
 
         ProfiletextPanel.add(ProfiletextLabel);
         profileTextPanel.add(ProfiletextPanel);
