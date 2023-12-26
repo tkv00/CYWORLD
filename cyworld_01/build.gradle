@@ -14,7 +14,9 @@ dependencies {
     testImplementation("org.junit.jupiter:junit-jupiter")
     implementation ("org.xerial:sqlite-jdbc:3.34.0")
     implementation ("mysql:mysql-connector-java:8.0.23")
-
+    implementation("com.squareup.okhttp3:okhttp:4.9.0")
+    implementation("org.json:json:20210307")
+    implementation("org.jxmapviewer:jxmapviewer2:2.3")
 }
 
 tasks.test {

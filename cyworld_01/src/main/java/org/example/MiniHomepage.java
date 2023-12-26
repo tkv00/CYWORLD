@@ -425,14 +425,12 @@ public class MiniHomepage extends JFrame {
 
     private JPanel createMainContent() {
         JPanel mainContent = new JPanel(new BorderLayout());
-        // 상단 타이틀
         mainContent.setOpaque(false); // 메인 컨텐츠 투명하게 설정
         return mainContent;
     }
 
     public void setUserId(String userId) {
         this.userId = userId;
-        // PhotoGalleryManager에 userId를 전달합니다.
         photoGalleryManager = new PhotoGalleryManager(this, this.userId);
     }
     //버튼 초기값 설정 (true)

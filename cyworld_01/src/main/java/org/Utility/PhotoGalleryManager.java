@@ -135,5 +135,19 @@ public class PhotoGalleryManager extends Component {
         }
         // Implement any necessary cleanup
     }
+
+    public void uploadPhotoWithLocation(File photoFile, String title, String category, String selectedLocation) throws SQLException, FileNotFoundException {
+        Connection connection = DatabaseConfig.getConnection();
+         String sql = "INSERT INTO photos (title, category, location, photo) VALUES (?, ?, ?, ?)";
+         PreparedStatement statement = connection.prepareStatement(sql);
+         statement.setString(1, title);
+         statement.setString(2, category);
+         statement.setString(3, selectedLocation);
+         statement.setBinaryStream(4, new FileInputStream(photoFile));
+         int rowsInserted = statement.executeUpdate();
+         if (rowsInserted > 0) {
+           System.out.println("사진 및 위치 정보가 성공적으로 업로드되었습니다.");
+         }
+    }
 }
 

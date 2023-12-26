@@ -338,7 +338,7 @@ public class FriendListManager {
 
         // 사진첩 버튼에 대한 액션 리스너 추가
         friendCyworld.getPhotoGalleryButton().addActionListener(e -> openFriendPhotoGallery(friendCyworld, friend));
-// 일촌의 싸이월드 창을 닫을 때 나의 싸이월드 창이 닫히지 않도록 다른 닫기 동작을 설정합니다.
+        // 일촌의 싸이월드 창을 닫을 때 나의 싸이월드 창이 닫히지 않도록 다른 닫기 동작을 설정합니다.
         friendCyworld.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE); // 필요한 경우 변경
         // 새 창에서 일촌의 싸이월드 표시
         friendCyworld.showMainPage();
@@ -348,16 +348,16 @@ public class FriendListManager {
     private void disableFriendCyworldFeatures(MiniHomepage friendCyworld) {
         friendCyworld.getProfileButton().setEnabled(false);
         friendCyworld.getBoardButton().setEnabled(false);
-        friendCyworld.getPhotoGalleryButton().setEnabled(true);
+        //friendCyworld.getPhotoGalleryButton().setEnabled(false);
         //사진첩중 사진추가 버튼 잠그기
 
-        friendCyworld.getChangeImageButton().setEnabled(false);
+        //friendCyworld.getChangeImageButton().setEnabled(false);
         friendCyworld.getMessageButton().setEnabled(false);
         friendCyworld.getNotificationButton().setEnabled(false);
         friendCyworld.getFriend().setEnabled(false);
         friendCyworld.getFriendList().setEnabled(false);
         friendCyworld.getCommentButton().setEnabled(false);
-        friendCyworld.getCommentButton().setEnabled(false);
+
 
     }
     private void openFriendPhotoGallery(MiniHomepage friendCyworld, String friendId) {
@@ -375,7 +375,7 @@ public class FriendListManager {
             // 새 창을 만듭니다.
             try {
                 PhotoGalleryWindow galleryWindow = new PhotoGalleryWindow(friendCyworld.getPhotoGalleryManager(), friendId, false);
-                galleryWindow.disableAddPhotoButton(); // '사진 추가' 버튼 비활성화
+                //galleryWindow.disableAddPhotoButton(); // '사진 추가' 버튼 비활성화
                 galleryWindow.setVisible(true);
                 friendCyworld.setPhotoGalleryWindow(galleryWindow); // 새 창 참조를 저장합니다.
             } catch (Exception e) {
