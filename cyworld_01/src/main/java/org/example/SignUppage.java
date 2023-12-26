@@ -49,6 +49,8 @@ public class SignUppage {
         cancelButton.setForeground(Color.BLACK);
         cancelButton.addActionListener(e ->loginPage.show());
         frame.add(cancelButton);
+
+
     }
 
     private void addFormField(String label, JComponent component) {

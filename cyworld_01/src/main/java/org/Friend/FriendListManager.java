@@ -1,6 +1,7 @@
 package org.Friend;
 
 import org.Utility.DatabaseConfig;
+import org.Utility.PhotoGalleryWindow;
 import org.Utility.UserSession;
 import org.example.Message;
 import org.example.MiniHomepage;
@@ -17,6 +18,7 @@ import java.util.List;
 
 public class FriendListManager {
     private JFrame parentFrame;
+
     static final Logger LOGGER = Logger.getLogger(FriendListManager.class.getName());
 
     private List<Message> sentMessages; // 보낸// 쪽지 목록
@@ -64,37 +66,7 @@ public class FriendListManager {
             JOptionPane.showMessageDialog(parentFrame, "쪽지를 불러오는데 실패했습니다: " + e.getMessage(), "오류", JOptionPane.ERROR_MESSAGE);
         }
     }
-    public void showFriendListDialog() {
-        try {
-            String userId = UserSession.getInstance().getUserId();
-            friendListDialog = new JDialog(parentFrame, "친구 목록", true);
-            friendListDialog.setLayout(new BorderLayout());
 
-            List<String> friends = friendManager.getAcceptedFriendRequests(userId);
-
-            DefaultListModel<String> model = new DefaultListModel<>();
-            for (String friend : friends) {
-                model.addElement(friend);
-            }
-            JList<String> friendList = new JList<>(model);
-            friendListDialog.add(new JScrollPane(friendList), BorderLayout.CENTER);
-            JPanel buttonPanel = new JPanel(new FlowLayout(FlowLayout.CENTER));
-            JButton messageButton = new JButton("쪽지 보내기");
-            messageButton.addActionListener(e -> {
-                if (!friendList.isSelectionEmpty()) {
-                    String selectedFriend = friendList.getSelectedValue();
-                    sendNoteToFriend(selectedFriend);
-                }
-            });
-            buttonPanel.add(messageButton);
-            friendListDialog.add(buttonPanel, BorderLayout.SOUTH);
-            friendListDialog.setSize(300, 400);
-            friendListDialog.setLocationRelativeTo(parentFrame);
-            friendListDialog.setVisible(true);
-        } catch (Exception e) {
-            JOptionPane.showMessageDialog(parentFrame, "친구 목록을 불러오는데 실패했습니다: " + e.getMessage(), "오류", JOptionPane.ERROR_MESSAGE);
-        }
-    }
     private void sendNoteToFriend(String friend) {
         // Title input as a smaller field
         JTextField titleField = new JTextField(); // The width will be set by the layout manager
@@ -297,6 +269,121 @@ public class FriendListManager {
         replyDialog.setAlwaysOnTop(true);
         replyDialog.setVisible(true);
     }
+    public void showFriendListDialog() {
+        try {
+            String userId = UserSession.getInstance().getUserId();
+            friendListDialog = new JDialog(parentFrame, "일촌 목록", true);
+            friendListDialog.setLayout(new BorderLayout());
+
+            List<String> friends = friendManager.getAcceptedFriendRequests(userId);
+            DefaultListModel<String> model = new DefaultListModel<>();
+
+            for (String friend : friends) {
+                model.addElement(friend);
+            }
+
+            JList<String> friendList = new JList<>(model);
+            friendListDialog.add(new JScrollPane(friendList), BorderLayout.CENTER);
+
+            // 하단 버튼 패널
+            JPanel buttonPanel = new JPanel(new FlowLayout(FlowLayout.CENTER));
+            JButton visitButton = new JButton("싸이월드 방문");
+            JButton messageButton = new JButton("쪽지 보내기");
+
+            // 버튼 초기 상태는 비활성화
+            visitButton.setEnabled(false);
+            messageButton.setEnabled(false);
+
+            buttonPanel.add(visitButton);
+            buttonPanel.add(messageButton);
+            friendListDialog.add(buttonPanel, BorderLayout.SOUTH);
+
+            // 리스트 선택 이벤트 리스너
+            friendList.addListSelectionListener(e -> {
+                if (!e.getValueIsAdjusting()) {
+                    String selectedFriend = friendList.getSelectedValue();
+                    if (selectedFriend != null && !selectedFriend.isEmpty()) {
+                        // 버튼 활성화 및 액션 리스너 설정
+                        visitButton.setEnabled(true);
+                        messageButton.setEnabled(true);
+
+                        visitButton.addActionListener(ev -> visitFriendCyworld(selectedFriend));
+                        messageButton.addActionListener(ev -> sendNoteToFriend(selectedFriend));
+                    } else {
+                        // 선택이 해제된 경우 버튼 비활성화
+                        visitButton.setEnabled(false);
+                        messageButton.setEnabled(false);
+                    }
+                }
+            });
+
+            friendListDialog.setSize(250, 300);
+            friendListDialog.setLocationRelativeTo(parentFrame);
+            friendListDialog.setVisible(true);
+        } catch (Exception e) {
+            JOptionPane.showMessageDialog(parentFrame, "친구 목록을 불러오는데 실패했습니다: " + e.getMessage(), "오류", JOptionPane.ERROR_MESSAGE);
+        }
+    }
+
+
+    //일촌의 싸이월드 방문 로직
+    private void visitFriendCyworld(String friend) {
+        // 새로운 MiniHomepage 인스턴스 생성
+        MiniHomepage friendCyworld = new MiniHomepage();
+        // 일촌의 사용자 ID 설정
+        friendCyworld.setUserId(friend);
+
+        // 일촌의 싸이월드에 대한 설정 (버튼 비활성화 등)
+        disableFriendCyworldFeatures(friendCyworld);
+
+        // 사진첩 버튼에 대한 액션 리스너 추가
+        friendCyworld.getPhotoGalleryButton().addActionListener(e -> openFriendPhotoGallery(friendCyworld, friend));
+// 일촌의 싸이월드 창을 닫을 때 나의 싸이월드 창이 닫히지 않도록 다른 닫기 동작을 설정합니다.
+        friendCyworld.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE); // 필요한 경우 변경
+        // 새 창에서 일촌의 싸이월드 표시
+        friendCyworld.showMainPage();
+        friendCyworld.setVisible(true);
+    }
+    // 일촌의 싸이월드에 대한 설정을 비활성화하는 별도의 메서드
+    private void disableFriendCyworldFeatures(MiniHomepage friendCyworld) {
+        friendCyworld.getProfileButton().setEnabled(false);
+        friendCyworld.getBoardButton().setEnabled(false);
+        friendCyworld.getPhotoGalleryButton().setEnabled(true);
+        //사진첩중 사진추가 버튼 잠그기
+
+        friendCyworld.getChangeImageButton().setEnabled(false);
+        friendCyworld.getMessageButton().setEnabled(false);
+        friendCyworld.getNotificationButton().setEnabled(false);
+        friendCyworld.getFriend().setEnabled(false);
+        friendCyworld.getFriendList().setEnabled(false);
+        friendCyworld.getCommentButton().setEnabled(false);
+        friendCyworld.getCommentButton().setEnabled(false);
+
+    }
+    private void openFriendPhotoGallery(MiniHomepage friendCyworld, String friendId) {
+        PhotoGalleryWindow existingGallery = friendCyworld.getPhotoGalleryWindow();
+        // 창이 이미 열려있는지 확인합니다.
+        if (existingGallery != null) {
+            if (existingGallery.isVisible()) {
+                existingGallery.toFront(); // 기존 창을 앞으로 가져옴
+                existingGallery.repaint(); // 필요한 경우 창을 새로 그림
+            } else {
+                // 창이 존재하지만 보이지 않는 경우, 창을 다시 보이게 합니다.
+                existingGallery.setVisible(true);
+            }
+        } else {
+            // 새 창을 만듭니다.
+            try {
+                PhotoGalleryWindow galleryWindow = new PhotoGalleryWindow(friendCyworld.getPhotoGalleryManager(), friendId, false);
+                galleryWindow.disableAddPhotoButton(); // '사진 추가' 버튼 비활성화
+                galleryWindow.setVisible(true);
+                friendCyworld.setPhotoGalleryWindow(galleryWindow); // 새 창 참조를 저장합니다.
+            } catch (Exception e) {
+                // 오류 발생 시 사용자에게 알립니다.
+                JOptionPane.showMessageDialog(friendCyworld, "사진첩을 열 수 없습니다: " + e.getMessage(), "오류", JOptionPane.ERROR_MESSAGE);
+            }
+        }
+    }
 
     private void sendReplyToFriend(String recipient, String title, String content,JDialog parentDialog) {
         // 데이터베이스에 답장 메시지를 삽입하는 로직 또는 API 호출을 여기에 구현합니다.
@@ -341,5 +428,14 @@ public class FriendListManager {
 
         panel.add(new JScrollPane(messageList), BorderLayout.CENTER);
         return panel;
+    }
+
+
+}
+
+class PanelListRenderer implements ListCellRenderer<JPanel> {
+    @Override
+    public Component getListCellRendererComponent(JList<? extends JPanel> list, JPanel value, int index, boolean isSelected, boolean cellHasFocus) {
+        return value;
     }
 }

@@ -12,15 +12,17 @@ import java.util.List;
 
 public class PhotoGalleryWindow extends JFrame {
     private final String userId;
+    private boolean isReadOnly;
 
     private JButton addPhotoButton; // 사진 추가 버튼
     private final PhotoGalleryManager photoGalleryManager;
     private JPanel tagPanel;
     private JPanel photoPanel;
 
-    public PhotoGalleryWindow(PhotoGalleryManager manager, String userId) {
+    public PhotoGalleryWindow(PhotoGalleryManager manager, String userId,boolean isReadOnly) {
         this.photoGalleryManager = manager;
         this.userId = userId;
+        this.isReadOnly = isReadOnly;
         System.out.println("PhotoGalleryWindow initialized with userId: " + userId);
         if (userId == null || userId.trim().isEmpty()) {
             System.err.println("User ID is null or empty in openPhotoGalleryWindow");
@@ -28,19 +30,24 @@ public class PhotoGalleryWindow extends JFrame {
         }
         initializeUI();
     }
-
+    // 사진 추가 버튼 활성화/비활성화 메서드
+    public void setAddPhotoButtonEnabled(boolean enabled) {
+        if (addPhotoButton != null) {
+            addPhotoButton.setEnabled(enabled);
+        }
+    }
     // 사용자 인터페이스 초기화
     private void initializeUI() {
         setTitle("사진첩");
         setSize(800, 600);
         setLayout(new BorderLayout());
-        setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
-
         // 상단 패널 및 사진 추가 버튼 초기화
         initializeTopPanel();
 
         // 태그 패널 초기화
         initializeTagPanel();
+
+        setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
 
         // 사진 패널 초기화
         initializePhotoPanel();
@@ -48,12 +55,13 @@ public class PhotoGalleryWindow extends JFrame {
         // 초기 사진 표시
         displayPhotos("Recent"); // "Recent"는 최근 사진을 나타내는 가상의 태그입니다.
 
-        setVisible(true);
+        setVisible(!isReadOnly);
     }
 
     // 상단 패널 및 사진 추가 버튼 초기화
     private void initializeTopPanel() {
         addPhotoButton = new JButton("사진 추가");
+        addPhotoButton.setEnabled(!isReadOnly);
         addPhotoButton.addActionListener(e -> {
             JFileChooser fileChooser = new JFileChooser();
             int result = fileChooser.showOpenDialog(this);
@@ -173,6 +181,12 @@ public class PhotoGalleryWindow extends JFrame {
         } catch (ParseException e) {
             e.printStackTrace();
             return dateTimeStr; // 파싱에 실패할 경우 원래 문자열을 반환합니다.
+        }
+    }
+    // '사진 추가' 버튼을 비활성화하는 메서드
+    public void disableAddPhotoButton() {
+        if (addPhotoButton != null) {
+            addPhotoButton.setEnabled(false);
         }
     }
 }
