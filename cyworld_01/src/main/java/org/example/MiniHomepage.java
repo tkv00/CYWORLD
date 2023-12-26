@@ -3,6 +3,7 @@ package org.example;
 import org.Friend.FriendListManager;
 import org.Friend.FriendManager;
 import org.Friend.FriendRequestDialog;
+import org.Utility.*;
 import org.Utility.BackgroundPanel;
 import org.Utility.ImageDetails;
 import org.Utility.ProfileImageUpload;
@@ -22,29 +23,74 @@ import java.text.SimpleDateFormat;
 import java.util.Arrays;
 import java.util.List;
 public class MiniHomepage extends JFrame {
-    private JButton notificationButton;
+    private PhotoGalleryManager photoGalleryManager;
     private FriendManager friendManager;
+    private PhotoGalleryWindow photoGalleryWindow;
     private JFrame frame;
     String imagePath = "/image/main.jpg";
-    private  int DEFAULT_WIDTH = 143;
+    private int DEFAULT_WIDTH = 143;
     private int DEFAULT_HEIGHT = 190;
     URL imageUrl = getClass().getResource(imagePath);
     private LoginPage loginPage;
+    ProfileImageUpload profileImageUpload;
     private SignUppage signUpPage;
     private FriendListManager friendListManager; // 친구 목록 관리자 추가
     private JPanel friendsPanel;
     private ProfilePanel profilePanel;
+    private String userId;
+
+    //버튼 변수 설정
+    //사진변경
+    private JButton changeImageButton;
+    //일촌신청
+    private JButton newButton2;
+    //일촌목록
+    private JButton newButton3;
+    //홈화면 버튼
+    private JButton boardButton1;
+    //우측 게시판
+    private JButton boardButton3;
+    //프로필
+    private JButton boardButton2;
+    //방명록
+    private JButton boardButton4;
+    //사진첩
+    private JButton boardButton5;
+    //알림버튼
+    private JButton notificationButton;
+    //메세지버튼
+    private JButton messageButton;
+
+
+
+
     private WriteBoardManager writeBoardManager;
     private UserSession userSession;
     private String username;
     private ProfileEditor profileEditor; // 클래스 레벨에 profileEditor 선언
 
     public MiniHomepage() {
+        //버튼 초기화
+        changeImageButton=new JButton("사진 변경");
+        newButton2=new JButton("일촌신청");
+        newButton3=new JButton("일촌목록");
+        boardButton1=new JButton("홈화면");
+        boardButton3=new JButton("게시판");
+        messageButton=new JButton(new ImageIcon(getClass().getResource("/image/email.png")));
+        boardButton2=new JButton("프로필");
+        boardButton4=new JButton("방명록");
+        boardButton5=new JButton("사진첩");
+        notificationButton=new JButton(new ImageIcon(getClass().getResource("/image/notification.png")));
+
+
         // 기본 프레임 설정
         this.friendManager = new FriendManager();
+        photoGalleryManager=new PhotoGalleryManager(this,this.userId);
+        profileImageUpload=new ProfileImageUpload();
+        loginPage=new LoginPage(signUpPage,this);
         // FriendListManager 인스턴스 생성
-        signUpPage = new SignUppage();
-        notificationButton=new JButton();
+        signUpPage = new SignUppage(loginPage);
+
         this.friendsPanel = new JPanel();
         this.friendsPanel.setLayout(new BoxLayout(this.friendsPanel, BoxLayout.Y_AXIS));
         loginPage = new LoginPage(signUpPage, this);
@@ -63,16 +109,22 @@ public class MiniHomepage extends JFrame {
         this.writeBoardManager = new WriteBoardManager();
         this.profileEditor = new ProfileEditor(this.username);
     }
+    // 로그인 성공 후 userId를 설정하는 메서드
+
+
     public static void main(String[] args) {
         new MiniHomepage().showLogin();
     }
-    private void showLogin(){loginPage.show();}
+
+    private void showLogin() {
+        loginPage.show();
+    }
+
     // 수평 패널을 생성하는 메서드
     public void showMainPage() {
         frame = new JFrame("싸이월드");
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         frame.setSize(900, 600);
-
         // 이미지 로드 부분
         ImageIcon imageIcon = new ImageIcon(imageUrl);
         if (imageIcon.getIconWidth() == -1) {
@@ -93,103 +145,34 @@ public class MiniHomepage extends JFrame {
 
         layeredPane.add(musicPlayerPanel, Integer.valueOf(500)); // 레이어 설정
 
+
         // 배경 패널 추가
         layeredPane.add(backgroundPanel, JLayeredPane.DEFAULT_LAYER);
-
-        //프로필패널메소드
-        ImageIcon profileImageIcon = new ImageIcon(getClass().getResource("/image/DefaultImage.jpg"));
-        Image profileImage = profileImageIcon.getImage();
-        ProfilePanel profilePanel = new ProfilePanel(profileImage);
-        profilePanel.setBounds(75, 135, profileImageIcon.getIconWidth(), profileImageIcon.getIconHeight());
+        // 프로필 이미지 로드 및 패널 설정
+        profilePanel = new ProfilePanel(null);
+        profilePanel.setBounds(75, 135, DEFAULT_WIDTH, DEFAULT_HEIGHT);
         layeredPane.add(profilePanel, Integer.valueOf(500));
-
-        JButton newButton = new JButton("사진변경");
-        newButton.setBounds(95, 120 + profileImageIcon.getIconHeight(), 100, 20); // 위치 설정 (가로: 100, 세로: 30)
-        layeredPane.add(newButton, Integer.valueOf(501)); // 새로운 버튼을 적절한 레이어에 추가
-        ProfilePanel finalProfilePanel = profilePanel;
-        newButton.addActionListener(e->{
-            // 파일 선택 다이얼로그 열기
-            JFileChooser fileChooser = new JFileChooser();
-            int returnValue = fileChooser.showOpenDialog(null);
-
-            if (returnValue == JFileChooser.APPROVE_OPTION) {
-                try {
-                    // 선택된 이미지 파일을 읽어 byte 배열로 변환
-                    File selectedFile = fileChooser.getSelectedFile();
-                    UserSession userSession = UserSession.getInstance();
-                    byte[] imageData = Files.readAllBytes(selectedFile.toPath());
-                    // 이미지 파일 이름 설정
-                    String fileName = selectedFile.getName();
-                    // 데이터베이스에 이미지 정보 저장
-                    String userId = userSession.getUserId();
-                    SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
-                    String uploadTime = sdf.format(new java.util.Date());
-
-                    // 이미지 정보를 ImageDetails 객체에 저장
-                    ImageDetails imageDetails = new ImageDetails(imageData, fileName, uploadTime, userId);
-
-                    ProfileImageUpload imageUpload = new ProfileImageUpload();
-                    imageUpload.uploadProfileImage(selectedFile,imageDetails);
-
-                    // 프로필 이미지 변경
-                    ImageIcon changedImageIcon = new ImageIcon(imageData);
-                    Image changedImage = changedImageIcon.getImage();
-                    // 이미지 크기 조정
-                    Image resizedImage = finalProfilePanel.scaleImageToDefaultSize(changedImage);
-                    finalProfilePanel.changeProfileImage(resizedImage); // 새로운 이미지로 변경
-                } catch (IOException ex) {
-                    ex.printStackTrace();
-                    // 오류 처리 로직 추가
-                }
-            }
-        });
-        // 이미지 변경 여부 확인
-        String userId = ""; // 사용자 아이디를 저장할 변수
-        UserSession userSession = UserSession.getInstance();
-        if (userSession.isLoggedIn()) {
-            userId = userSession.getUserId();
-        }
-        ProfileImageUpload imageUpload = new ProfileImageUpload();
-        boolean isImageChanged = imageUpload.isImageChanged(userId);
-
-        if (isImageChanged) {
-            // 이미지가 변경된 경우
-            // 데이터베이스에서 이미지 불러오기
-            byte[] profileImageData = imageUpload.getLatestProfileImage(userId);
-            if (profileImageData != null) {
-                // 이미지를 ImageIcon으로 변환하고 프로필 패널에 적용
-                ImageIcon changedImageIcon = new ImageIcon(profileImageData);
-                Image changedImage = changedImageIcon.getImage();
-                // 이미지 크기 조정
-                Image resizedImage =profilePanel.scaleImageToDefaultSize(changedImage);
-                profilePanel = new ProfilePanel(resizedImage);
-                profilePanel.setBounds(75, 135, DEFAULT_WIDTH, DEFAULT_HEIGHT);
-                layeredPane.add(profilePanel, Integer.valueOf(500));
-                profileImageIcon = changedImageIcon;
-            }
-        }
-        else {
-            // 이미지가 변경되지 않은 경우
-            // 기본 이미지 로드
-            profileImageIcon = new ImageIcon((getClass().getResource("/image/DefaultImage.jpg")));
-            Image defaultImage = profileImageIcon.getImage();
-            // 이미지 크기 조정
-            Image resizedImage = profilePanel.scaleImageToDefaultSize(defaultImage);
-            profilePanel = new ProfilePanel(resizedImage);
-            profilePanel.setBounds(75, 135, DEFAULT_WIDTH, DEFAULT_HEIGHT);
-            layeredPane.add(profilePanel, Integer.valueOf(500));
+        // If there is a user logged in, load their profile image
+        if (userId != null && !userId.trim().isEmpty()) {
+            profilePanel.loadAndSetUserProfileImage(userId);
+        } else {
+            // If no user is logged in, set a default image or handle accordingly
+            profilePanel.setDefaultImage();
         }
 
 
-        JButton newButton2 = new JButton("일촌신청");
-        newButton2.setBounds(95, 450, 100, 20); // 위치 설정 (가로: 100, 세로: 30)
+        changeImageButton.setBounds(95, 340, 100, 20);
+        layeredPane.add(changeImageButton, Integer.valueOf(600));
+        changeImageButton.addActionListener(e -> uploadAndSetNewProfileImage());
+
+
+        newButton2.setBounds(95, 480, 100, 20); // 위치 설정 (가로: 100, 세로: 30)
         layeredPane.add(newButton2, Integer.valueOf(501)); // 새로운 버튼을 적절한 레이어에 추가
-        newButton2.addActionListener(e->friendListManager.openFriendSearchDialog());
+        newButton2.addActionListener(e -> friendListManager.openFriendSearchDialog());
 
-        JButton newButton3 = new JButton("일촌목록");
-        newButton3.setBounds(95, 470  , 100, 20); // 위치 설정 (가로: 100, 세로: 30)
+        newButton3.setBounds(95, 500, 100, 20); // 위치 설정 (가로: 100, 세로: 30)
         layeredPane.add(newButton3, Integer.valueOf(501)); // 새로운 버튼을 적절한 레이어에 추가
-        newButton3.addActionListener(e-> {
+        newButton3.addActionListener(e -> {
             try {
                 friendListManager.showFriendListDialog(); // FriendListManager를 사용하여 친구 목록 다이얼로그 표시
             } catch (Exception ex) {
@@ -251,20 +234,17 @@ public class MiniHomepage extends JFrame {
         mainContent.setBounds(0, 0, gifPanel.getWidth(), gifPanel.getHeight());
         mainContent.setOpaque(false); // 메인 컨텐츠를 투명하게 설정
 
-        // 알림 버튼 추가
-        URL notificationIconUrl = getClass().getResource("/image/notification.png");
-        ImageIcon notificationIcon = new ImageIcon(notificationIconUrl);
-        JButton notificationButton = new JButton(notificationIcon);
+
         notificationButton.setContentAreaFilled(false);  // 내용 영역을 투명으로 설정
         notificationButton.setBorderPainted(false);  // 테두리를 숨김
         notificationButton.setBounds(170, 100, 20, 20);
         notificationButton.addActionListener(e -> {
             try {
                 // FriendManager를 통해 친구 요청 목록을 가져옵니다.
-                List<String> friendRequests = friendManager.getPendingFriendRequests(UserSession.getInstance().getUserId());
+                List<String> friendRequests = friendManager.getPendingFriendRequests(userId);
 
                 // FriendRequestDialog 인스턴스를 생성합니다.
-                FriendRequestDialog requestDialog = new FriendRequestDialog(MiniHomepage.this, UserSession.getInstance().getUserId(), friendRequests);
+                FriendRequestDialog requestDialog = new FriendRequestDialog(MiniHomepage.this, userId, friendRequests);
 
                 // FriendRequestDialog를 표시합니다.
                 requestDialog.setVisible(true);
@@ -277,17 +257,28 @@ public class MiniHomepage extends JFrame {
         layeredPane.add(notificationButton, Integer.valueOf(JLayeredPane.POPUP_LAYER));
 
         //쪽지 버튼 추가
-        URL messageUrl=getClass().getResource("/image/email.png");
-        ImageIcon messageIcon=new ImageIcon(messageUrl);
-        JButton messageButton=new JButton(messageIcon);
+        URL messageUrl = getClass().getResource("/image/email.png");
+        ImageIcon messageIcon = new ImageIcon(messageUrl);
+        JButton messageButton = new JButton(messageIcon);
 
         messageButton.setContentAreaFilled(false);  // 내용 영역을 투명으로 설정
         messageButton.setBorderPainted(false);  // 테두리를 숨김
 
-        messageButton.setBounds(200,100,20,20);
-        layeredPane.add(messageButton,Integer.valueOf(JLayeredPane.POPUP_LAYER));
+        messageButton.setBounds(200, 100, 20, 20);
+        layeredPane.add(messageButton, Integer.valueOf(JLayeredPane.POPUP_LAYER));
+        // 메세지 버튼에 액션 리스너 추가
+        messageButton.addActionListener(e -> {
+            try {
+                // FriendListManager 인스턴스가 이미 있어야 합니다.
+                friendListManager.showMessagesDialog();  // 쪽지 패널을 표시하는 메소드 호출
+            } catch (Exception ex) {
+                ex.printStackTrace();
+                JOptionPane.showMessageDialog(null, "쪽지를 불러오는 데 문제가 발생했습니다: " + ex.getMessage(), "오류", JOptionPane.ERROR_MESSAGE);
+            }
+        });
 
-        // 프레임에 레이어드 패인 추가 및 표시
+// 메세지 버튼을 레이어드 패인 또는 메인 프레임에 추가
+        layeredPane.add(messageButton, Integer.valueOf(JLayeredPane.POPUP_LAYER));
         frame.setLayeredPane(layeredPane); // 프레임에 레이어드 판을 설정
         frame.setVisible(true);
 
@@ -381,19 +372,42 @@ public class MiniHomepage extends JFrame {
         ProfiletextPanel.setOpaque(false); // 패널의 불투명성을 비활성화
 
     }
+
+    private void uploadAndSetNewProfileImage() {
+        JFileChooser fileChooser = new JFileChooser();
+        fileChooser.setDialogTitle("새 프로필 이미지 선택");
+        int result = fileChooser.showOpenDialog(this);
+
+        if (result == JFileChooser.APPROVE_OPTION) {
+            File selectedFile = fileChooser.getSelectedFile();
+            try {
+                Image newProfileImage = new ImageIcon(selectedFile.getAbsolutePath()).getImage();
+                profilePanel.updateProfileImage(newProfileImage); // 프로필 이미지 변경
+            } catch (Exception ex) {
+                JOptionPane.showMessageDialog(this, "이미지 로딩 실패", "오류", JOptionPane.ERROR_MESSAGE);
+            }
+        }
+    }
+
+    // 사진첩 다이얼로그를 열기 위한 메서드
+    private void openPhotoGalleryWindow() {
+        if (this.userId == null || this.userId.trim().isEmpty()) {
+            System.err.println("User ID is null or empty in openPhotoGalleryWindow");
+            return;  // Handle this situation appropriately
+        }
+
+        // Pass the userId to the PhotoGalleryWindow or Manager
+        PhotoGalleryWindow galleryWindow = new PhotoGalleryWindow(photoGalleryManager, userId,true);
+        galleryWindow.setVisible(true);
+    }
     private JPanel createRecentPostPanel(JPanel recentPostPanel) {
         return recentPostPanel;
     }
-
+    // 사진첩 창을 열기 위한 메서드
     private JPanel createMenuBar() {
         JPanel menuBar = new JPanel();
         menuBar.setLayout(new BoxLayout(menuBar, BoxLayout.Y_AXIS));
 
-        JButton boardButton1 = new JButton("홈화면");
-        JButton boardButton2 = new JButton("프로필");
-        JButton boardButton3 = new JButton("게시판");
-        JButton boardButton4 = new JButton("방명록");
-        JButton boardButton5 = new JButton("사진첩");
         menuBar.add(Box.createHorizontalStrut(0)); // 수평 간격 추가
         // 원하는 순서로 버튼을 추가로 변경
         menuBar.add(boardButton1); // 홈화면 버튼을 마지막으로 추가
@@ -418,9 +432,7 @@ public class MiniHomepage extends JFrame {
             // 방명록 버튼 클릭 시 수행할 동작 추가
         });
 
-        boardButton5.addActionListener(e -> {
-            // 사진첩 버튼 클릭 시 수행할 동작 추가
-        });
+        boardButton5.addActionListener(e ->openPhotoGalleryWindow());
         // 다른 버튼에 대한 동작 설정
         // 버튼 크기 설정
         Dimension buttonSize = new Dimension(10, 50);
@@ -453,9 +465,60 @@ public class MiniHomepage extends JFrame {
         mainContent.setOpaque(false); // 메인 컨텐츠 투명하게 설정
         return mainContent;
     }
-    void setUserId(String username){
-        this.username = username;
-        this.profileEditor = new ProfileEditor(this.username);
-    }
 
+    public void setUserId(String userId) {
+        this.userId = userId;
+        // PhotoGalleryManager에 userId를 전달합니다.
+        photoGalleryManager = new PhotoGalleryManager(this, this.userId);
+        this.profileEditor = new ProfileEditor(this.userId);
+    }
+    //버튼 초기값 설정 (true)
+    //프로필버튼
+    public JButton getProfileButton() {
+        return boardButton2;
+    }
+    //게시판 버튼
+    public JButton getBoardButton() {
+        return boardButton3;
+    }
+    //사진첩버튼
+    public JButton getPhotoGalleryButton() {
+        return boardButton5;
+    }
+    //방명록버튼
+    public JButton getCommentButton() {
+        return boardButton4;
+    }
+    //메세지버튼
+    public JButton getMessageButton(){
+        return messageButton;
+    }
+    //사진변경
+    public JButton getChangeImageButton(){
+        return changeImageButton;
+    }
+    //알림 버튼
+    public JButton getNotificationButton() {
+        return notificationButton;
+    }
+    //일촌신청
+    public JButton getFriend(){
+       return newButton2;
+    }
+    //일촌목록
+    public JButton getFriendList(){
+        return newButton3;
+    }
+    // PhotoGalleryManager 인스턴스를 반환하는 메서드
+    public PhotoGalleryManager getPhotoGalleryManager() {
+        return photoGalleryManager;
+    }
+    public void setPhotoGalleryWindow(PhotoGalleryWindow window) {
+        this.photoGalleryWindow = window;
+    }
+    // 현재 열려있는 PhotoGalleryWindow 인스턴스를 반환하는 메서드
+    public PhotoGalleryWindow getPhotoGalleryWindow() {
+        return this.photoGalleryWindow;
+    }
 }
+
