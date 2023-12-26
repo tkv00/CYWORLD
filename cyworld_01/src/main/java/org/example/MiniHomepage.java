@@ -44,8 +44,9 @@ public class MiniHomepage extends JFrame {
         this.friendManager = new FriendManager();
         photoGalleryManager=new PhotoGalleryManager(this,this.userId);
         profileImageUpload=new ProfileImageUpload();
+        loginPage=new LoginPage(signUpPage,this);
         // FriendListManager 인스턴스 생성
-        signUpPage = new SignUppage();
+        signUpPage = new SignUppage(loginPage);
         notificationButton = new JButton();
         this.friendsPanel = new JPanel();
         this.friendsPanel.setLayout(new BoxLayout(this.friendsPanel, BoxLayout.Y_AXIS));
@@ -198,7 +199,7 @@ public class MiniHomepage extends JFrame {
         notificationButton.addActionListener(e -> {
             try {
                 // FriendManager를 통해 친구 요청 목록을 가져옵니다.
-                List<String> friendRequests = friendManager.getPendingFriendRequests(UserSession.getInstance().getUserId());
+                List<String> friendRequests = friendManager.getPendingFriendRequests(userId);
 
                 // FriendRequestDialog 인스턴스를 생성합니다.
                 FriendRequestDialog requestDialog = new FriendRequestDialog(MiniHomepage.this, UserSession.getInstance().getUserId(), friendRequests);
@@ -223,8 +224,19 @@ public class MiniHomepage extends JFrame {
 
         messageButton.setBounds(200, 100, 20, 20);
         layeredPane.add(messageButton, Integer.valueOf(JLayeredPane.POPUP_LAYER));
+        // 메세지 버튼에 액션 리스너 추가
+        messageButton.addActionListener(e -> {
+            try {
+                // FriendListManager 인스턴스가 이미 있어야 합니다.
+                friendListManager.showMessagesDialog();  // 쪽지 패널을 표시하는 메소드 호출
+            } catch (Exception ex) {
+                ex.printStackTrace();
+                JOptionPane.showMessageDialog(null, "쪽지를 불러오는 데 문제가 발생했습니다: " + ex.getMessage(), "오류", JOptionPane.ERROR_MESSAGE);
+            }
+        });
 
-        // 프레임에 레이어드 패인 추가 및 표시
+// 메세지 버튼을 레이어드 패인 또는 메인 프레임에 추가
+        layeredPane.add(messageButton, Integer.valueOf(JLayeredPane.POPUP_LAYER));
         frame.setLayeredPane(layeredPane); // 프레임에 레이어드 판을 설정
         frame.setVisible(true);
 
