@@ -1,24 +1,40 @@
 package org.example;
 
+
+import java.text.SimpleDateFormat;
+import java.util.Date;
+
 public class Message {
-    private String sender;
-    private String receiver;
-    private String content;
+        private String sender;
+        private String receiver;
+        private String title;
+        private String content;
+        private  String send_time;
 
-    // 생성자, getter, setter 등 필요한 메소드를 구현
-    public Message(String sender, String receiver, String content) {
-        this.sender = sender;
-        this.receiver = receiver;
-        this.content = content;
+        public Message(String sender, String receiver, String title, String content,String send_time) {
+            this.sender = sender;
+            this.receiver = receiver;
+            this.title = title;
+            this.content = content;
+        }
+
+        public String getSender() {
+            return sender;
+        }
+
+        public String getReceiver() {
+            return receiver;
+        }
+
+        public String getTitle() {
+            return title;
+        }
+
+        public String getContent() {
+            return content;
+        }
+        public String getSentTime() {
+            String time=new SimpleDateFormat("yyyy-MM-dd HH-mm").format(new Date());
+            return time;
+        }
     }
-
-    public String getSender() {
-        return sender;
-    }
-
-    public String getContent() {
-        return content;
-    }
-
-    // 필요한 추가 메소드 구현
-}

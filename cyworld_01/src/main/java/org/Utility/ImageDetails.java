@@ -12,6 +12,10 @@ public class ImageDetails {
         this.userId = userId;
     }
 
+    public ImageDetails() {
+
+    }
+
     // Getter 및 Setter 메소드 추가 (필요에 따라)
     public byte[] getImageData() {
         return imageData;

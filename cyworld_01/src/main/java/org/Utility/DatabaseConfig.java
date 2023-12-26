@@ -24,14 +24,20 @@ public class DatabaseConfig {
 
     /**
      * 데이터베이스 연결을 제공
+     *
      * @return Connection 데이터베이스 연결 객체
      */
     public static Connection getConnection() {
         try {
-            return DriverManager.getConnection(DATABASE_URL, DATABASE_USER, DATABASE_PASSWORD);
+            System.out.println("Connecting to the database...");
+            Connection conn = DriverManager.getConnection(DATABASE_URL, DATABASE_USER, DATABASE_PASSWORD);
+            System.out.println("Database connected!");
+            return conn;
         } catch (SQLException e) {
-            e.printStackTrace();
+            System.err.println("Failed to connect to the database.");
+            e.printStackTrace();  // 이 부분에서 로깅 프레임워크를 사용할 수도 있습니다.
             return null;
         }
     }
 }
+
