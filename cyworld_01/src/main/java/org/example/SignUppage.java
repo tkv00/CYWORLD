@@ -140,7 +140,7 @@ public class SignUppage {
     //비번 유효성검사
     private boolean isValidPassword(String password) {
         // 비밀번호는 최소 8자, 최소 하나의 문자와 하나의 숫자를 포함
-        String passwordRegex = "^(?=.*[A-Za-z])(?=.*\\d)[A-Za-z\\d]{8,}$";
+        String passwordRegex = "^(?=.*[@#$%^&+=!])(?=\\S+$).{8,}$";
         Pattern pattern = Pattern.compile(passwordRegex);
         return pattern.matcher(password).matches();
     }

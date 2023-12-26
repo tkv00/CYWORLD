@@ -292,6 +292,11 @@ public class MiniHomepage extends JFrame {
         frame.setVisible(true);
 
         gifPanel.requestFocusInWindow();
+        // 우측에 추가할 패널 생성
+        JPanel rightPanel = new JPanel();
+        rightPanel.setBounds(405, 86, 150, 150);
+        rightPanel.setOpaque(false); // 패널의 불투명성을 비활성화
+        layeredPane.add(rightPanel, JLayeredPane.MODAL_LAYER);
 
         // 동영상 패널 생성 및 추가
         JPanel videoPanel = new JPanel();
@@ -313,7 +318,7 @@ public class MiniHomepage extends JFrame {
         String latestPostTitle = writeBoardManager.getLatestPostTitle();
 
         // 최근 게시물 제목 레이블
-        JLabel recentPostTitleLabel = new JLabel("최근 게시물: " + latestPostTitle);
+        JLabel recentPostTitleLabel = new JLabel(latestPostTitle);
         recentPostTitleLabel.setForeground(Color.BLACK); // 텍스트 색상 설정
         // 각 레이블을 패널에 추가
         boardPanel.add(boardTextLabel, BorderLayout.WEST);
@@ -338,8 +343,9 @@ public class MiniHomepage extends JFrame {
             writeBoardManager.showPostDetailsInNewWindow(latestPostId);
         });
 
-        // 최근 게시물 버튼을 최근 게시물 패널에 추가
-        recentPost.add(recentPostButton);
+        rightPanel.setLayout(new BoxLayout(rightPanel, BoxLayout.Y_AXIS)); // 세로 정렬
+        // 최근 게시물 버튼을 우측 패널에 추가
+        rightPanel.add(recentPostButton);
 
         // 갤러리 패널 생성 및 추가
         JPanel galleryPanel = new JPanel();
@@ -359,6 +365,21 @@ public class MiniHomepage extends JFrame {
         photoGalleryPanel.add(photoGalleryLabel);
         recentPost.add(photoGalleryPanel);
         photoGalleryPanel.setOpaque(false); // 패널의 불투명성을 비활성화
+        // 프로필 한줄평 추가할 패널 생성
+        String profileComment = profileEditor.getProfileComment(); // 프로필 한 줄평 가져오기
+        System.out.println("프로필 한 줄평: " + profileComment); // 콘솔에 출력해서 값이 올바른지 확인
+        JPanel profileTextPanel = new JPanel();
+        profileTextPanel.setBounds(75, 370, 150, 50);
+        profileTextPanel.setOpaque(false); // 패널의 불투명성을 비활성화
+        layeredPane.add(profileTextPanel, JLayeredPane.MODAL_LAYER);
+
+        JPanel ProfiletextPanel = new JPanel();
+        JLabel ProfiletextLabel = new JLabel(profileComment);
+
+        ProfiletextPanel.add(ProfiletextLabel);
+        profileTextPanel.add(ProfiletextPanel);
+        ProfiletextPanel.setOpaque(false); // 패널의 불투명성을 비활성화
+
     }
     private JPanel createRecentPostPanel(JPanel recentPostPanel) {
         return recentPostPanel;
@@ -434,7 +455,7 @@ public class MiniHomepage extends JFrame {
     }
     void setUserId(String username){
         this.username = username;
-        ProfileEditor profileEditor = new ProfileEditor(this.username);
+        this.profileEditor = new ProfileEditor(this.username);
     }
 
 }
