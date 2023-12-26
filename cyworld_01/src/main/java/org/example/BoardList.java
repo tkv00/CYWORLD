@@ -11,6 +11,7 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 
+
 public class BoardList {
     public BoardList() {
         JFrame boardFrame = new JFrame("게시판 목록");
