@@ -1,7 +1,5 @@
 package org.Utility;
 
-import org.example.Panel.ProfilePanel;
-
 import javax.swing.*;
 import java.awt.*;
 import java.sql.Connection;
@@ -10,10 +8,8 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 
 public class ProfileEditor {
-    private ProfilePanel profilePanel;
     private String username;
-    public ProfileEditor(ProfilePanel profilePanel, String username) {
-        this.profilePanel = profilePanel;
+    public ProfileEditor(String username) {
         this.username = username;
     }
 
@@ -22,7 +18,7 @@ public class ProfileEditor {
         JFrame profileFrame = new JFrame("프로필 변경");
         profileFrame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
         profileFrame.setSize(300, 200);
-        profileFrame.setLayout(new GridLayout(3, 2));
+        profileFrame.setLayout(new GridLayout(4, 2));
 
         JLabel idLabel = new JLabel("새로운 ID:");
         JTextField idField = new JTextField();
@@ -56,6 +52,7 @@ public class ProfileEditor {
                             statement.setString(1, newID);
                             statement.setString(2, username); // 사용자 ID 가져와서 사용
                             statement.executeUpdate();
+                            username = newID;
                         } catch (SQLException ex) {
                             throw new RuntimeException(ex);
                         }
@@ -70,7 +67,6 @@ public class ProfileEditor {
                             statement.executeUpdate();
                         }
                     }
-
                     // 성공적으로 업데이트되었다는 안내 메시지
                     JOptionPane.showMessageDialog(profileFrame, "정보가 업데이트되었습니다.", "업데이트 완료", JOptionPane.INFORMATION_MESSAGE);
                 } catch (SQLException ex) {

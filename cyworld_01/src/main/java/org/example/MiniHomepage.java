@@ -61,7 +61,7 @@ public class MiniHomepage extends JFrame {
         profilePanel.setBounds(75, 135, DEFAULT_WIDTH, DEFAULT_HEIGHT); // 위치 및 크기 설정
         friendsScrollPane.add(profilePanel, Integer.valueOf(500));
         this.writeBoardManager = new WriteBoardManager();
-        this.profileEditor = new ProfileEditor(this.profilePanel, this.username);
+        this.profileEditor = new ProfileEditor(this.username);
     }
     public static void main(String[] args) {
         new MiniHomepage().showLogin();
@@ -434,7 +434,7 @@ public class MiniHomepage extends JFrame {
     }
     void setUserId(String username){
         this.username = username;
-        ProfileEditor profileEditor = new ProfileEditor(this.profilePanel, this.username);
+        ProfileEditor profileEditor = new ProfileEditor(this.username);
     }
 
 }
