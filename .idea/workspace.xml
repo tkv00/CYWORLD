@@ -5,7 +5,15 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="8ad32b2f-77a1-48af-b65e-dc605abe6719" name="변경" comment="">
+      <change afterPath="$PROJECT_DIR$/cyworld_01/src/main/java/org/Utility/PhotoGalleryImage.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/cyworld_01/src/main/java/org/Utility/PhotoGalleryManager.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/cyworld_01/src/main/java/org/Utility/PhotoGalleryWindow.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/cyworld_01/src/main/java/org/Utility/TagInputDialog.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.gitattributes" beforeDir="false" afterPath="$PROJECT_DIR$/.gitattributes" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/shelf/2023-12-03__10_42__________.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/shelf/2023-12-03__10_42__________.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/shelf/2023-12-23__9_03__________.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/shelf/2023-12-23__9_03__________.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/shelf/Uncommitted_changes_before_Update_at_2023-12-22__12_37___.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/shelf/Uncommitted_changes_before_Update_at_2023-12-22__12_37___.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/shelf/Uncommitted_changes_before_rebase___.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/shelf/Uncommitted_changes_before_rebase___.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/cyworld_01/.gradle/8.2/executionHistory/executionHistory.bin" beforeDir="false" afterPath="$PROJECT_DIR$/cyworld_01/.gradle/8.2/executionHistory/executionHistory.bin" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/cyworld_01/.gradle/8.2/executionHistory/executionHistory.lock" beforeDir="false" afterPath="$PROJECT_DIR$/cyworld_01/.gradle/8.2/executionHistory/executionHistory.lock" afterDir="false" />
@@ -13,8 +21,24 @@
       <change beforePath="$PROJECT_DIR$/cyworld_01/.gradle/8.2/fileHashes/fileHashes.lock" beforeDir="false" afterPath="$PROJECT_DIR$/cyworld_01/.gradle/8.2/fileHashes/fileHashes.lock" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/cyworld_01/.gradle/buildOutputCleanup/buildOutputCleanup.lock" beforeDir="false" afterPath="$PROJECT_DIR$/cyworld_01/.gradle/buildOutputCleanup/buildOutputCleanup.lock" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/cyworld_01/.gradle/file-system.probe" beforeDir="false" afterPath="$PROJECT_DIR$/cyworld_01/.gradle/file-system.probe" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/cyworld_01/.idea/dataSources.xml" beforeDir="false" afterPath="$PROJECT_DIR$/cyworld_01/.idea/dataSources.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/cyworld_01/.idea/dbnavigator.xml" beforeDir="false" afterPath="$PROJECT_DIR$/cyworld_01/.idea/dbnavigator.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/cyworld_01/build/classes/java/main/org/example/BoardList.class" beforeDir="false" afterPath="$PROJECT_DIR$/cyworld_01/build/classes/java/main/org/example/BoardList.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/cyworld_01/src/main/java/org/Friend/FriendListManager.java" beforeDir="false" afterPath="$PROJECT_DIR$/cyworld_01/src/main/java/org/Friend/FriendListManager.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/cyworld_01/src/main/java/org/Friend/FriendManager.java" beforeDir="false" afterPath="$PROJECT_DIR$/cyworld_01/src/main/java/org/Friend/FriendManager.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/cyworld_01/src/main/java/org/Friend/FriendRequestDialog.java" beforeDir="false" afterPath="$PROJECT_DIR$/cyworld_01/src/main/java/org/Friend/FriendRequestDialog.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/cyworld_01/src/main/java/org/Utility/BackgroundPanel.java" beforeDir="false" afterPath="$PROJECT_DIR$/cyworld_01/src/main/java/org/Utility/BackgroundPanel.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/cyworld_01/src/main/java/org/Utility/DatabaseConfig.java" beforeDir="false" afterPath="$PROJECT_DIR$/cyworld_01/src/main/java/org/Utility/DatabaseConfig.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/cyworld_01/src/main/java/org/Utility/ImageDetails.java" beforeDir="false" afterPath="$PROJECT_DIR$/cyworld_01/src/main/java/org/Utility/ImageDetails.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/cyworld_01/src/main/java/org/Utility/UserSession.java" beforeDir="false" afterPath="$PROJECT_DIR$/cyworld_01/src/main/java/org/Utility/UserSession.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/cyworld_01/src/main/java/org/Utility/WriteBoardManager.java" beforeDir="false" afterPath="$PROJECT_DIR$/cyworld_01/src/main/java/org/Utility/WriteBoardManager.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/cyworld_01/src/main/java/org/example/BoardList.java" beforeDir="false" afterPath="$PROJECT_DIR$/cyworld_01/src/main/java/org/example/BoardList.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/cyworld_01/src/main/java/org/example/LoginPage.java" beforeDir="false" afterPath="$PROJECT_DIR$/cyworld_01/src/main/java/org/example/LoginPage.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/cyworld_01/src/main/java/org/example/Message.java" beforeDir="false" afterPath="$PROJECT_DIR$/cyworld_01/src/main/java/org/example/Message.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/cyworld_01/src/main/java/org/example/MiniHomepage.java" beforeDir="false" afterPath="$PROJECT_DIR$/cyworld_01/src/main/java/org/example/MiniHomepage.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/cyworld_01/src/main/java/org/example/Panel/FixedPanel.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/cyworld_01/src/main/java/org/example/Panel/ProfilePanel.java" beforeDir="false" afterPath="$PROJECT_DIR$/cyworld_01/src/main/java/org/example/Panel/ProfilePanel.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/cyworld_01/src/main/java/org/example/SignUppage.java" beforeDir="false" afterPath="$PROJECT_DIR$/cyworld_01/src/main/java/org/example/SignUppage.java" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -82,27 +106,27 @@
     <option name="hideEmptyMiddlePackages" value="true" />
     <option name="showLibraryContents" value="true" />
   </component>
-  <component name="PropertiesComponent">{
-  &quot;keyToString&quot;: {
-    &quot;RunOnceActivity.OpenProjectViewOnStart&quot;: &quot;true&quot;,
-    &quot;RunOnceActivity.ShowReadmeOnStart&quot;: &quot;true&quot;,
-    &quot;SHARE_PROJECT_CONFIGURATION_FILES&quot;: &quot;true&quot;,
-    &quot;WebServerToolWindowFactoryState&quot;: &quot;false&quot;,
-    &quot;codeWithMe.voiceChat.enabledByDefault&quot;: &quot;false&quot;,
-    &quot;git-widget-placeholder&quot;: &quot;main&quot;,
-    &quot;last_opened_file_path&quot;: &quot;C:/Users/재성/CYWORLD01/cyworld_01/src/main/resources&quot;,
-    &quot;node.js.detected.package.eslint&quot;: &quot;true&quot;,
-    &quot;node.js.detected.package.tslint&quot;: &quot;true&quot;,
-    &quot;node.js.selected.package.eslint&quot;: &quot;(autodetect)&quot;,
-    &quot;node.js.selected.package.tslint&quot;: &quot;(autodetect)&quot;,
-    &quot;nodejs_package_manager_path&quot;: &quot;npm&quot;,
-    &quot;project.structure.last.edited&quot;: &quot;프로젝트&quot;,
-    &quot;project.structure.proportion&quot;: &quot;0.15&quot;,
-    &quot;project.structure.side.proportion&quot;: &quot;0.2&quot;,
-    &quot;settings.editor.selected.configurable&quot;: &quot;settings.qodana&quot;,
-    &quot;vue.rearranger.settings.migration&quot;: &quot;true&quot;
+  <component name="PropertiesComponent"><![CDATA[{
+  "keyToString": {
+    "RunOnceActivity.OpenProjectViewOnStart": "true",
+    "RunOnceActivity.ShowReadmeOnStart": "true",
+    "SHARE_PROJECT_CONFIGURATION_FILES": "true",
+    "WebServerToolWindowFactoryState": "false",
+    "codeWithMe.voiceChat.enabledByDefault": "false",
+    "git-widget-placeholder": "Merging main",
+    "last_opened_file_path": "C:/Users/재성/CYWORLD01/cyworld_01/src/main/resources",
+    "node.js.detected.package.eslint": "true",
+    "node.js.detected.package.tslint": "true",
+    "node.js.selected.package.eslint": "(autodetect)",
+    "node.js.selected.package.tslint": "(autodetect)",
+    "nodejs_package_manager_path": "npm",
+    "project.structure.last.edited": "프로젝트",
+    "project.structure.proportion": "0.15",
+    "project.structure.side.proportion": "0.2",
+    "settings.editor.selected.configurable": "settings.qodana",
+    "vue.rearranger.settings.migration": "true"
   }
-}</component>
+}]]></component>
   <component name="RecentsManager">
     <key name="CopyFile.RECENT_KEYS">
       <recent name="C:\Users\재성\CYWORLD01\cyworld_01\src\main\resources" />
@@ -110,6 +134,20 @@
     <key name="MoveFile.RECENT_KEYS">
       <recent name="C:\Users\재성\CYWORLD01\cyworld_01\src\main\resources" />
     </key>
+  </component>
+  <component name="RunManager">
+    <configuration name="BoardList" type="Application" factoryName="Application" nameIsGenerated="true">
+      <option name="MAIN_CLASS_NAME" value="org.example.BoardList" />
+      <extension name="coverage">
+        <pattern>
+          <option name="PATTERN" value="org.example.*" />
+          <option name="ENABLED" value="true" />
+        </pattern>
+      </extension>
+      <method v="2">
+        <option name="Make" enabled="true" />
+      </method>
+    </configuration>
   </component>
   <component name="SpellCheckerSettings" RuntimeDictionaries="0" Folders="0" CustomDictionaries="0" DefaultDictionary="애플리케이션 수준" UseSingleDictionary="true" transferred="true" />
   <component name="TaskManager">

@@ -1,6 +1,7 @@
 package org.example;
 
 import org.Utility.DatabaseConfig;
+import org.Utility.WriteBoardManager;
 
 import javax.swing.*;
 import javax.swing.table.DefaultTableModel;
@@ -292,7 +293,7 @@ public class BoardList {
     }
 
 
-    class WriteBoardManager {
+/*    class WriteBoardManager {
 
     public interface PostClickListener {
         void onPostClick(int postId);
@@ -317,7 +318,7 @@ public class BoardList {
         // 여기에 게시글 삭제에 관한 로직을 추가하세요.
         // 예를 들어, 데이터베이스에서 해당 게시글을 삭제하거나 필요한 동작을 수행할 수 있습니다.
     }
-}
+}*/
 
 
 // 수정 불가능한 모델로 확장한 클래스
