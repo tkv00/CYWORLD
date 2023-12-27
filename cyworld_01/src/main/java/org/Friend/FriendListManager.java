@@ -11,10 +11,10 @@ import java.awt.*;
 import java.awt.event.FocusAdapter;
 import java.awt.event.FocusEvent;
 import java.sql.Connection;
+import java.util.logging.Logger;
+import java.util.logging.Level;
 import java.sql.PreparedStatement;
 import java.util.List;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 public class FriendListManager {
     private JFrame parentFrame;
@@ -330,7 +330,6 @@ public class FriendListManager {
     private void visitFriendCyworld(String friend) {
         // 새로운 MiniHomepage 인스턴스 생성
         MiniHomepage friendCyworld = new MiniHomepage();
-
         // 일촌의 사용자 ID 설정
         friendCyworld.setUserId(friend);
 
@@ -349,15 +348,14 @@ public class FriendListManager {
     private void disableFriendCyworldFeatures(MiniHomepage friendCyworld) {
         friendCyworld.getProfileButton().setEnabled(false);
         friendCyworld.getBoardButton().setEnabled(false);
-        friendCyworld.getPhotoGalleryButton().setEnabled(true);
-        //사진첩중 사진추가 버튼 잠그기
-
-        friendCyworld.getChangeImageButton().setEnabled(false);
         friendCyworld.getMessageButton().setEnabled(false);
         friendCyworld.getNotificationButton().setEnabled(false);
         friendCyworld.getFriend().setEnabled(false);
         friendCyworld.getFriendList().setEnabled(false);
         friendCyworld.getNotificationButton().setEnabled(false);
+        friendCyworld.getCommentButton().setEnabled(false);
+
+
     }
     private void openFriendPhotoGallery(MiniHomepage friendCyworld, String friendId) {
         PhotoGalleryWindow existingGallery = friendCyworld.getPhotoGalleryWindow();
@@ -374,7 +372,6 @@ public class FriendListManager {
             // 새 창을 만듭니다.
             try {
                 PhotoGalleryWindow galleryWindow = new PhotoGalleryWindow(friendCyworld.getPhotoGalleryManager(), friendId, false);
-                galleryWindow.disableAddPhotoButton(); // '사진 추가' 버튼 비활성화
                 galleryWindow.setVisible(true);
                 friendCyworld.setPhotoGalleryWindow(galleryWindow); // 새 창 참조를 저장합니다.
             } catch (Exception e) {

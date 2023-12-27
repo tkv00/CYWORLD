@@ -10,6 +10,7 @@ public class FriendRequestDialog extends JDialog {
     private FriendManager friendManager;
     private String currentUserId;
 
+
     public FriendRequestDialog(JFrame parent, String currentUserId,List<String> friendRequest) {
         super(parent, "일촌 신청 확인", true);
         this.friendManager = new FriendManager();

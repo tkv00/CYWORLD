@@ -2,6 +2,7 @@ package org.example;
 
 import org.Friend.FriendListManager;
 import org.Friend.FriendManager;
+import java.sql.Timestamp;
 import org.Friend.FriendRequestDialog;
 import org.Utility.*;
 import org.example.Panel.GifPanel;
@@ -16,6 +17,9 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.net.URL;
 import java.sql.*;
+import java.nio.file.Files;
+import java.sql.SQLException;
+import java.text.SimpleDateFormat;
 import java.util.Arrays;
 import java.util.List;
 public class MiniHomepage extends JFrame {
@@ -56,6 +60,9 @@ public class MiniHomepage extends JFrame {
     private JButton notificationButton;
     //메세지버튼
     private JButton messageButton;
+
+
+
 
     private WriteBoardManager writeBoardManager;
     private UserSession userSession;
@@ -115,13 +122,13 @@ public class MiniHomepage extends JFrame {
     }
     // 로그인 성공 후 userId를 설정하는 메서드
 
+
     public static void main(String[] args) {
         new MiniHomepage().showLogin();
     }
     private void showLogin() {
         loginPage.show();
     }
-
     // 수평 패널을 생성하는 메서드
     public void showMainPage() {
         frame = new JFrame("싸이월드");
@@ -137,7 +144,6 @@ public class MiniHomepage extends JFrame {
         BackgroundPanel backgroundPanel = new BackgroundPanel(backgroundImage);
         backgroundPanel.setBounds(0, 0, 888, 588);
         backgroundPanel.setOpaque(false); // 배경 이미지 패널 투명도 설정
-
         // JLayeredPane 생성 및 설정
         JLayeredPane layeredPane = new JLayeredPane();
         layeredPane.setPreferredSize(new Dimension(888, 588));
@@ -479,6 +485,22 @@ public class MiniHomepage extends JFrame {
         if (result == JFileChooser.APPROVE_OPTION) {
             File selectedFile = fileChooser.getSelectedFile();
             try {
+                // 파일에서 이미지 데이터를 읽어옵니다.
+                byte[] imageData = Files.readAllBytes(selectedFile.toPath());
+
+                // ImageDetails 객체를 생성하고 정보를 설정합니다.
+                ImageDetails imageDetails = new ImageDetails();
+                imageDetails.setUserId(this.userId); // 사용자 ID 설정
+                imageDetails.setImageData(imageData); // 이미지 데이터 설정
+                imageDetails.setImageName(selectedFile.getName()); // 이미지 파일 이름 설정
+                Timestamp currentTimestamp = new Timestamp(System.currentTimeMillis());
+                imageDetails.setUploadTime(currentTimestamp.toString());
+
+                // ProfileImageUpload 객체를 생성하고 이미지를 데이터베이스에 업로드합니다.
+                ProfileImageUpload profileImageUpload = new ProfileImageUpload();
+                profileImageUpload.uploadProfileImage(selectedFile, imageDetails);
+
+                // 프로필 패널에 새로운 이미지를 설정합니다.
                 Image newProfileImage = new ImageIcon(selectedFile.getAbsolutePath()).getImage();
                 ProfileImageUpload profileImageUpload = new ProfileImageUpload();
                 profileImageUpload.getProfileImage(userId); // ProfileImageUpload의 setProfileImage 메서드 호출
@@ -486,10 +508,12 @@ public class MiniHomepage extends JFrame {
                 JOptionPane.showMessageDialog(this, "프로필 이미지가 성공적으로 저장되었습니다.", "성공", JOptionPane.INFORMATION_MESSAGE);
             } catch (Exception ex) {
                 JOptionPane.showMessageDialog(this, "이미지 로딩 실패", "오류", JOptionPane.ERROR_MESSAGE);
+            } catch (IOException ex) {
+                JOptionPane.showMessageDialog(this, "파일 읽기 오류", "오류", JOptionPane.ERROR_MESSAGE);
+                ex.printStackTrace();
             }
         }
     }
-
     // 사진첩 다이얼로그를 열기 위한 메서드
     private void openPhotoGalleryWindow() {
         if (this.userId == null || this.userId.trim().isEmpty()) {
@@ -558,13 +582,11 @@ public class MiniHomepage extends JFrame {
     }
     private JPanel createMainContent() {
         JPanel mainContent = new JPanel(new BorderLayout());
-        // 상단 타이틀
         mainContent.setOpaque(false); // 메인 컨텐츠 투명하게 설정
         return mainContent;
     }
     public void setUserId(String userId) {
         this.userId = userId;
-        // PhotoGalleryManager에 userId를 전달합니다.
         photoGalleryManager = new PhotoGalleryManager(this, this.userId);
         this.profileEditor = new ProfileEditor(this.userId);
     }
@@ -617,4 +639,3 @@ public class MiniHomepage extends JFrame {
         return this.photoGalleryWindow;
     }
 }
-
