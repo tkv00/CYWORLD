@@ -7,7 +7,6 @@ import org.Utility.*;
 import org.example.Panel.GifPanel;
 import org.example.Panel.MusicPlayerPanel;
 import org.example.Panel.ProfilePanel;
-
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.MouseAdapter;
@@ -16,6 +15,7 @@ import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URL;
+import java.sql.*;
 import java.util.Arrays;
 import java.util.List;
 public class MiniHomepage extends JFrame {
@@ -34,7 +34,7 @@ public class MiniHomepage extends JFrame {
     private JPanel friendsPanel;
     private ProfilePanel profilePanel;
     private String userId;
-
+    private JPanel commentPanel; // 방명록 목록 보여주는 패널
     //버튼 변수 설정
     //사진변경
     private JButton changeImageButton;
@@ -86,7 +86,7 @@ public class MiniHomepage extends JFrame {
         boardButton4=new JButton("방명록");
         boardButton5=new JButton("사진첩");
         notificationButton=new JButton(new ImageIcon(getClass().getResource("/image/notification.png")));
-
+        boardButton4.addActionListener(e -> showCommentsUI());
         // 기본 프레임 설정
         this.friendManager = new FriendManager();
         photoGalleryManager=new PhotoGalleryManager(this,this.userId);
@@ -358,7 +358,6 @@ public class MiniHomepage extends JFrame {
         PostButton.setContentAreaFilled(false);
         PostButton.setBorderPainted(false);
 
-
         // 프로필 한줄평 추가할 패널 생성
         String profileComment = profileEditor.getProfileComment(); // 프로필 한 줄평 가져오기
         System.out.println("프로필 한 줄평: " + profileComment); // 콘솔에 출력해서 값이 올바른지 확인
@@ -375,9 +374,103 @@ public class MiniHomepage extends JFrame {
         ProfiletextPanel.add(ProfiletextLabel);
         profileTextPanel.add(ProfiletextPanel);
         ProfiletextPanel.setOpaque(false); // 패널의 불투명성을 비활성화
+    }
+    private void showCommentsUI() {
+        // 새 다이얼로그 생성
+        JDialog dialog = new JDialog(this, "방명록", true);
+        dialog.setLayout(new BorderLayout());
 
+        // 방명록 목록을 위한 패널
+        JPanel commentPanel = new JPanel();
+        commentPanel.setLayout(new BoxLayout(commentPanel, BoxLayout.Y_AXIS));
+        JScrollPane scrollPane = new JScrollPane(commentPanel);
+        scrollPane.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_ALWAYS);
+
+        // 데이터베이스에서 방명록 데이터 로드
+        loadCommentsFromDatabase(commentPanel);
+
+        // 댓글 추가를 위한 텍스트 필드와 버튼
+        JTextField textField = new JTextField(20);
+        JButton addButton = new JButton("추가");
+        addButton.addActionListener(e -> {
+            String comment = textField.getText();
+            if (!comment.isEmpty()) {
+                saveCommentToDatabase(comment); // 데이터베이스에 저장
+                commentPanel.add(new JLabel(comment)); // UI 업데이트
+                commentPanel.revalidate();
+                textField.setText(""); // 텍스트 필드 초기화
+            }
+        });
+
+        // 컴포넌트를 다이얼로그에 추가
+        JPanel inputPanel = new JPanel();
+        inputPanel.add(textField);
+        inputPanel.add(addButton);
+        dialog.add(scrollPane, BorderLayout.CENTER);
+        dialog.add(inputPanel, BorderLayout.SOUTH);
+
+        // 다이얼로그 사이즈 설정 및 표시
+        dialog.setSize(400, 300);
+        dialog.setLocationRelativeTo(this); // 부모 프레임 중앙에 위치
+        dialog.setVisible(true);
     }
 
+    private void loadCommentsFromDatabase(JPanel commentPanel) {
+        Connection conn = null;
+        Statement stmt = null;
+        try {
+            conn = DatabaseConfig.getConnection(); // 데이터베이스 연결
+            stmt = conn.createStatement();
+            String sql = "SELECT userId, comment FROM guestBook WHERE friendId = '" + this.userId + "'";
+            ResultSet rs = stmt.executeQuery(sql);
+
+            while (rs.next()) {
+                String userId = rs.getString("userId");
+                String comment = rs.getString("comment");
+                commentPanel.add(new JLabel(comment));
+            }
+            commentPanel.revalidate();
+        } catch (SQLException e) {
+            e.printStackTrace();
+            JOptionPane.showMessageDialog(this, "데이터 로딩 실패", "오류", JOptionPane.ERROR_MESSAGE);
+        } finally {
+            // 리소스 정리
+            try {
+                if (stmt != null) stmt.close();
+                if (conn != null) conn.close();
+            } catch (SQLException se) {
+                se.printStackTrace();
+            }
+        }
+    }
+    private void saveCommentToDatabase(String comment) {
+        Connection conn = null;
+        PreparedStatement pstmt = null;
+        try {
+            conn = DatabaseConfig.getConnection();
+            String sql = "INSERT INTO guestBook (friendId, userId, comment) VALUES (?, ?, ?)";
+            pstmt = conn.prepareStatement(sql);
+            pstmt.setString(1, this.userId); // friendId 설정
+            pstmt.setString(2, this.userId); // 현재 사용자 ID를 설정해야 함
+            pstmt.setString(3, comment);
+
+            int affectedRows = pstmt.executeUpdate();
+            if (affectedRows > 0) {
+                System.out.println("방명록에 댓글이 추가되었습니다.");
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+            JOptionPane.showMessageDialog(this, "데이터 저장 실패", "오류", JOptionPane.ERROR_MESSAGE);
+        } finally {
+            // 리소스 정리
+            try {
+                if (pstmt != null) pstmt.close();
+                if (conn != null) conn.close();
+            } catch (SQLException se) {
+                se.printStackTrace();
+            }
+        }
+    }
     private void uploadAndSetNewProfileImage() {
         JFileChooser fileChooser = new JFileChooser();
         fileChooser.setDialogTitle("새 프로필 이미지 선택");
@@ -387,7 +480,10 @@ public class MiniHomepage extends JFrame {
             File selectedFile = fileChooser.getSelectedFile();
             try {
                 Image newProfileImage = new ImageIcon(selectedFile.getAbsolutePath()).getImage();
+                ProfileImageUpload profileImageUpload = new ProfileImageUpload();
+                profileImageUpload.getProfileImage(userId); // ProfileImageUpload의 setProfileImage 메서드 호출
                 profilePanel.updateProfileImage(newProfileImage); // 프로필 이미지 변경
+                JOptionPane.showMessageDialog(this, "프로필 이미지가 성공적으로 저장되었습니다.", "성공", JOptionPane.INFORMATION_MESSAGE);
             } catch (Exception ex) {
                 JOptionPane.showMessageDialog(this, "이미지 로딩 실패", "오류", JOptionPane.ERROR_MESSAGE);
             }
@@ -431,6 +527,7 @@ public class MiniHomepage extends JFrame {
         boardButton3.addActionListener(e -> new BoardList());
         // 게시판 버튼 클릭 시 수행할 동작
         boardButton4.addActionListener(e -> {
+            showCommentsUI();
         });
         // 방명록 버튼 클릭 시 수행할 동작
 

@@ -1,12 +1,7 @@
 package org.Utility;
 
-import org.example.Panel.ProfilePanel;
-import javax.swing.*;
-import java.awt.*;
 import java.io.File;
-import java.io.FileInputStream;
 import java.io.IOException;
-import java.io.InputStream;
 import java.nio.file.Files;
 import java.sql.*;
 
@@ -120,5 +115,4 @@ public class ProfileImageUpload {
         }
         return imageData;
     }
-
 }

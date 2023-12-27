@@ -330,6 +330,7 @@ public class FriendListManager {
     private void visitFriendCyworld(String friend) {
         // 새로운 MiniHomepage 인스턴스 생성
         MiniHomepage friendCyworld = new MiniHomepage();
+
         // 일촌의 사용자 ID 설정
         friendCyworld.setUserId(friend);
 

@@ -131,22 +131,6 @@ public class ProfileEditor {
         }
         return userInformation;
     }
-    private String getCurrentUser(String username) {
-        String currentUser = "";
-        try (Connection conn = DatabaseConfig.getConnection()) {
-            String selectQuery = "SELECT username FROM user WHERE username = ?";
-            try (PreparedStatement pstmt = conn.prepareStatement(selectQuery)) {
-                pstmt.setString(1, username);
-                ResultSet rs = pstmt.executeQuery();
-                if (rs.next()) {
-                    currentUser = rs.getString("username");
-                }
-            }
-        } catch (SQLException ex) {
-            ex.printStackTrace();
-        }
-        return currentUser;
-    }
     private void saveReviewToDatabase(String reviewText) {
         try (Connection conn = DatabaseConfig.getConnection()) {
             String selectQuery = "SELECT username FROM user WHERE username = ?";
@@ -178,6 +162,88 @@ public class ProfileEditor {
             ex.printStackTrace();
             showMessageDialog(profileFrame, "한 줄평 업데이트 중 오류가 발생했습니다.", "업데이트 오류", JOptionPane.ERROR_MESSAGE);
         }
+    }
+    public void updateOtherTables(String newID) {
+        try (Connection conn = DatabaseConfig.getConnection()) {
+            if(newID.equals(username)){
+                return;
+            }
+            // Update guestBook table
+            String updateGuestBookQuery = "UPDATE guestBook SET userId = ? WHERE userId = ?";
+            try (PreparedStatement statement = conn.prepareStatement(updateGuestBookQuery)) {
+                statement.setString(1, newID);
+                statement.setString(2, username);
+                statement.executeUpdate();
+            } catch (SQLException ex) {
+                ex.printStackTrace();
+            }
+
+            // Update PhotoGallery table
+            String updatePhotoGalleryQuery = "UPDATE PhotoGallery SET userId = ? WHERE userId = ?";
+            try (PreparedStatement statement = conn.prepareStatement(updatePhotoGalleryQuery)) {
+                statement.setString(1, newID);
+                statement.setString(2, username);
+                statement.executeUpdate();
+            } catch (SQLException ex) {
+                ex.printStackTrace();
+            }
+
+            // Update profile table
+            String updateProfileQuery = "UPDATE profile SET userId = ? WHERE userId = ?";
+            try (PreparedStatement statement = conn.prepareStatement(updateProfileQuery)) {
+                statement.setString(1, newID);
+                statement.setString(2, this.username);
+                statement.executeUpdate();
+                this.username = newID;
+            } catch (SQLException ex) {
+                ex.printStackTrace();
+            }
+
+            // Update WriteBoard table
+            String updateWriteBoardQuery = "UPDATE WriteBoard SET userId = ? WHERE userId = ?";
+            try (PreparedStatement statement = conn.prepareStatement(updateWriteBoardQuery)) {
+                statement.setString(1, newID);
+                statement.setString(2, username);
+                statement.executeUpdate();
+            } catch (SQLException ex) {
+                ex.printStackTrace();
+            }
+
+            // Update chat_messages table
+            String updateChatMessagesQuery = "UPDATE chat_messages SET sender_id = ? WHERE sender_id = ?";
+            try (PreparedStatement statement = conn.prepareStatement(updateChatMessagesQuery)) {
+                statement.setString(1, newID);
+                statement.setString(2, username);
+                statement.executeUpdate();
+            } catch (SQLException ex) {
+                ex.printStackTrace();
+            }
+
+            // Update messages table
+            String updateMessagesQuery = "UPDATE messages SET sender_id = ? WHERE sender_id = ?";
+            try (PreparedStatement statement = conn.prepareStatement(updateMessagesQuery)) {
+                statement.setString(1, newID);
+                statement.setString(2, username);
+                statement.executeUpdate();
+            } catch (SQLException ex) {
+                ex.printStackTrace();
+            }
+
+            // Update friends table
+            String updateFriendsQuery = "UPDATE friends SET user_id = ? WHERE user_id = ?";
+            try (PreparedStatement statement = conn.prepareStatement(updateFriendsQuery)) {
+                statement.setString(1, newID);
+                statement.setString(2, username);
+                statement.executeUpdate();
+            } catch (SQLException ex) {
+                ex.printStackTrace();
+            }
+        } catch (SQLException ex) {
+            ex.printStackTrace();
+        }
+    }
+    public void updateUsername(String newID){
+        this.username = newID;
     }
 
     private boolean isValidUsername(String username) {
