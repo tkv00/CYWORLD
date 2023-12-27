@@ -21,11 +21,7 @@ public class LoginPage {
     private FriendSearchDialog friendSearchDialog;
 
     //백그라운드 이미지 경로
-<<<<<<< HEAD
-    String imagePath="/main.jpg";
-=======
     String imagePath= "/image/loginpage.png";
->>>>>>> 80c81737c145a0e34d71f1efd88e3d647eef0fe2
     URL imageUrl = getClass().getResource(imagePath);
 
     public LoginPage(SignUppage signUpPage, MiniHomepage miniHomepage) {

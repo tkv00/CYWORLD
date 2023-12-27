@@ -20,15 +20,10 @@ public class SignUppage {
     private JTextField emailField;
     private LoginPage loginPage;
 
-<<<<<<< HEAD
-    public SignUppage() {
-        initializeUI();
-=======
     public SignUppage(LoginPage loginPage) {
         this.loginPage=loginPage;
         initializeUI();
         frame.setDefaultCloseOperation(JFrame.HIDE_ON_CLOSE);
->>>>>>> 80c81737c145a0e34d71f1efd88e3d647eef0fe2
     }
 
     private void initializeUI() {
@@ -47,21 +42,12 @@ public class SignUppage {
 
         // 회원가입 버튼 및 이벤트 처리
         JButton signUpButton = createStyledButton("회원가입", 15);
-<<<<<<< HEAD
-
-        frame.add(signUpButton);
-=======
         frame.add(signUpButton);
         signUpButton.addActionListener(e->performSignUp());
->>>>>>> 80c81737c145a0e34d71f1efd88e3d647eef0fe2
 
         // 취소 버튼
         JButton cancelButton = createStyledButton("취소", 15);// 텍스트 색을 검은색으로 설정
         cancelButton.setForeground(Color.BLACK);
-<<<<<<< HEAD
-        cancelButton.addActionListener(e -> frame.dispose());
-        frame.add(cancelButton);
-=======
         cancelButton.addActionListener(e -> {
             loginPage.show(); // 로그인 페이지 표시
             frame.setVisible(false);
@@ -86,26 +72,7 @@ public class SignUppage {
 
         button.setForeground(new Color(255, 102, 6));
         return button;
->>>>>>> 80c81737c145a0e34d71f1efd88e3d647eef0fe2
     }
-
-    private void addFormField(String label, JComponent component) {
-        frame.add(new JLabel(label));
-        frame.add(component);
-    }
-
-    private JButton createStyledButton(String text, int fontSize) {
-        JButton button = new JButton(text);
-        button.setFont(new Font("Nanum Font", Font.BOLD, fontSize));
-        button.setOpaque(false);
-        button.setContentAreaFilled(false);
-        button.setBorderPainted(false);
-        button.setBorder(BorderFactory.createLineBorder(Color.BLACK));
-
-        button.setForeground(new Color(255, 102, 6));
-        return button;
-    }
-
 
     private void performSignUp() {
         String username = usernameField.getText();
@@ -171,10 +138,7 @@ public class SignUppage {
     }
 
 
-<<<<<<< HEAD
-=======
 
->>>>>>> 80c81737c145a0e34d71f1efd88e3d647eef0fe2
     //이메일 유효성검사
     private boolean isValidEmail(String email) {
         String emailRegex = "^[a-zA-Z0-9_+&*-]+(?:\\.[a-zA-Z0-9_+&*-]+)*@(?:[a-zA-Z0-9-]+\\.)+[a-zA-Z]{2,7}$";
