@@ -13,7 +13,7 @@ public class LocationSaver {
         try (Connection conn = DatabaseConfig.getConnection()) {
             // SQL 쿼리 준비
             // photoId는 사진을 식별하는 데 사용되며, location은 위치 정보를 저장합니다.
-            String sql = "UPDATE PhotoGallery SET location = ? WHERE PhotoId = ?";
+            String sql = "UPDATE PhotoGallery SET location = ? WHERE PhotoID = ?";
             try (PreparedStatement pstmt = conn.prepareStatement(sql)) {
                 // 쿼리 매개변수 설정
                 pstmt.setString(1, location);

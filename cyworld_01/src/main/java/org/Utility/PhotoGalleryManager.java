@@ -22,17 +22,6 @@ public class PhotoGalleryManager extends Component {
         System.out.println("PhotoGalleryManager initialized with userId: " + this.userId);
     }
 
-    // Method to open the photo gallery upload dialog
-    public void openPhotoGallery() throws IOException {
-        JFileChooser fileChooser = new JFileChooser();
-        fileChooser.setDialogTitle("사진 선택");
-        int result = fileChooser.showOpenDialog(parentComponent);
-
-        if (result == JFileChooser.APPROVE_OPTION) {
-            File selectedFile = fileChooser.getSelectedFile();
-            uploadPhoto(selectedFile);
-        }
-    }
     public Set<String> retrieveTags() {
         Set<String> tags = new HashSet<>();
         Connection conn = DatabaseConfig.getConnection();
@@ -65,7 +54,8 @@ public class PhotoGalleryManager extends Component {
                     byte[] imageData = rs.getBytes("ImageData");
                     String title = rs.getString("Title");
                     String uploadTime = rs.getString("UploadTime");
-                    photos.add(new PhotoGalleryImage(new ImageIcon(imageData), title, uploadTime));
+                    String location=rs.getString("location");
+                    photos.add(new PhotoGalleryImage(new ImageIcon(imageData), title, uploadTime,location));
                 }
             }
         } catch (SQLException e) {
@@ -74,80 +64,22 @@ public class PhotoGalleryManager extends Component {
         return photos;
     }
 
-
-    // Method to handle photo upload
-    void uploadPhoto(File file) throws IOException {
-        byte[] imageData = Files.readAllBytes(file.toPath());
-        Component parentComponent = this.isDisplayable() ? this : null;
-        String title = null;
-        String tags = null;
-
-        // 제목을 입력받는 반복 루프
-        while (title == null || title.trim().isEmpty()) {
-            title = JOptionPane.showInputDialog(parentComponent, "제목을 입력하세요:");
-            if (title == null) {
-                // 사용자가 취소를 선택한 경우
-                JOptionPane.showMessageDialog(parentComponent, "업로드를 취소했습니다.", "업로드 취소", JOptionPane.INFORMATION_MESSAGE);
-                return; // 메서드 종료
-            } else if (title.trim().isEmpty()) {
-                JOptionPane.showMessageDialog(parentComponent, "사진 제목을 입력해야 합니다.", "제목 입력 오류", JOptionPane.ERROR_MESSAGE);
-            }
-        }
-
-        // 카테고리를 입력받는 반복 루프
-        while (tags == null || tags.trim().isEmpty() || tags.contains(",")) {
-            TagInputDialog tagDialog = new TagInputDialog(parentComponent);
-            tagDialog.setVisible(true);
-            tags = tagDialog.getTags();
-            if (tags == null) {
-                // 사용자가 취소를 선택한 경우
-                JOptionPane.showMessageDialog(parentComponent, "업로드를 취소했습니다.", "업로드 취소", JOptionPane.INFORMATION_MESSAGE);
-                return; // 메서드 종료
-            } else if (tags.trim().isEmpty() || tags.contains(",")) {
-                JOptionPane.showMessageDialog(parentComponent, "하나의 카테고리만 입력해야 합니다.", "카테고리 입력 오류", JOptionPane.ERROR_MESSAGE);
-            }
-        }
-
-        String uploadTime = new SimpleDateFormat("yyyy-MM-dd HH-mm").format(new Date());
-        insertPhotoIntoDatabase(userId, title, tags, uploadTime, imageData);
-        JOptionPane.showMessageDialog(parentComponent, "사진이 성공적으로 업로드되었습니다.");
-    }
-
-
-
-    // Method to insert photo into the database
-    private void insertPhotoIntoDatabase(String userId, String title, String tags, String uploadTime, byte[] imageData) {
-        System.out.println("Inserting photo for userId: " + userId); // 디버깅을 위한 로그
-        Connection conn = DatabaseConfig.getConnection();
-        String sql = "INSERT INTO PhotoGallery (userId, Title, Tags, UploadTime, ImageData) VALUES (?, ?, ?, ?, ?)";
-
-        try (PreparedStatement pstmt = conn.prepareStatement(sql)) {
-            pstmt.setString(1, userId);
-            pstmt.setString(2, title);
-            pstmt.setString(3, tags);
-            pstmt.setString(4, uploadTime);
-            pstmt.setBytes(5, imageData);
-
-            pstmt.executeUpdate();
-        } catch (SQLException e) {
-            e.printStackTrace();
-            JOptionPane.showMessageDialog(parentComponent, "데이터베이스 오류가 발생했습니다.", "DB 오류", JOptionPane.ERROR_MESSAGE);
-        }
-        // Implement any necessary cleanup
-    }
-
-    public void uploadPhotoWithLocation(File photoFile, String title, String category, String selectedLocation) throws SQLException, FileNotFoundException {
+    public void uploadPhotoWithLocation(String title, String category, String selectedLocation, byte[] imageData) throws SQLException {
         Connection connection = DatabaseConfig.getConnection();
-         String sql = "INSERT INTO photos (title, category, location, photo) VALUES (?, ?, ?, ?)";
-         PreparedStatement statement = connection.prepareStatement(sql);
-         statement.setString(1, title);
-         statement.setString(2, category);
-         statement.setString(3, selectedLocation);
-         statement.setBinaryStream(4, new FileInputStream(photoFile));
-         int rowsInserted = statement.executeUpdate();
-         if (rowsInserted > 0) {
-           System.out.println("사진 및 위치 정보가 성공적으로 업로드되었습니다.");
-         }
+        String uploadTime = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(new Date());
+        String sql = "INSERT INTO PhotoGallery (userId, title, Tags, location, ImageData, UploadTime) VALUES (?, ?, ?, ?, ?, ?)";
+        PreparedStatement statement = connection.prepareStatement(sql);
+        statement.setString(1, this.userId);
+        statement.setString(2, title);
+        statement.setString(3, category);
+        statement.setString(4, selectedLocation);
+        statement.setBytes(5, imageData); // 이미지 데이터를 파라미터에서 직접 받습니다.
+        statement.setString(6, uploadTime);
+        int rowsInserted = statement.executeUpdate();
+        if (rowsInserted > 0) {
+            System.out.println("사진 및 위치 정보가 성공적으로 업로드되었습니다.");
+        }
     }
+
 }
 
