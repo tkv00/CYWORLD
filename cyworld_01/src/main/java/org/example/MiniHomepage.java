@@ -131,7 +131,7 @@ public class MiniHomepage extends JFrame {
     public void showMainPage() {
         frame = new JFrame("싸이월드");
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        frame.setSize(900, 600);
+        frame.setSize(888, 588);
         // 이미지 로드 부분
         ImageIcon imageIcon = new ImageIcon(imageUrl);
         if (imageIcon.getIconWidth() == -1) {
@@ -207,12 +207,12 @@ public class MiniHomepage extends JFrame {
         // 메뉴 바 패널을 생성합니다.
         JPanel menuBar = createMenuBar();
         menuBar.setOpaque(false);
-        menuBar.setBounds(700, 75, 200, 190);
+        menuBar.setBounds(700, 80, 200, 175);
         layeredPane.add(menuBar, JLayeredPane.MODAL_LAYER); // 메뉴 바를 적절한 레이어에 추가
 
         //게 시 물 패널 초기화
         JPanel postPanel = new JPanel();
-        postPanel.setBounds(265, 88, 150, 150);
+        postPanel.setBounds(265, 100, 150, 150);
         postPanel.setOpaque(false); // 패널의 불투명성을 비활성화
 
         //게 시 물 패널을 생성하고 추가합니다.
@@ -222,8 +222,8 @@ public class MiniHomepage extends JFrame {
         // 레이아웃 매니저 설정 (세로 방향으로 정렬)
         Post.setLayout(new BoxLayout(Post, BoxLayout.Y_AXIS));
 
-        //게 시 물 텍스트
-        JLabel postLabel = new JLabel("게 시 물");
+        //게시물 텍스트
+        JLabel postLabel = new JLabel("");
         postLabel.setOpaque(false); // 레이블의 배경을 투명하게 설정
         Post.add(postLabel);
 
@@ -282,46 +282,53 @@ public class MiniHomepage extends JFrame {
 
         gifPanel.requestFocusInWindow();
 
+        Post.add(Box.createVerticalStrut(1));
+
         // 급상승 패널 생성 및 추가
         JPanel UpPanel = new JPanel();
-        JLabel UpLabel = new JLabel("급상승");
+        JLabel UpLabel = new JLabel("급상승게시물");
         UpLabel.setForeground(Color.BLACK); // 텍스트 색상 설정
         Post.add(UpPanel);
         UpPanel.setOpaque(false); // 패널의 불투명성을 비활성화
 
-        // 수직 여백 추가
-        Post.add(Box.createVerticalStrut(10));
+        Post.add(Box.createVerticalStrut(1));
 
         // 추천 패널 생성 및 추가
         JPanel RecommendPanel = new JPanel();
-        JLabel RecommendLabel = new JLabel("추 천");
+        JLabel RecommendLabel = new JLabel("추천게시물");
         RecommendLabel.setForeground(Color.BLACK); // 텍스트 색상을 설정
         Post.add(RecommendPanel);
         RecommendPanel.setOpaque(false); // 패널의 불투명성을 비활성화
 
+        Post.add(Box.createVerticalStrut(1));
+
+
         // 인기 패널 생성 및 추가
         JPanel HotPanel = new JPanel();
-        JLabel HotLabel = new JLabel("인 기");
+        JLabel HotLabel = new JLabel("인기게시물");
         HotLabel.setForeground(Color.BLACK); // 텍스트 색상
         Post.add(HotPanel);
         HotPanel.setOpaque(false); // 패널의 불투명성을 비활성화
 
         // 수직 여백 추가
-        Post.add(Box.createVerticalStrut(10));
+        Post.add(Box.createVerticalStrut(1));
 
         // 신규 패널 생성 및 추가
         JPanel NewPanel = new JPanel();
-        JLabel NewLabel = new JLabel("신 규");
+        JLabel NewLabel = new JLabel("신규게시물");
         NewLabel.setForeground(Color.BLACK); // 텍스트 색상
         Post.add(NewPanel);
         NewPanel.setOpaque(false); // 패널의 불투명성을 비활성화
+
+
+
 
         // 최근 게시물 제목 가져오기
         String latestPostTitle = writeBoardManager.getLatestPostTitle();
         int latestPostId = writeBoardManager.getLatestPostId();
         // 각 패널에 게시글 제목을 표시하고 클릭 이벤트를 처리하는 코드 추가
         JPanel[] panels = {UpPanel, RecommendPanel, HotPanel, NewPanel};
-        String[] labelsText = {"급상승", "추 천", "인 기", "신 규"};
+        String[] labelsText = {"급상승게시물", "추천게시물", "인기게시물", "신규게시물"};
 
         for (int i = 0; i < panels.length; i++) {
             JPanel panel = panels[i];
@@ -364,7 +371,7 @@ public class MiniHomepage extends JFrame {
 
         // 프로필 한줄평 추가할 패널 생성
         String profileComment = profileEditor.getProfileComment(); // 프로필 한 줄평 가져오기
-        System.out.println("프로필 한 줄평: " + profileComment); // 콘솔에 출력해서 값이 올바른지 확인
+        System.out.println("프로필 한줄평 " + profileComment); // 콘솔에 출력해서 값이 올바른지 확인
         JPanel profileTextPanel = new JPanel();
         profileTextPanel.setBounds(75, 370, 150, 50);
         profileTextPanel.setOpaque(false); // 패널의 불투명성을 비활성화

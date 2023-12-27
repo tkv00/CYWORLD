@@ -12,30 +12,33 @@ import static javax.swing.JOptionPane.showMessageDialog;
 
 public class ProfileEditor {
     private String username;
-    private Component profileFrame;
+    private JFrame profileFrame;
 
     public ProfileEditor(String username) {
         if (username != null) {
             this.username = username;
         }
     }
+
     public void handleProfileButtonClick() {
-        // 프로필 버튼 클릭 시 수행할 동작을 구현해요.
-        JFrame profileFrame = new JFrame("프로필 변경");
+        profileFrame = new JFrame("프로필 변경");
         profileFrame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
         profileFrame.setSize(500, 300);
-        profileFrame.setLayout(new GridLayout(10, 5));
+        profileFrame.setLayout(new GridBagLayout());
 
-        JLabel idLabel = new JLabel("새로운 ID:");
-        JTextField idField = new JTextField();
+        GridBagConstraints gbc = new GridBagConstraints();
+        gbc.insets = new Insets(5, 5, 5, 5);
 
-        JLabel passwordLabel = new JLabel("새로운 비밀번호:");
-        JPasswordField passwordField = new JPasswordField();
+        JLabel idLabel = new JLabel("ID");
+        JTextField idField = new JTextField(20);
 
-        JLabel reviewLabel = new JLabel("한 줄평:");
-        JTextField reviewField = new JTextField();
+        JLabel passwordLabel = new JLabel("비밀번호");
+        JPasswordField passwordField = new JPasswordField(20);
 
-        JButton addReviewButton = new JButton("추가/변경");
+        JLabel reviewLabel = new JLabel("한 줄평");
+        JTextField reviewField = new JTextField(20);
+
+        JButton addReviewButton = new JButton("한줄평 변경");
         addReviewButton.addActionListener(e -> {
             String reviewText = reviewField.getText();
             if (!reviewText.isEmpty()) {
@@ -45,7 +48,7 @@ public class ProfileEditor {
             }
         });
 
-        JButton changeButton = new JButton("변경");
+        JButton changeButton = new JButton("ID & P/W 변경");
         changeButton.addActionListener(e -> {
             String newID = idField.getText();
             String newPassword = String.valueOf(passwordField.getPassword());
@@ -60,8 +63,7 @@ public class ProfileEditor {
 
             if (newID.isEmpty() && newPassword.isEmpty()) {
                 showMessageDialog(profileFrame, "ID나 비밀번호 중 하나는 입력되어야 합니다.", "입력 오류", JOptionPane.ERROR_MESSAGE);
-            }
-            else {
+            } else {
                 try {
                     Connection conn = DatabaseConfig.getConnection();
                     if (!newID.isEmpty() && isValidUsername(newID)) {
@@ -75,7 +77,7 @@ public class ProfileEditor {
                         } catch (SQLException ex) {
                             throw new RuntimeException(ex);
                         }
-                    }else {
+                    } else {
                         showMessageDialog(profileFrame, "올바른 형식의 ID를 입력하세요.", "입력 오류", JOptionPane.ERROR_MESSAGE);
                         return;
                     }
@@ -87,8 +89,7 @@ public class ProfileEditor {
                             statement.setString(2, currentUser); // 사용자 ID 가져와서 사용
                             statement.executeUpdate();
                         }
-                    }
-                    else if (!isValidPassword(newPassword)) {
+                    } else if (!isValidPassword(newPassword)) {
                         showMessageDialog(profileFrame, "비밀번호는 최소 8자리이며, 문자와 숫자를 포함해야 합니다.", "입력 오류", JOptionPane.ERROR_MESSAGE);
                         return;
                     }
@@ -101,18 +102,45 @@ public class ProfileEditor {
                 profileFrame.dispose(); // 프레임 닫기
             }
         });
+
         JButton cancelButton = new JButton("취소");
         cancelButton.addActionListener(e -> profileFrame.dispose());
-        profileFrame.add(idLabel);
-        profileFrame.add(idField);
-        profileFrame.add(passwordLabel);
-        profileFrame.add(passwordField);
-        profileFrame.add(changeButton);
-        profileFrame.add(reviewLabel);
-        profileFrame.add(reviewField);
-        profileFrame.add(addReviewButton);
-        profileFrame.add(cancelButton);
+
+        // GridBagLayout을 사용하여 구성 요소 배치
+        gbc.gridx = 0;
+        gbc.gridy = 0;
+        profileFrame.add(idLabel, gbc);
+
+        gbc.gridx = 1;
+        profileFrame.add(idField, gbc);
+
+        gbc.gridx = 0;
+        gbc.gridy = 1;
+        profileFrame.add(passwordLabel, gbc);
+
+        gbc.gridx = 1;
+        profileFrame.add(passwordField, gbc);
+
+        gbc.gridx = 0;
+        gbc.gridy = 2;
+        profileFrame.add(reviewLabel, gbc);
+
+        gbc.gridx = 1;
+        profileFrame.add(reviewField, gbc);
+
+        gbc.gridx = 1;
+        gbc.gridy = 3;
+        profileFrame.add(addReviewButton, gbc);
+
+        gbc.gridx = 0;
+        gbc.gridy = 4;
+        profileFrame.add(changeButton, gbc);
+
+        gbc.gridx = 1;
+        profileFrame.add(cancelButton, gbc);
+
         profileFrame.setVisible(true);
+
     }
     private String[] getUserInformation(String username){
         String[] userInformation = new String[10]; // 유저 정보를 저장할 배열
