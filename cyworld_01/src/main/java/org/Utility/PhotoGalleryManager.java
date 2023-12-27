@@ -44,7 +44,8 @@ public class PhotoGalleryManager extends Component {
         List<PhotoGalleryImage> photos = new ArrayList<>();
         Connection conn = DatabaseConfig.getConnection();
         // 제목과 시간을 포함하여 이미지 데이터 검색
-        String sql = "SELECT ImageData, Title, UploadTime FROM PhotoGallery WHERE userId = ? AND Tags LIKE ?";
+      String sql = "SELECT ImageData, Title, UploadTime, location FROM PhotoGallery WHERE userId = ? AND Tags LIKE ?";
+
 
         try (PreparedStatement pstmt = conn.prepareStatement(sql)) {
             pstmt.setString(1, this.userId); // 현재 사용자의 ID
@@ -54,8 +55,14 @@ public class PhotoGalleryManager extends Component {
                     byte[] imageData = rs.getBytes("ImageData");
                     String title = rs.getString("Title");
                     String uploadTime = rs.getString("UploadTime");
-                    String location=rs.getString("location");
-                    photos.add(new PhotoGalleryImage(new ImageIcon(imageData), title, uploadTime,location));
+                    String location = null; // 초기값을 null 또는 기본값으로 설정
+                    try {
+                        location = rs.getString("location"); // location을 가져오려고 시도
+                    } catch (SQLException e) {
+                        // location 열이 없는 경우 예외 처리 (예: 로깅)
+                        System.out.println("Location column not found, defaulting to null.");
+                    }
+                    photos.add(new PhotoGalleryImage(new ImageIcon(imageData), title, uploadTime, location));
                 }
             }
         } catch (SQLException e) {

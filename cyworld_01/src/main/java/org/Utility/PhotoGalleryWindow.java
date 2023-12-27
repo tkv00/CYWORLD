@@ -170,7 +170,7 @@ public class PhotoGalleryWindow extends JFrame {
                             searchResultModel.clear();
                             for (int i = 0; i < places.length(); i++) {
                                 JSONObject place = places.getJSONObject(i);
-                                String placeName = place.getString("place_name");
+                                String placeName = place.getString("location");
                                 JPanel panel = new JPanel();
                                 panel.add(new JLabel(placeName));
                                 searchResultModel.addElement(panel);
@@ -313,13 +313,13 @@ public class PhotoGalleryWindow extends JFrame {
         photoPanel.removeAll();
 
         if (photos.size() == 2) {
-            // 사진이 2개일 때는 1행 2열의 GridLayout 사용
+            // 사진이 2개일 때는 상단에 배치하기 위해 1행 2열의 GridLayout 사용
             photoPanel.setLayout(new GridLayout(1, 2, 10, 10));
         } else if (photos.size() > 2) {
             // 사진이 2개보다 많을 때는 원래대로 0행 2열로 설정하여 자동으로 행이 늘어나게 설정
             photoPanel.setLayout(new GridLayout(0, 2, 10, 10));
         } else {
-            // 사진이 1개일 때는 FlowLayout을 사용
+            // 사진이 1개 또는 없을 때는 상단에 정렬하기 위해 FlowLayout을 사용
             photoPanel.setLayout(new FlowLayout(FlowLayout.LEADING));
         }
 

@@ -2,6 +2,8 @@ package org.example;
 
 import org.Friend.FriendListManager;
 import org.Friend.FriendManager;
+import java.sql.Timestamp;
+
 import org.Friend.FriendRequestDialog;
 import org.Utility.*;
 import org.example.Panel.GifPanel;
@@ -13,6 +15,8 @@ import java.io.File;
 import java.io.IOException;
 import java.net.URL;
 import java.nio.file.Files;
+
+import java.sql.SQLException;
 import java.text.SimpleDateFormat;
 import java.util.Arrays;
 import java.util.List;
@@ -120,7 +124,6 @@ public class MiniHomepage extends JFrame {
         BackgroundPanel backgroundPanel = new BackgroundPanel(backgroundImage);
         backgroundPanel.setBounds(0, 0, 888, 588);
         backgroundPanel.setOpaque(false); // 배경 이미지 패널 투명도 설정
-
         // JLayeredPane 생성 및 설정
         JLayeredPane layeredPane = new JLayeredPane();
         layeredPane.setPreferredSize(new Dimension(888, 588));
@@ -345,14 +348,32 @@ public class MiniHomepage extends JFrame {
         if (result == JFileChooser.APPROVE_OPTION) {
             File selectedFile = fileChooser.getSelectedFile();
             try {
+                // 파일에서 이미지 데이터를 읽어옵니다.
+                byte[] imageData = Files.readAllBytes(selectedFile.toPath());
+
+                // ImageDetails 객체를 생성하고 정보를 설정합니다.
+                ImageDetails imageDetails = new ImageDetails();
+                imageDetails.setUserId(this.userId); // 사용자 ID 설정
+                imageDetails.setImageData(imageData); // 이미지 데이터 설정
+                imageDetails.setImageName(selectedFile.getName()); // 이미지 파일 이름 설정
+                Timestamp currentTimestamp = new Timestamp(System.currentTimeMillis());
+                imageDetails.setUploadTime(currentTimestamp.toString());
+
+                // ProfileImageUpload 객체를 생성하고 이미지를 데이터베이스에 업로드합니다.
+                ProfileImageUpload profileImageUpload = new ProfileImageUpload();
+                profileImageUpload.uploadProfileImage(selectedFile, imageDetails);
+
+                // 프로필 패널에 새로운 이미지를 설정합니다.
                 Image newProfileImage = new ImageIcon(selectedFile.getAbsolutePath()).getImage();
                 profilePanel.updateProfileImage(newProfileImage); // 프로필 이미지 변경
-            } catch (Exception ex) {
-                JOptionPane.showMessageDialog(this, "이미지 로딩 실패", "오류", JOptionPane.ERROR_MESSAGE);
+
+                JOptionPane.showMessageDialog(this, "프로필 이미지가 성공적으로 업로드되었습니다.", "업로드 완료", JOptionPane.INFORMATION_MESSAGE);
+            } catch (IOException ex) {
+                JOptionPane.showMessageDialog(this, "파일 읽기 오류", "오류", JOptionPane.ERROR_MESSAGE);
+                ex.printStackTrace();
             }
         }
     }
-
     // 사진첩 다이얼로그를 열기 위한 메서드
     private void openPhotoGalleryWindow() {
         if (this.userId == null || this.userId.trim().isEmpty()) {
@@ -385,7 +406,7 @@ public class MiniHomepage extends JFrame {
         });
 
         boardButton2.addActionListener(e -> {
-            // 프로필 버튼 클릭 시 수행할 동작 추가
+
         });
 
         boardButton3.addActionListener(e -> new BoardList());
