@@ -5,17 +5,21 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="8ad32b2f-77a1-48af-b65e-dc605abe6719" name="변경" comment="변경">
-      <change beforePath="$PROJECT_DIR$/.idea/dataSources.local.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/dataSources.local.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/shelf/Uncommitted_changes_before_Update_at_2023-12-22__12_37___.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/shelf/Uncommitted_changes_before_Update_at_2023-12-22__12_37___.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/shelf/Uncommitted_changes_before_rebase___.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/shelf/Uncommitted_changes_before_rebase___.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/cyworld_01/.gradle/8.2/executionHistory/executionHistory.bin" beforeDir="false" afterPath="$PROJECT_DIR$/cyworld_01/.gradle/8.2/executionHistory/executionHistory.bin" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/cyworld_01/.gradle/8.2/executionHistory/executionHistory.lock" beforeDir="false" afterPath="$PROJECT_DIR$/cyworld_01/.gradle/8.2/executionHistory/executionHistory.lock" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/cyworld_01/.gradle/8.2/fileHashes/fileHashes.bin" beforeDir="false" afterPath="$PROJECT_DIR$/cyworld_01/.gradle/8.2/fileHashes/fileHashes.bin" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/cyworld_01/.gradle/8.2/fileHashes/fileHashes.lock" beforeDir="false" afterPath="$PROJECT_DIR$/cyworld_01/.gradle/8.2/fileHashes/fileHashes.lock" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/cyworld_01/.gradle/buildOutputCleanup/buildOutputCleanup.lock" beforeDir="false" afterPath="$PROJECT_DIR$/cyworld_01/.gradle/buildOutputCleanup/buildOutputCleanup.lock" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/cyworld_01/.gradle/file-system.probe" beforeDir="false" afterPath="$PROJECT_DIR$/cyworld_01/.gradle/file-system.probe" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/cyworld_01/src/main/java/org/Friend/FriendListManager.java" beforeDir="false" afterPath="$PROJECT_DIR$/cyworld_01/src/main/java/org/Friend/FriendListManager.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/cyworld_01/build/classes/java/main/org/example/BoardList.class" beforeDir="false" afterPath="$PROJECT_DIR$/cyworld_01/build/classes/java/main/org/example/BoardList.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/cyworld_01/src/main/java/org/Utility/DatabaseConfig.java" beforeDir="false" afterPath="$PROJECT_DIR$/cyworld_01/src/main/java/org/Utility/DatabaseConfig.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/cyworld_01/src/main/java/org/Utility/PhotoGalleryWindow.java" beforeDir="false" afterPath="$PROJECT_DIR$/cyworld_01/src/main/java/org/Utility/PhotoGalleryWindow.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/cyworld_01/src/main/java/org/Utility/ProfileEditor.java" beforeDir="false" afterPath="$PROJECT_DIR$/cyworld_01/src/main/java/org/Utility/ProfileEditor.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/cyworld_01/src/main/java/org/example/MiniHomepage.java" beforeDir="false" afterPath="$PROJECT_DIR$/cyworld_01/src/main/java/org/example/MiniHomepage.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/cyworld_01/src/main/java/org/example/Panel/Avatar.java" beforeDir="false" afterPath="$PROJECT_DIR$/cyworld_01/src/main/java/org/example/Panel/Avatar.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/cyworld_01/src/main/java/org/example/SignUppage.java" beforeDir="false" afterPath="$PROJECT_DIR$/cyworld_01/src/main/java/org/example/SignUppage.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/cyworld_01/src/main/java/org/example/WriteBoard.java" beforeDir="false" afterPath="$PROJECT_DIR$/cyworld_01/src/main/java/org/example/WriteBoard.java" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -78,6 +82,12 @@
         <option name="url" value="https://github.com/tkv00/CYWORLD.git" />
       </UrlAndAccount>
     </option>
+  </component>
+  <component name="HighlightingSettingsPerFile">
+    <setting file="jar://$PROJECT_DIR$/../.gradle/caches/modules-2/files-2.1/mysql/mysql-connector-java/8.0.23/9cf5e908096e71cb12eadcd0e1c4696aa1cdb59b/mysql-connector-java-8.0.23-sources.jar!/com/mysql/cj/jdbc/exceptions/SQLExceptionsMapping.java" root0="SKIP_INSPECTION" />
+    <setting file="file://$PROJECT_DIR$/../AppData/Local/Temp/tmp_10_BoardList.class" root0="SKIP_INSPECTION" />
+    <setting file="file://$PROJECT_DIR$/../AppData/Local/Temp/tmp_11_BoardList.class" root0="SKIP_INSPECTION" />
+    <setting file="file://$PROJECT_DIR$/../AppData/Local/Temp/tmp_7_BoardList.class" root0="SKIP_INSPECTION" />
   </component>
   <component name="MarkdownSettingsMigration">
     <option name="stateVersion" value="1" />
@@ -165,7 +175,7 @@
       <workItem from="1703552066229" duration="34628000" />
       <workItem from="1703594941698" duration="15129000" />
       <workItem from="1703615316780" duration="45000" />
-      <workItem from="1703616994273" duration="14524000" />
+      <workItem from="1703616994273" duration="21635000" />
     </task>
     <task id="LOCAL-00001" summary=".">
       <option name="closed" value="true" />

@@ -23,6 +23,7 @@ public class SignUppage {
     public SignUppage(LoginPage loginPage) {
         this.loginPage=loginPage;
         initializeUI();
+        frame.setDefaultCloseOperation(JFrame.HIDE_ON_CLOSE);
     }
 
     private void initializeUI() {
@@ -47,7 +48,10 @@ public class SignUppage {
         // 취소 버튼
         JButton cancelButton = createStyledButton("취소", 15);// 텍스트 색을 검은색으로 설정
         cancelButton.setForeground(Color.BLACK);
-        cancelButton.addActionListener(e ->loginPage.show());
+        cancelButton.addActionListener(e -> {
+            loginPage.show(); // 로그인 페이지 표시
+            frame.setVisible(false);
+        });
         frame.add(cancelButton);
 
 

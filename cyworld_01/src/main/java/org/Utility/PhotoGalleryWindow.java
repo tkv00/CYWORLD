@@ -11,27 +11,15 @@ import java.util.List;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 
-
-
-
 public class PhotoGalleryWindow extends JFrame {
     private final String userId;
     private boolean isReadOnly;
-
     private JButton addPhotoButton; // 사진 추가 버튼
     private final PhotoGalleryManager photoGalleryManager;
     private JPanel tagPanel;
     private JPanel photoPanel;
-
-<<<<<<< HEAD
-    // Keep track of clicked tags
     private Set<String> clickedTags = new HashSet<>();
-
-
-    public PhotoGalleryWindow(PhotoGalleryManager manager, String userId) {
-=======
     public PhotoGalleryWindow(PhotoGalleryManager manager, String userId,boolean isReadOnly) {
->>>>>>> e8a3bb52a4c87c6d321ad2c9a1e5924f54bcce1b
         this.photoGalleryManager = manager;
         this.userId = userId;
         this.isReadOnly = isReadOnly;
@@ -42,7 +30,6 @@ public class PhotoGalleryWindow extends JFrame {
         }
         initializeUI();
     }
-<<<<<<< HEAD
 
     // 사진첩 패널을 생성하는 메서드
     private JPanel createPhotoGalleryPanel() {
@@ -56,15 +43,12 @@ public class PhotoGalleryWindow extends JFrame {
         photoGalleryPanel.add(photoGalleryLabel);
         return photoGalleryPanel;
     }
-
-=======
     // 사진 추가 버튼 활성화/비활성화 메서드
     public void setAddPhotoButtonEnabled(boolean enabled) {
         if (addPhotoButton != null) {
             addPhotoButton.setEnabled(enabled);
         }
     }
->>>>>>> e8a3bb52a4c87c6d321ad2c9a1e5924f54bcce1b
     // 사용자 인터페이스 초기화
     private void initializeUI() {
         setTitle("사진첩");

@@ -118,7 +118,7 @@ public class ProfileEditor {
         String[] userInformation = new String[10]; // 유저 정보를 저장할 배열
         try (Connection conn = DatabaseConfig.getConnection()) {
             // 데이터베이스에서 유저 정보를 가져오는 쿼리
-            String selectQuery = "SELECT usernameFROM user WHERE username = ?";
+            String selectQuery = "SELECT username FROM user WHERE username = ?";
             try (PreparedStatement pstmt = conn.prepareStatement(selectQuery)) {
                 pstmt.setString(1, username);
                 ResultSet rs = pstmt.executeQuery();

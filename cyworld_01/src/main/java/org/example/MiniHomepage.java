@@ -7,8 +7,11 @@ import org.Utility.*;
 import org.example.Panel.GifPanel;
 import org.example.Panel.MusicPlayerPanel;
 import org.example.Panel.ProfilePanel;
+
 import javax.swing.*;
 import java.awt.*;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
@@ -54,9 +57,6 @@ public class MiniHomepage extends JFrame {
     //메세지버튼
     private JButton messageButton;
 
-
-
-
     private WriteBoardManager writeBoardManager;
     private UserSession userSession;
     private String username;
@@ -87,7 +87,6 @@ public class MiniHomepage extends JFrame {
         boardButton5=new JButton("사진첩");
         notificationButton=new JButton(new ImageIcon(getClass().getResource("/image/notification.png")));
 
-
         // 기본 프레임 설정
         this.friendManager = new FriendManager();
         photoGalleryManager=new PhotoGalleryManager(this,this.userId);
@@ -116,11 +115,9 @@ public class MiniHomepage extends JFrame {
     }
     // 로그인 성공 후 userId를 설정하는 메서드
 
-
     public static void main(String[] args) {
         new MiniHomepage().showLogin();
     }
-
     private void showLogin() {
         loginPage.show();
     }
@@ -150,7 +147,6 @@ public class MiniHomepage extends JFrame {
 
         layeredPane.add(musicPlayerPanel, Integer.valueOf(500)); // 레이어 설정
 
-
         // 배경 패널 추가
         layeredPane.add(backgroundPanel, JLayeredPane.DEFAULT_LAYER);
         // 프로필 이미지 로드 및 패널 설정
@@ -165,11 +161,9 @@ public class MiniHomepage extends JFrame {
             profilePanel.setDefaultImage();
         }
 
-
         changeImageButton.setBounds(95, 340, 100, 20);
         layeredPane.add(changeImageButton, Integer.valueOf(600));
         changeImageButton.addActionListener(e -> uploadAndSetNewProfileImage());
-
 
         newButton2.setBounds(95, 480, 100, 20); // 위치 설정 (가로: 100, 세로: 30)
         layeredPane.add(newButton2, Integer.valueOf(501)); // 새로운 버튼을 적절한 레이어에 추가
@@ -212,33 +206,31 @@ public class MiniHomepage extends JFrame {
         menuBar.setBounds(700, 75, 200, 190);
         layeredPane.add(menuBar, JLayeredPane.MODAL_LAYER); // 메뉴 바를 적절한 레이어에 추가
 
-        // 최근 게시물 패널 초기화
-        JPanel recentPostPanel = new JPanel();
-        recentPostPanel.setBounds(255, 86, 150, 150);
-        recentPostPanel.setOpaque(false); // 패널의 불투명성을 비활성화
+        //게 시 물 패널 초기화
+        JPanel postPanel = new JPanel();
+        postPanel.setBounds(265, 88, 150, 150);
+        postPanel.setOpaque(false); // 패널의 불투명성을 비활성화
 
-
-        // 최근 게시물 패널을 생성하고 추가합니다.
-        JPanel recentPost = createRecentPostPanel(recentPostPanel);
-        layeredPane.add(recentPost, JLayeredPane.MODAL_LAYER);
+        //게 시 물 패널을 생성하고 추가합니다.
+        JPanel Post = PostPanel(postPanel);
+        layeredPane.add(Post, JLayeredPane.MODAL_LAYER);
 
         // 레이아웃 매니저 설정 (세로 방향으로 정렬)
-        recentPost.setLayout(new BoxLayout(recentPost, BoxLayout.Y_AXIS));
+        Post.setLayout(new BoxLayout(Post, BoxLayout.Y_AXIS));
 
-        // 최근 게시물 텍스트
-        JLabel recentPostLabel = new JLabel("최근 게시물");
-        recentPostLabel.setOpaque(false); // 레이블의 배경을 투명하게 설정
-        recentPost.add(recentPostLabel);
+        //게 시 물 텍스트
+        JLabel postLabel = new JLabel("게 시 물");
+        postLabel.setOpaque(false); // 레이블의 배경을 투명하게 설정
+        Post.add(postLabel);
 
         // 수평 여백 추가
-        recentPost.add(Box.createVerticalStrut(5));
+        Post.add(Box.createVerticalStrut(5));
 
         // 메인 컨텐츠를 gifPanel 내부에 추가
         JPanel mainContent = createMainContent();
         gifPanel.add(mainContent);
         mainContent.setBounds(0, 0, gifPanel.getWidth(), gifPanel.getHeight());
         mainContent.setOpaque(false); // 메인 컨텐츠를 투명하게 설정
-
 
         notificationButton.setContentAreaFilled(false);  // 내용 영역을 투명으로 설정
         notificationButton.setBorderPainted(false);  // 테두리를 숨김
@@ -247,10 +239,8 @@ public class MiniHomepage extends JFrame {
             try {
                 // FriendManager를 통해 친구 요청 목록을 가져옵니다.
                 List<String> friendRequests = friendManager.getPendingFriendRequests(userId);
-
                 // FriendRequestDialog 인스턴스를 생성합니다.
                 FriendRequestDialog requestDialog = new FriendRequestDialog(MiniHomepage.this, userId, friendRequests);
-
                 // FriendRequestDialog를 표시합니다.
                 requestDialog.setVisible(true);
             } catch (Exception ex) {
@@ -281,86 +271,94 @@ public class MiniHomepage extends JFrame {
                 JOptionPane.showMessageDialog(null, "쪽지를 불러오는 데 문제가 발생했습니다: " + ex.getMessage(), "오류", JOptionPane.ERROR_MESSAGE);
             }
         });
-
-// 메세지 버튼을 레이어드 패인 또는 메인 프레임에 추가
+        // 메세지 버튼을 레이어드 패인 또는 메인 프레임에 추가
         layeredPane.add(messageButton, Integer.valueOf(JLayeredPane.POPUP_LAYER));
         frame.setLayeredPane(layeredPane); // 프레임에 레이어드 판을 설정
         frame.setVisible(true);
 
         gifPanel.requestFocusInWindow();
-        // 우측에 추가할 패널 생성
-        JPanel rightPanel = new JPanel();
-        rightPanel.setBounds(405, 86, 150, 150);
-        rightPanel.setOpaque(false); // 패널의 불투명성을 비활성화
-        layeredPane.add(rightPanel, JLayeredPane.MODAL_LAYER);
 
-        // 동영상 패널 생성 및 추가
-        JPanel videoPanel = new JPanel();
-        JLabel videoLabel = new JLabel("동영상");
-        videoLabel.setForeground(Color.BLACK); // 텍스트 색상을 하얀색으로 설정
-        videoPanel.add(videoLabel);
-        recentPost.add(videoPanel);
-        videoPanel.setOpaque(false); // 패널의 불투명성을 비활성화
+        // 급상승 패널 생성 및 추가
+        JPanel UpPanel = new JPanel();
+        JLabel UpLabel = new JLabel("급상승");
+        UpLabel.setForeground(Color.BLACK); // 텍스트 색상 설정
+        Post.add(UpPanel);
+        UpPanel.setOpaque(false); // 패널의 불투명성을 비활성화
 
         // 수직 여백 추가
-        recentPost.add(Box.createVerticalStrut(10));
+        Post.add(Box.createVerticalStrut(10));
 
-        // 게시판 패널 생성 및 추가
-        JPanel boardPanel = new JPanel(new BorderLayout());
-        JLabel boardTextLabel = new JLabel("게시판");
-        boardTextLabel.setForeground(Color.BLACK); // 텍스트 색상을 설정
-        boardPanel.add(boardTextLabel);
+        // 추천 패널 생성 및 추가
+        JPanel RecommendPanel = new JPanel();
+        JLabel RecommendLabel = new JLabel("추 천");
+        RecommendLabel.setForeground(Color.BLACK); // 텍스트 색상을 설정
+        Post.add(RecommendPanel);
+        RecommendPanel.setOpaque(false); // 패널의 불투명성을 비활성화
+
+        // 인기 패널 생성 및 추가
+        JPanel HotPanel = new JPanel();
+        JLabel HotLabel = new JLabel("인 기");
+        HotLabel.setForeground(Color.BLACK); // 텍스트 색상
+        Post.add(HotPanel);
+        HotPanel.setOpaque(false); // 패널의 불투명성을 비활성화
+
+        // 수직 여백 추가
+        Post.add(Box.createVerticalStrut(10));
+
+        // 신규 패널 생성 및 추가
+        JPanel NewPanel = new JPanel();
+        JLabel NewLabel = new JLabel("신 규");
+        NewLabel.setForeground(Color.BLACK); // 텍스트 색상
+        Post.add(NewPanel);
+        NewPanel.setOpaque(false); // 패널의 불투명성을 비활성화
+
         // 최근 게시물 제목 가져오기
         String latestPostTitle = writeBoardManager.getLatestPostTitle();
+        int latestPostId = writeBoardManager.getLatestPostId();
+        // 각 패널에 게시글 제목을 표시하고 클릭 이벤트를 처리하는 코드 추가
+        JPanel[] panels = {UpPanel, RecommendPanel, HotPanel, NewPanel};
+        String[] labelsText = {"급상승", "추 천", "인 기", "신 규"};
 
+        for (int i = 0; i < panels.length; i++) {
+            JPanel panel = panels[i];
+            JLabel label = new JLabel(labelsText[i]);
+            label.setForeground(Color.BLACK);
+            panel.add(label);
+
+            JLabel postTitleLabel = new JLabel(latestPostTitle);
+            postTitleLabel.setForeground(Color.BLUE);
+            postTitleLabel.setCursor(new Cursor(Cursor.HAND_CURSOR)); // 커서를 손 모양으로 변경
+            panel.add(postTitleLabel);
+            // 클릭 이벤트
+            postTitleLabel.addMouseListener(new MouseAdapter() {
+                @Override
+                public void mouseClicked(MouseEvent e) {
+                    writeBoardManager.showPostDetailsInNewWindow(latestPostId);
+                }
+            });
+            panel.setOpaque(false);
+            Post.add(panel);
+        }
         // 최근 게시물 제목 레이블
         JLabel recentPostTitleLabel = new JLabel(latestPostTitle);
         recentPostTitleLabel.setForeground(Color.BLACK); // 텍스트 색상 설정
         // 각 레이블을 패널에 추가
-        boardPanel.add(boardTextLabel, BorderLayout.WEST);
-        boardPanel.add(recentPostTitleLabel, BorderLayout.EAST);
-        recentPostPanel.add(recentPostTitleLabel); // 최근 게시물 레이블을 패널에 추가
-        recentPost.add(boardPanel);
-        boardPanel.setOpaque(false); // 패널의 불투명성을 비활성화
+        postPanel.add(postLabel, BorderLayout.WEST);
+        UpPanel.add(recentPostTitleLabel, BorderLayout.EAST);
+        postPanel.add(recentPostTitleLabel); // 최근 게시물 레이블을 패널에 추가
+        Post.add(UpPanel);
+        UpPanel.setOpaque(false); // 패널의 불투명성을 비활성화
 
         // 수직 여백 추가
-        recentPost.add(Box.createVerticalStrut(10));
-        // 최근 게시물을 클릭할 수 있는 버튼 생성
-        JButton recentPostButton = new JButton();
-        recentPostButton.setLayout(new BorderLayout());
-        recentPostButton.add(recentPostTitleLabel, BorderLayout.CENTER);
-        recentPostButton.setContentAreaFilled(false);
-        recentPostButton.setBorderPainted(false);
-        recentPostButton.addActionListener(e -> {
-            int latestPostId = writeBoardManager.getLatestPostId(); // 최신 게시글 ID 가져오기
-            String postId = writeBoardManager.getLatestUserId();
+        Post.add(Box.createVerticalStrut(10));
+        //게시물을 클릭할 수 있는 버튼 생성
+        JButton PostButton = new JButton();
+        PostButton.setLayout(new BorderLayout());
+        PostButton.add(recentPostTitleLabel, BorderLayout.CENTER);
+        PostButton.setContentAreaFilled(false);
+        PostButton.setBorderPainted(false);
 
-            // BoardList 클래스의 showPostDetailsInNewWindow 메서드를 호출하여 게시글을 새 창에 표시
-            writeBoardManager.showPostDetailsInNewWindow(latestPostId);
-        });
 
-        rightPanel.setLayout(new BoxLayout(rightPanel, BoxLayout.Y_AXIS)); // 세로 정렬
-        // 최근 게시물 버튼을 우측 패널에 추가
-        rightPanel.add(recentPostButton);
-
-        // 갤러리 패널 생성 및 추가
-        JPanel galleryPanel = new JPanel();
-        JLabel galleryLabel = new JLabel("갤러리");
-        galleryLabel.setForeground(Color.BLACK); // 텍스트 색상을 하얀색으로 설정
-        galleryPanel.add(galleryLabel);
-        recentPost.add(galleryPanel);
-        galleryPanel.setOpaque(false); // 패널의 불투명성을 비활성화
-
-        // 수직 여백 추가
-        recentPost.add(Box.createVerticalStrut(10));
-
-        // 사진첩 패널 생성 및 추가
-        JPanel photoGalleryPanel = new JPanel();
-        JLabel photoGalleryLabel = new JLabel("사진첩");
-        photoGalleryLabel.setForeground(Color.BLACK); // 텍스트 색상을 하얀색으로 설정
-        photoGalleryPanel.add(photoGalleryLabel);
-        recentPost.add(photoGalleryPanel);
-        photoGalleryPanel.setOpaque(false); // 패널의 불투명성을 비활성화
         // 프로필 한줄평 추가할 패널 생성
         String profileComment = profileEditor.getProfileComment(); // 프로필 한 줄평 가져오기
         System.out.println("프로필 한 줄평: " + profileComment); // 콘솔에 출력해서 값이 올바른지 확인
@@ -402,13 +400,11 @@ public class MiniHomepage extends JFrame {
             System.err.println("User ID is null or empty in openPhotoGalleryWindow");
             return;  // Handle this situation appropriately
         }
-
-        // Pass the userId to the PhotoGalleryWindow or Manager
         PhotoGalleryWindow galleryWindow = new PhotoGalleryWindow(photoGalleryManager, userId,true);
         galleryWindow.setVisible(true);
     }
-    private JPanel createRecentPostPanel(JPanel recentPostPanel) {
-        return recentPostPanel;
+    private JPanel PostPanel(JPanel PostPanel) {
+        return PostPanel;
     }
     // 사진첩 창을 열기 위한 메서드
     private JPanel createMenuBar() {
@@ -454,7 +450,6 @@ public class MiniHomepage extends JFrame {
 
         // 패널 속성 설정
         menuBar.setOpaque(false);
-
         // 버튼 사이 간격 설정
         int HorizontalStrutHeight = 11;
         menuBar.add(Box.createHorizontalStrut(HorizontalStrutHeight));
@@ -462,7 +457,6 @@ public class MiniHomepage extends JFrame {
         menuBar.add(Box.createHorizontalStrut(HorizontalStrutHeight));
         menuBar.add(Box.createHorizontalStrut(HorizontalStrutHeight));
         menuBar.add(Box.createHorizontalStrut(HorizontalStrutHeight));
-
         return menuBar;
     }
     private JPanel createMainContent() {
