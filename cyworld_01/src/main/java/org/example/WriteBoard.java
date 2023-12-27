@@ -1,15 +1,21 @@
 package org.example;
 
+import org.Utility.DatabaseConfig;
+import org.Utility.UserSession;
+
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.sql.*;
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.SQLException;
+import java.sql.Timestamp;
 import java.time.Instant;
 
 public class WriteBoard {
     //현재 로그인한 유저
-    String currentUserId;
+    String userId = UserSession.getInstance().getUserId();
 
     private JFrame frame;
     private JTextField titleField;
@@ -20,10 +26,9 @@ public class WriteBoard {
 
     // 사용자 아이디를 설정하는 메서드
     public WriteBoard(String userId){
-        this.currentUserId=userId;
+        this.userId = userId;
         initialize();
     }
-
 
     public WriteBoard() {
         initialize();
@@ -31,7 +36,7 @@ public class WriteBoard {
 
     private void initialize() {
         frame = new JFrame("게시판");
-        frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+            frame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
         frame.setSize(800, 600);
         frame.setLayout(new BorderLayout());
 
@@ -87,11 +92,10 @@ public class WriteBoard {
         // 사용자 입력 가져오기
         String title = titleField.getText();
         String content = contentArea.getText();
-
         // 입력 검증
         if (title.isEmpty() || content.isEmpty()) {
             JOptionPane.showMessageDialog(frame, "제목과 내용을 모두 입력해주세요.", "오류", JOptionPane.ERROR_MESSAGE);
-            return;
+
         }
 
         // 데이터베이스 연결 및 쿼리 실행
@@ -100,7 +104,7 @@ public class WriteBoard {
             try (PreparedStatement pstmt = conn.prepareStatement(sql)) {
                 pstmt.setString(1, title);
                 pstmt.setString(2, content);
-                pstmt.setString(3,currentUserId);
+                pstmt.setString(3, userId);
                 pstmt.setString(4, String.valueOf(Timestamp.from(Instant.now())));// 현재 사용자 ID
                 pstmt.executeUpdate();
 

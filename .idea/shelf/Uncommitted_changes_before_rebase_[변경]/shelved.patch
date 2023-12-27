@@ -1,0 +1,1317 @@
+Index: cyworld_01/src/main/java/org/example/MiniHomepage.java
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.BaseRevisionTextPatchEP
+<+>package org.example;\r\n\r\n\r\nimport org.Friend.FriendManager;\r\nimport org.Friend.FriendRequestDialog;\r\nimport org.Friend.FriendSearchDialog;\r\nimport org.Utility.*;\r\nimport java.io.File;\r\nimport javax.swing.*;\r\nimport java.awt.*;\r\nimport java.awt.event.KeyAdapter;\r\nimport java.awt.event.KeyEvent;\r\nimport java.net.URL;\r\nimport java.sql.Connection;\r\nimport java.sql.PreparedStatement;\r\nimport java.sql.ResultSet;\r\nimport java.sql.SQLException;\r\nimport java.util.ArrayList;\r\nimport java.util.Arrays;\r\nimport java.util.List;\r\n\r\nimport javax.swing.JPanel;\r\n\r\n\r\npublic class MiniHomepage {\r\n    private JButton notificationButton;\r\n    private FriendManager friendManager;\r\n    private JFrame frame;\r\n\r\n\r\n    private Timer playTimeUpdateTimer; // 재생 시간 업데이트 타이머\r\n    String imagePath = \"/image/main.jpg\";\r\n    URL imageUrl = getClass().getResource(imagePath);\r\n    private MusicPlayer musicPlayer; // MusicPlayer 객체 추가\r\n    // 추가: 음악 파일 리스트\r\n    private List<String> musicFiles = Arrays.asList(\r\n            \"/music/music1.wav\",\r\n            \"/music/music2.wav\",\r\n            \"/music/music3.wav\",\r\n            \"/music/music4.wav\"\r\n    );\r\n\r\n    private String[][] songInfo = {\r\n            {\"Y\", \"Free Style\"},\r\n            {\"응급실\", \"izi\"},\r\n            {\"밤하늘의 별을..\",\"양정승\"},\r\n            {\"I love U Oh Thank U\",\"MC몽\"}\r\n\r\n            // ... 다른 노래 정보 ...\r\n    };\r\n    private JLabel songInfoLabel;\r\n\r\n\r\n    private LoginPage loginPage;\r\n    private SignUppage signUpPage;\r\n    private JLabel userIdLabel; // 사용자 ID를 표시할 레이블\r\n    private ImageIcon gifIcon; // 방 움짤\r\n\r\n    private JLabel avatarLabel;//아바타\r\n    private JPanel gifPanel;\r\n    //캐릭터관련 변수들\r\n    private ImageIcon[] characterImages; // 캐릭터 이미지 배열\r\n    private int currentCharacterFrame = 0; // 현재 캐릭터 프레임\r\n    private String characterDirection = \"front\"; // 캐릭터 방향\r\n    private Point characterPosition; // 캐릭터 위치\r\n\r\n\r\n    private JLabel playTimeLabel; // 재생 시간을 표시할 레이블\r\n    private JSlider musicSlider; // 뮤직 바\r\n\r\n\r\n    public MiniHomepage() {\r\n        this.friendManager = new FriendManager();\r\n        signUpPage = new SignUppage();\r\n        notificationButton=new JButton();\r\n        loginPage = new LoginPage(signUpPage, this);\r\n        userIdLabel = new JLabel();\r\n        // 재생 시간 레이블\r\n        playTimeLabel = new JLabel(\"00:00\");\r\n        musicSlider = new JSlider();\r\n        // 초기 레이블 텍스트 설정 (예시)\r\n        userIdLabel.setText(\"Welcome, Guest\");\r\n        musicPlayer = new MusicPlayer(musicFiles);\r\n        // 움직이는 GIF 및 아바타 초기화\r\n        initializeGifAndAvatar();\r\n\r\n        initializePlayTimeUpdater();\r\n    }\r\n\r\n\r\n    private void initializeGifAndAvatar() {\r\n        // 움직이는 GIF 불러오기\r\n        gifIcon = new ImageIcon(getClass().getResource(\"/image/MainRoom.gif\")); // GIF 파일 경로 수정 필요\r\n\r\n        // 캐릭터 이미지 로드\r\n        characterImages = new ImageIcon[16]; // 총 16개의 이미지\r\n        for (int i = 0; i < 16; i++) {\r\n            characterImages[i] = new ImageIcon(getClass().getResource(\"/image/character_\" + (i + 1) + \".png\"));\r\n        }\r\n\r\n        // 아바타 초기화 추가\r\n        avatarLabel = new JLabel();\r\n        avatarLabel.setSize(new Dimension(50, 50)); // 예시 크기, 필요에 따라 조정\r\n        characterPosition = new Point(50, 50); // 초기 캐릭터 위치 설정\r\n        // GIF 패널 초기화\r\n        gifPanel = new JPanel(null) { // 위치 수동 조정을 위한 레이아웃 설정\r\n            @Override\r\n            protected void paintComponent(Graphics g) {\r\n                super.paintComponent(g);\r\n                int x = (this.getWidth() - gifIcon.getIconWidth()) / 2;\r\n                int y = 0; // 상단에 위치시키기 위해 y 좌표는 0으로 설정\r\n                g.drawImage(gifIcon.getImage(), x, y, this);\r\n\r\n                //캐릭터그리기\r\n                int characterFrameIndex = getCharacterFrameIndex();\r\n                g.drawImage(characterImages[characterFrameIndex].getImage(), characterPosition.x, characterPosition.y, this);\r\n            }\r\n        };\r\n        gifPanel.setPreferredSize(new Dimension(gifIcon.getIconWidth(), gifIcon.getIconHeight()));\r\n        gifPanel.add(avatarLabel);\r\n        avatarLabel.setLocation(50, 50); // 초기 아바타 위치 설정\r\n    }\r\n\r\n\r\n    public static void main(String[] args) {\r\n        new MiniHomepage().showLogin();\r\n    }\r\n\r\n    private void showLogin() {\r\n        loginPage.show();\r\n    }\r\n\r\n    //음악재생 관련 메소드 모음\r\n    private void initializePlayTimeUpdater() {\r\n        playTimeUpdateTimer = new Timer(1000, e -> updatePlayTime());\r\n        playTimeUpdateTimer.start();\r\n    }\r\n\r\n    private void updatePlayTime() {\r\n        if (musicPlayer != null) {\r\n            long microSeconds = musicPlayer.getCurrentPosition();\r\n            long totalMicroSeconds = musicPlayer.getTotalDuration(); // 전체 재생 길이 가져오기\r\n            long seconds = microSeconds / 1000000;\r\n            long totalSeconds = totalMicroSeconds / 1000000;\r\n            long min = seconds / 60;\r\n            long sec = seconds % 60;\r\n            playTimeLabel.setText(String.format(\"%02d:%02d\", min, sec));\r\n\r\n// 슬라이더의 값을 현재 재생 위치에 따라 업데이트\r\n            if (!musicSlider.getValueIsAdjusting() && totalSeconds > 0) {\r\n                int sliderValue = (int) (seconds * 100 / totalSeconds);\r\n                musicSlider.setValue(sliderValue);\r\n            }\r\n        }\r\n    }\r\n    // 최근 게시물 패널을 생성하는 메서드\r\n\r\n\r\n    private JPanel createTopBar() {\r\n        // 음악 컨트롤 패널 설정\r\n        JPanel musicControlPanel = new JPanel();\r\n        musicControlPanel.setLayout(new BoxLayout(musicControlPanel, BoxLayout.X_AXIS)); // 세로 정렬\r\n        musicControlPanel.setOpaque(false);\r\n\r\n        // 상단 컨트롤 버튼 패널 생성\r\n        JPanel controlButtonPanel = new JPanel();\r\n        controlButtonPanel.setLayout(new FlowLayout(FlowLayout.LEFT, 0, 0)); // 버튼 간격 설정\r\n        controlButtonPanel.setOpaque(false);\r\n\r\n        // 컨트롤 버튼들 생성 및 설정\r\n        JToggleButton playPauseButton = new JToggleButton(\"▶\", false); // 재생/일시정지 토글 버튼\r\n        JButton nextButton = createTransparentButton(\">>\");\r\n        JButton prevButton = createTransparentButton(\"<<\");\r\n        controlButtonPanel.add(prevButton);\r\n        controlButtonPanel.add(playPauseButton);\r\n        controlButtonPanel.add(nextButton);\r\n\r\n        // 재생 시간 레이블 설정\r\n        playTimeLabel = new JLabel(\"00:00\");\r\n        playTimeLabel.setHorizontalAlignment(JLabel.LEFT);\r\n        playTimeLabel.setOpaque(false);\r\n\r\n        // 노래 정보 레이블 초기화 및 설정\r\n        songInfoLabel = new JLabel(\"Y-Free Style\");\r\n        songInfoLabel.setHorizontalAlignment(JLabel.RIGHT);\r\n        songInfoLabel.setOpaque(false);\r\n\r\n        // 뮤직 슬라이더 설정\r\n        musicSlider = new JSlider();\r\n        musicSlider.setOpaque(false);\r\n\r\n        // 컨트롤 패널에 컴포넌트들 추가\r\n        musicControlPanel.add(controlButtonPanel);\r\n        musicControlPanel.add(playTimeLabel);\r\n        musicControlPanel.add(musicSlider);\r\n        musicControlPanel.add(songInfoLabel);\r\n\r\n        // musicControlPanel을 가운데 정렬하기 위한 래퍼 패널\r\n        JPanel wrapperPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT, 0, 0));\r\n        wrapperPanel.setOpaque(false);\r\n        wrapperPanel.add(musicControlPanel);\r\n\r\n\r\n\r\n        playPauseButton.addActionListener(e -> {\r\n            if (playPauseButton.isSelected()) {\r\n                playPauseButton.setText(\"||\");\r\n                if (musicPlayer.getCurrentPlayingIndex() == -1) {\r\n                    musicPlayer.playMusicAtIndex(0); // 첫 번째 곡 재생\r\n                } else {\r\n                    musicPlayer.playMusic(); // 계속 재생\r\n                }\r\n            } else {\r\n                playPauseButton.setText(\"▶\");\r\n                musicPlayer.pauseMusic(); // 일시 정지\r\n            }\r\n            gifPanel.requestFocusInWindow();\r\n        });\r\n\r\n        nextButton.addActionListener(e -> {\r\n            // 다음 곡 버튼이 눌렸을 때의 동작\r\n            musicPlayer.playNext();\r\n            int newIndex = musicPlayer.getCurrentPlayingIndex();\r\n            songInfoLabel.setText(songInfo[newIndex][0] + \" - \" + songInfo[newIndex][1]);\r\n            gifPanel.requestFocusInWindow();\r\n            // 필요한 경우 여기에 추가 동작을 구현하세요.\r\n        });\r\n        prevButton.addActionListener(e -> {\r\n            // 이전 곡 버튼이 눌렸을 때의 동작\r\n            musicPlayer.playPrevious();\r\n            int newIndex = musicPlayer.getCurrentPlayingIndex();\r\n            if (newIndex >= 0 && newIndex < songInfo.length) {\r\n                songInfoLabel.setText(songInfo[newIndex][0] + \" - \" + songInfo[newIndex][1]);\r\n            } else {\r\n                // 인덱스가 유효하지 않은 경우에 대한 처리\r\n                System.out.println(\"유효하지 않은 인덱스입니다: \" + newIndex);\r\n            }\r\n            gifPanel.requestFocusInWindow();\r\n            // 필요한 경우 여기에 추가 동작을 구현하세요.\r\n        });\r\n\r\n\r\n\r\n\r\n        // 상단 바 패널 생성 및 래퍼 패널 추가\r\n        JPanel topBar = new JPanel(new BorderLayout());\r\n        topBar.setOpaque(false);\r\n        // 상단 바의 선호 크기 설정\r\n        topBar.setPreferredSize(new Dimension(888, 30)); // 이 값을 적절하게 조정\r\n        topBar.add(wrapperPanel, BorderLayout.NORTH);\r\n\r\n        // 상단 바 패널 반환\r\n        return topBar;\r\n\r\n\r\n    }\r\n\r\n    private JButton createTransparentButton(String text) {\r\n        JButton button = new JButton(text);\r\n\r\n        // 버튼의 속성 설정\r\n        button.setOpaque(false); // 버튼을 불투명하지 않게 설정\r\n        button.setContentAreaFilled(false); // 버튼 영역을 채우지 않도록 설정\r\n        button.setBorderPainted(false); // 버튼의 테두리를 그리지 않도록 설정\r\n        button.setFocusPainted(false); // 포커스 표시를 그리지 않도록 설정\r\n        button.setCursor(new Cursor(Cursor.HAND_CURSOR)); // 마우스 오버 시 커서 변경\r\n\r\n        // 필요에 따라 폰트, 크기, 색상 등을 추가로 설정할 수 있음\r\n        // button.setFont(new Font(\"SansSerif\", Font.BOLD, 12));\r\n        // button.setForeground(Color.WHITE);\r\n\r\n        return button;\r\n    }\r\n    // 수평 패널을 생성하는 메서드\r\n    public void showMainPage() {\r\n        frame = new JFrame(\"싸이월드\");\r\n        frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);\r\n        frame.setSize(900, 600);\r\n\r\n        // 이미지 로드 부분\r\n        ImageIcon imageIcon = new ImageIcon(imageUrl);\r\n        if (imageIcon.getIconWidth() == -1) {\r\n            System.err.println(\"이미지 로딩 실패: \" + imagePath);\r\n            return; // return 문이 없을 경우 에러가 나므로, 일단 null을 반환하도록 변경\r\n        }\r\n        Image backgroundImage = imageIcon.getImage();\r\n        BackgroundPanel backgroundPanel = new BackgroundPanel(backgroundImage);\r\n        backgroundPanel.setBounds(0, 0, 888, 598);\r\n        backgroundPanel.setOpaque(false); // 배경 이미지 패널 투명도 설정\r\n\r\n        // JLayeredPane 생성 및 설정\r\n        JLayeredPane layeredPane = new JLayeredPane();\r\n        layeredPane.setPreferredSize(new Dimension(888, 598));\r\n\r\n        // 배경 패널 추가\r\n        layeredPane.add(backgroundPanel, JLayeredPane.DEFAULT_LAYER);\r\n        //프로필패널메소드\r\n        ImageIcon profileImageIcon = new ImageIcon(getClass().getResource(\"/image/DefaultImage.jpg\"));\r\n        Image profileImage = profileImageIcon.getImage();\r\n        ProfilePanel profilePanel = new ProfilePanel(profileImage);\r\n        profilePanel.setBounds(75, 135, profileImageIcon.getIconWidth(), profileImageIcon.getIconHeight());\r\n        layeredPane.add(profilePanel, Integer.valueOf(500));\r\n\r\n        JButton newButton = new JButton(\"사진변경\");\r\n        newButton.setBounds(60, 200 + profileImageIcon.getIconHeight(), 85, 20); // 위치 설정 (가로: 100, 세로: 30)\r\n        layeredPane.add(newButton, Integer.valueOf(501)); // 새로운 버튼을 적절한 레이어에 추가\r\n        // '사진변경'에 파일 선택 기능 추가\r\n        newButton.addActionListener(e -> {\r\n            profilePanel.uploadAndResizeImage();\r\n        });\r\n\r\n\r\n        // gifPanel 및 아바타 초기화 및 추가\r\n        initializeGifAndAvatar();\r\n        gifPanel.setBounds(350, 250, gifIcon.getIconWidth(), gifIcon.getIconHeight());\r\n        layeredPane.add(gifPanel, Integer.valueOf(300)); // gifPanel에 높은 z-인덱스 부여\r\n\r\n        // 상단 바 패널을 생성합니다.\r\n        JPanel topBar = createTopBar();\r\n        topBar.setOpaque(false); // 상단 바 패널 투명도 설정\r\n        // 상단 바를 레이어드 패널에 추가\r\n        layeredPane.add(topBar, Integer.valueOf(JLayeredPane.PALETTE_LAYER));\r\n        topBar.setBounds(0, 0, 888, 30); // 위치와 크기를 지정합니다.\r\n\r\n        // 메뉴 바 패널을 생성합니다.\r\n        JPanel menuBar = createMenuBar();\r\n        menuBar.setOpaque(false);\r\n        menuBar.setBounds(700, 75, 200, 190);\r\n        layeredPane.add(menuBar, JLayeredPane.MODAL_LAYER); // 메뉴 바를 적절한 레이어에 추가\r\n\r\n        // 최근 게시물 패널 초기화\r\n        JPanel recentPostPanel = new JPanel();\r\n        recentPostPanel.setBounds(250, 89, 150, 150);\r\n        recentPostPanel.setOpaque(false); // 패널의 불투명성을 비활성화\r\n\r\n        // 최근 게시물 패널을 생성하고 추가합니다.\r\n        JPanel recentPost = createRecentPostPanel(recentPostPanel);\r\n        layeredPane.add(recentPost, JLayeredPane.MODAL_LAYER);\r\n\r\n        // 레이아웃 매니저 설정 (세로 방향으로 정렬)\r\n        recentPost.setLayout(new BoxLayout(recentPost, BoxLayout.Y_AXIS));\r\n\r\n        // 최근 게시물 텍스트\r\n        JLabel recentPostLabel = new JLabel(\"최근 게시물\");\r\n        recentPostLabel.setOpaque(false); // 레이블의 배경을 투명하게 설정\r\n        recentPost.add(recentPostLabel);\r\n\r\n        // 수평 여백 추가\r\n        recentPost.add(Box.createVerticalStrut(5));\r\n\r\n        // ...\r\n\r\n        // 메인 컨텐츠를 gifPanel 내부에 추가\r\n        JPanel mainContent = createMainContent();\r\n        gifPanel.add(mainContent);\r\n        mainContent.setBounds(0, 0, gifPanel.getWidth(), gifPanel.getHeight());\r\n        mainContent.setOpaque(false); // 메인 컨텐츠를 투명하게 설정\r\n\r\n        // 알림 버튼 추가\r\n        URL notificationIconUrl = getClass().getResource(\"/image/bell.jpg\");\r\n        ImageIcon notificationIcon = new ImageIcon(notificationIconUrl);\r\n        JButton notificationButton = new JButton(notificationIcon);\r\n        notificationButton.setBounds(850, 5, 30, 30);\r\n        layeredPane.add(notificationButton, Integer.valueOf(JLayeredPane.POPUP_LAYER));\r\n        notificationButton.addActionListener(e -> {\r\n            showFriendRequestsDialog();\r\n            updateFriendRequestCount(); // 친구 요청 다이얼로그를 표시한 후 요청 수를 업데이트\r\n            gifPanel.requestFocusInWindow();\r\n        });\r\n        layeredPane.add(notificationButton, Integer.valueOf(JLayeredPane.POPUP_LAYER));\r\n\r\n        //쪽지 버튼 추가\r\n        URL messageUrl=getClass().getResource(\"/image/message.jpeg\");\r\n        ImageIcon messageIcon=new ImageIcon(messageUrl);\r\n        JButton messageButton=new JButton(messageIcon);\r\n        messageButton.setBounds(800,5,30,30);\r\n        layeredPane.add(messageButton,Integer.valueOf(JLayeredPane.POPUP_LAYER));\r\n        messageButton.addActionListener(e->{\r\n            try {\r\n                showMessageListDialog();\r\n            } catch (SQLException ex) {\r\n                throw new RuntimeException(ex);\r\n            }\r\n            gifPanel.requestFocusInWindow();\r\n        });\r\n\r\n\r\n\r\n        // 프레임에 레이어드 패인 추가 및 표시\r\n        frame.setLayeredPane(layeredPane); // 프레임에 레이어드 판을 설정\r\n        frame.setVisible(true);\r\n\r\n        gifPanel.requestFocusInWindow();\r\n\r\n        // 동영상 패널 생성 및 추가\r\n        JPanel videoPanel = new JPanel();\r\n        JLabel videoLabel = new JLabel(\"동영상\");\r\n        videoLabel.setForeground(Color.WHITE); // 텍스트 색상을 하얀색으로 설정\r\n        videoPanel.add(videoLabel);\r\n        recentPost.add(videoPanel);\r\n        videoPanel.setOpaque(false); // 패널의 불투명성을 비활성화\r\n\r\n        // 수직 여백 추가\r\n        recentPost.add(Box.createVerticalStrut(10));\r\n\r\n        // 수직 여백 추가\r\n        recentPost.add(Box.createVerticalStrut(10));\r\n\r\n        // 갤러리 패널 생성 및 추가\r\n        JPanel galleryPanel = new JPanel();\r\n        JLabel galleryLabel = new JLabel(\"갤러리\");\r\n        galleryLabel.setForeground(Color.WHITE); // 텍스트 색상을 하얀색으로 설정\r\n        galleryPanel.add(galleryLabel);\r\n        recentPost.add(galleryPanel);\r\n        galleryPanel.setOpaque(false); // 패널의 불투명성을 비활성화\r\n\r\n        // 수직 여백 추가\r\n        recentPost.add(Box.createVerticalStrut(10));\r\n\r\n        // 사진첩 패널 생성 및 추가\r\n        JPanel photoGalleryPanel = new JPanel();\r\n        JLabel photoGalleryLabel = new JLabel(\"사진첩\");\r\n        photoGalleryLabel.setForeground(Color.WHITE); // 텍스트 색상을 하얀색으로 설정\r\n        photoGalleryPanel.add(photoGalleryLabel);\r\n        recentPost.add(photoGalleryPanel);\r\n        photoGalleryPanel.setOpaque(false); // 패널의 불투명성을 비활성화\r\n\r\n        // 여기에 추가적으로 작성할 부분이 있는 경우 계속해서 코드를 보완하실 수 있습니다.\r\n    }\r\n    //쪽지 다이얼로그 띄우기\r\n    private void showMessageListDialog() throws SQLException {\r\n        JDialog messageListDialog = new JDialog(frame, \"쪽지 목록\", true);\r\n        messageListDialog.setLayout(new BorderLayout());\r\n\r\n        // 쪽지 목록을 가져오는 로직\r\n        List<Message> messages = getMessagesForUser(UserSession.getInstance().getUserId());\r\n\r\n        DefaultListModel<String> model = new DefaultListModel<>();\r\n        for (Message msg : messages) {\r\n            model.addElement(msg.getSender() + \": \" + msg.getContent()); // 예시 형식\r\n        }\r\n\r\n        JList<String> messageList = new JList<>(model);\r\n        messageListDialog.add(new JScrollPane(messageList), BorderLayout.CENTER);\r\n        messageList.addListSelectionListener(e -> {\r\n            if (!e.getValueIsAdjusting() && !messageList.isSelectionEmpty()) {\r\n                // 선택한 메시지의 전체 내용을 보여주는 다이얼로그 생성 및 표시\r\n                Message selectedMsg = messages.get(messageList.getSelectedIndex());\r\n                showFullMessageDialog(selectedMsg);\r\n            }\r\n        });\r\n\r\n\r\n        JButton replyButton = new JButton(\"답장 보내기\");\r\n        replyButton.addActionListener(e -> {\r\n            if (!messageList.isSelectionEmpty()) {\r\n                // 선택한 메시지의 발신자를 가져와 답장을 보냄\r\n                Message selectedMsg = messages.get(messageList.getSelectedIndex());\r\n                sendNoteToFriend(selectedMsg.getSender());\r\n            }\r\n        });\r\n\r\n        JButton newMessageButton = new JButton(\"새 쪽지 보내기\");\r\n        newMessageButton.addActionListener(e -> sendNewMessage());\r\n\r\n        JPanel buttonPanel = new JPanel();\r\n        buttonPanel.add(replyButton);\r\n        buttonPanel.add(newMessageButton);\r\n        messageListDialog.add(buttonPanel, BorderLayout.SOUTH);\r\n\r\n        messageListDialog.setSize(400, 300);\r\n        messageListDialog.setLocationRelativeTo(frame);\r\n        messageListDialog.setVisible(true);\r\n    }\r\n    private void sendNoteToFriend(String friend) {\r\n        JDialog noteDialog = new JDialog(frame, \"쪽지 보내기: \" + friend, true);\r\n        noteDialog.setLayout(new BorderLayout());\r\n\r\n        JTextArea noteTextArea = new JTextArea();\r\n        noteDialog.add(new JScrollPane(noteTextArea), BorderLayout.CENTER);\r\n\r\n        JButton sendButton = new JButton(\"보내기\");\r\n        sendButton.addActionListener(e -> {\r\n            String note = noteTextArea.getText();\r\n            // 쪽지 보내는 로직 구현\r\n            sendNote(friend, note);\r\n            noteDialog.dispose();\r\n        });\r\n        noteDialog.add(sendButton, BorderLayout.SOUTH);\r\n\r\n        noteDialog.setSize(300, 200);\r\n        noteDialog.setLocationRelativeTo(frame);\r\n        noteDialog.setVisible(true);\r\n    }\r\n\r\n    private void showFullMessageDialog(Message message) {\r\n        JDialog fullMessageDialog = new JDialog(frame, \"쪽지 내용\", true);\r\n        fullMessageDialog.setLayout(new BorderLayout());\r\n\r\n        JTextArea messageTextArea = new JTextArea();\r\n        messageTextArea.setText(\"From: \" + message.getSender() + \"\\n\\n\" + message.getContent());\r\n        messageTextArea.setEditable(false);\r\n        fullMessageDialog.add(new JScrollPane(messageTextArea), BorderLayout.CENTER);\r\n\r\n        JButton closeButton = new JButton(\"닫기\");\r\n        closeButton.addActionListener(e -> fullMessageDialog.dispose());\r\n        fullMessageDialog.add(closeButton, BorderLayout.SOUTH);\r\n\r\n        fullMessageDialog.setSize(400, 300);\r\n        fullMessageDialog.setLocationRelativeTo(frame);\r\n        fullMessageDialog.setVisible(true);\r\n    }\r\n\r\n\r\n    private List<Message> getMessagesForUser(String userId) throws SQLException {\r\n        List<Message> messages = new ArrayList<>();\r\n        try (Connection connection = DatabaseConfig.getConnection()) {\r\n            String sql = \"SELECT sender_id, message FROM messages WHERE receiver_id = ?\";\r\n            try (PreparedStatement statement = connection.prepareStatement(sql)) {\r\n                statement.setString(1, userId);\r\n                try (ResultSet resultSet = statement.executeQuery()) {\r\n                    while (resultSet.next()) {\r\n                        String sender = resultSet.getString(\"sender_id\");\r\n                        String content = resultSet.getString(\"message\");\r\n                        messages.add(new Message(sender, userId, content));\r\n                    }\r\n                }\r\n            }\r\n        }\r\n        return messages;\r\n    }\r\n\r\n    private void sendNewMessage() {\r\n        // 새 쪽지를 보내는 다이얼로그를 표시\r\n        String recipient = JOptionPane.showInputDialog(frame, \"쪽지를 받을 사용자 ID:\");\r\n        if (recipient != null && !recipient.isEmpty()) {\r\n            sendNoteToFriend(recipient);\r\n        }\r\n    }\r\n\r\n\r\n    private void updateFriendRequestCount() {\r\n        try {\r\n            // 현재 사용자 ID를 가져옵니다.\r\n            String currentUserId = UserSession.getInstance().getUserId();\r\n\r\n            // FriendManager를 사용하여 현재 사용자에 대한 대기중인 친구 요청 목록을 가져옵니다.\r\n            List<String> pendingRequests = friendManager.getPendingFriendRequests(currentUserId);\r\n\r\n            // 대기중인 요청의 수를 계산합니다.\r\n            int requestCount = pendingRequests.size();\r\n\r\n            // 버튼에 알림 수를 텍스트로 표시합니다.\r\n            if (requestCount > 0&&this.notificationButton!=null) {\r\n                notificationButton.setText(String.valueOf(requestCount));\r\n            } else {\r\n                notificationButton.setText(\"\"); // 요청이 없으면 텍스트를 비웁니다.\r\n            }\r\n\r\n            // 버튼을 다시 그려 변경사항을 적용합니다.\r\n            notificationButton.repaint();\r\n        } catch (Exception e) {\r\n            e.printStackTrace();\r\n            // 오류 처리\r\n        }\r\n    }\r\n\r\n    private void showFriendRequestsDialog() {\r\n        try {\r\n            if (friendManager == null) {\r\n                throw new IllegalStateException(\"FriendManager is not initialized\");\r\n            }\r\n            List<String> friendRequests = friendManager.getPendingFriendRequests(UserSession.getInstance().getUserId());\r\n            FriendRequestDialog requestsDialog = new FriendRequestDialog(frame, UserSession.getInstance().getUserId(), friendRequests);\r\n            requestsDialog.setVisible(true);\r\n        } catch (Exception e) {\r\n            e.printStackTrace();\r\n            // 오류 처리 (예: 오류 메시지 표시)\r\n        }\r\n    }\r\n\r\n    private JPanel createRecentPostPanel(JPanel recentPostPanel) {\r\n        return recentPostPanel;\r\n    }\r\n\r\n\r\n    private JPanel createMenuBar() {\r\n        JPanel menuBar = new JPanel();\r\n        menuBar.setLayout(new BoxLayout(menuBar, BoxLayout.Y_AXIS)); // 세로 방향 레이아웃 설정\r\n\r\n\r\n        // 예시 버튼 추가\r\n        JButton boardButton1 = new JButton(\"홈화면\");\r\n        JButton boardButton2 = new JButton(\"프로필\");\r\n\r\n\r\n        JButton boardButton3 = new JButton(\"게시판\");\r\n        JButton boardButton4 = new JButton(\"방명록\");\r\n        JButton boardButton5 = new JButton(\"사진첩\");\r\n\r\n\r\n        // 각 버튼의 가로 정렬을 가운데로 설정\r\n        boardButton1.setHorizontalAlignment(SwingConstants.CENTER);\r\n        boardButton2.setHorizontalAlignment(SwingConstants.CENTER);\r\n        boardButton3.setHorizontalAlignment(SwingConstants.CENTER);\r\n        boardButton4.setHorizontalAlignment(SwingConstants.CENTER);\r\n        boardButton5.setHorizontalAlignment(SwingConstants.CENTER);\r\n\r\n\r\n\r\n\r\n\r\n        // 버튼들을 오른쪽 정렬 및 투명 설정\r\n        for (JButton button : Arrays.asList(boardButton1, boardButton2, boardButton3, boardButton4, boardButton5)) {\r\n            button.setAlignmentX(Component.RIGHT_ALIGNMENT);\r\n            button.setOpaque(false);\r\n        }\r\n\r\n\r\n\r\n\r\n        // 게시판 버튼 클릭 시 수행할 동작\r\n        //boardButton1.addActionListener(e -> new BoardList()); // 게시판 페이지 열기\r\n        menuBar.add(boardButton1);\r\n        boardButton2.addActionListener(e -> new BoardList()); // 게시판 페이지 열기\r\n        menuBar.add(boardButton2);\r\n        //boardButton3.addActionListener(e -> new BoardList()); // 게시판 페이지 열기\r\n        menuBar.add(boardButton3);\r\n        //boardButton4.addActionListener(e -> new BoardList()); // 게시판 페이지 열기\r\n        menuBar.add(boardButton4);\r\n        //boardButton5.addActionListener(e -> new BoardList()); // 게시판 페이지 열기\r\n        menuBar.add(boardButton5);\r\n\r\n\r\n        boardButton3.addActionListener(e -> new BoardList()); // 게시판 페이지 열기판\r\n        gifPanel.requestFocusInWindow();\r\n        menuBar.add(boardButton3);\r\n\r\n        //일촌신청\r\n        JButton friendsButton=new JButton(\"일촌신청\");\r\n        //boardButton.setOpaque(false);\r\n\r\n        friendsButton.addActionListener(e -> {\r\n            FriendSearchDialog searchDialog = new FriendSearchDialog(frame, UserSession.getInstance().getUserId());\r\n            searchDialog.setVisible(true);\r\n        });\r\n        menuBar.add(friendsButton);\r\n\r\n        JButton friendListButton = new JButton(\"일촌 목록\");\r\n        //boardButton.setOpaque(false);\r\n\r\n        friendListButton.addActionListener(e -> {\r\n            try {\r\n                showFriendListDialog();\r\n                gifPanel.requestFocusInWindow();\r\n            } catch (Exception ex) {\r\n                throw new RuntimeException(ex);\r\n            }\r\n        });\r\n        menuBar.add(friendListButton);\r\n\r\n\r\n\r\n\r\n        // 추가 버튼들을 여기에 추가\r\n        // 예: JButton otherButton = new JButton(\"다른 메뉴\");\r\n        // otherButton.setAlignmentX(Component.RIGHT_ALIGNMENT); // 추가 버튼을 오른쪽 정렬\r\n        // menuBar.add(otherButton);\r\n\r\n        // 각 버튼의 크기 조정\r\n        Dimension buttonSize = new Dimension(200, 50); // 가로 200, 세로 50으로 크기를 설정\r\n        for (JButton button : Arrays.asList(boardButton1, boardButton2, boardButton3, boardButton4, boardButton5)) {\r\n            button.setPreferredSize(buttonSize);\r\n            button.setHorizontalAlignment(SwingConstants.CENTER);\r\n            button.setAlignmentX(Component.RIGHT_ALIGNMENT);\r\n            button.setOpaque(false);\r\n            button.setContentAreaFilled(false);\r\n            button.setBorderPainted(false);\r\n\r\n            // 텍스트 색상을 하얀색으로 설정\r\n            button.setForeground(Color.WHITE);\r\n        }\r\n\r\n\r\n        // 패널의 배경을 투명하게 설정\r\n        menuBar.setOpaque(false);\r\n\r\n        // 버튼 사이에 여백 추가\r\n        int HorizontalStrutHeight = 11; // 원하는 여백의 높이\r\n        menuBar.add(boardButton1);\r\n        menuBar.add(Box.createHorizontalStrut(HorizontalStrutHeight));\r\n        menuBar.add(boardButton2);\r\n        menuBar.add(Box.createHorizontalStrut(HorizontalStrutHeight));\r\n        menuBar.add(boardButton3);\r\n        menuBar.add(Box.createHorizontalStrut(HorizontalStrutHeight));\r\n        menuBar.add(boardButton4);\r\n        menuBar.add(Box.createHorizontalStrut(HorizontalStrutHeight));\r\n        menuBar.add(boardButton5);\r\n\r\n        return menuBar;\r\n    }\r\n    //친구리스트보여주는 메소드\r\n    private void showFriendListDialog() throws Exception {\r\n        String userId=UserSession.getInstance().getUserId();\r\n        JDialog friendListDialog = new JDialog(frame, \"친구 목록\", true);\r\n        friendListDialog.setLayout(new BorderLayout());\r\n\r\n        // 친구 목록을 가져오는 코드 (예시)\r\n        List<String> friends = friendManager.getAcceptedFriendRequests(userId); // 친구 목록을 가져오는 메소드 구현 필요\r\n\r\n        DefaultListModel<String> model = new DefaultListModel<>();\r\n        for (String friend : friends) {\r\n            model.addElement(friend);\r\n        }\r\n\r\n        JList<String> friendList = new JList<>(model);\r\n        friendListDialog.add(new JScrollPane(friendList), BorderLayout.CENTER);\r\n\r\n        // 채팅 및 쪽지 버튼을 추가하기 위한 패널\r\n        JPanel buttonPanel = new JPanel();\r\n        buttonPanel.setLayout(new FlowLayout(FlowLayout.CENTER));\r\n\r\n        // 1대1 채팅 버튼 추가\r\n        JButton chatButton = new JButton(\"1대1 채팅\");\r\n        chatButton.addActionListener(e -> {\r\n            if (!friendList.isSelectionEmpty()) {\r\n                String selectedFriend = friendList.getSelectedValue();\r\n                // 1대1 채팅 로직 구현\r\n                try {\r\n                    startChatWithFriend(selectedFriend);\r\n                } catch (SQLException ex) {\r\n                    throw new RuntimeException(ex);\r\n                }\r\n            }\r\n        });\r\n        buttonPanel.add(chatButton);\r\n\r\n        // 쪽지 보내기 버튼 추가\r\n        JButton messageButton = new JButton(\"쪽지 보내기\");\r\n        messageButton.addActionListener(e -> {\r\n            if (!friendList.isSelectionEmpty()) {\r\n                String selectedFriend = friendList.getSelectedValue();\r\n                // 쪽지 보내기 로직 구현\r\n                sendNoteToFriend(selectedFriend);\r\n            }\r\n        });\r\n        buttonPanel.add(messageButton);\r\n\r\n        friendListDialog.add(buttonPanel, BorderLayout.SOUTH);\r\n\r\n        friendListDialog.setSize(300, 400);\r\n        friendListDialog.setLocationRelativeTo(frame);\r\n        friendListDialog.setVisible(true);\r\n    }\r\n    //1대 1채팅 구현\r\n    private void startChatWithFriend(String friend) throws SQLException {\r\n        String currentUser = UserSession.getInstance().getUserId(); // 현재 사용자의 ID\r\n        ChatWindow chatWindow = new ChatWindow(friend, currentUser);\r\n        chatWindow.setVisible(true);\r\n    }\r\n\r\n\r\n    private void sendNote(String friend, String note) {\r\n        try (Connection connection = DatabaseConfig.getConnection()) {\r\n            String sql = \"INSERT INTO messages (sender_id, receiver_id, message) VALUES (?, ?, ?)\";\r\n            try (PreparedStatement statement = connection.prepareStatement(sql)) {\r\n                statement.setString(1, UserSession.getInstance().getUserId()); // 현재 사용자 ID\r\n                statement.setString(2, friend); // 받는 사람의 ID\r\n                statement.setString(3, note); // 쪽지 내용\r\n                statement.executeUpdate();\r\n\r\n                JOptionPane.showMessageDialog(frame, \"쪽지가 성공적으로 보내졌습니다.\", \"알림\", JOptionPane.INFORMATION_MESSAGE);\r\n            }\r\n        } catch (Exception e) {\r\n            e.printStackTrace();\r\n            JOptionPane.showMessageDialog(frame, \"쪽지 보내기에 실패했습니다.\", \"오류\", JOptionPane.ERROR_MESSAGE);\r\n        }\r\n    }\r\n\r\n\r\n\r\n\r\n    private JPanel createMainContent() {\r\n        JPanel mainContent = new JPanel(new BorderLayout());\r\n\r\n        // 상단 타이틀\r\n        //JLabel title = new JLabel(\"\", SwingConstants.CENTER);\r\n        //title.setFont(new Font(\"Stylish\", Font.PLAIN, 25));\r\n        //mainContent.add(title, BorderLayout.NORTH);\r\n        mainContent.setOpaque(false); // 메인 컨텐츠 투명하게 설정\r\n\r\n        // 키보드 이벤트 처리\r\n        gifPanel.setFocusable(true);\r\n        gifPanel.addKeyListener(new KeyAdapter() {\r\n            @Override\r\n            public void keyPressed(KeyEvent e) {\r\n                moveAvatar(e);\r\n                gifPanel.repaint();\r\n            }\r\n        });\r\n\r\n\r\n        return mainContent;\r\n    }\r\n    private void moveAvatar(KeyEvent e) {\r\n        int dx = 0, dy = 0;\r\n        switch (e.getKeyCode()) {\r\n            case KeyEvent.VK_LEFT:\r\n                dx = -7; characterDirection = \"left\"; break;\r\n            case KeyEvent.VK_RIGHT:\r\n                dx = 7; characterDirection = \"right\"; break;\r\n            case KeyEvent.VK_UP:\r\n                dy = -7; characterDirection = \"back\"; break;\r\n            case KeyEvent.VK_DOWN:\r\n                dy = 7; characterDirection = \"front\"; break;\r\n        }\r\n        // 캐릭터의 잠재적인 새 위치 계산\r\n        int newX = characterPosition.x + dx;\r\n        int newY = characterPosition.y + dy;\r\n\r\n        characterPosition.x = Math.max(0, Math.min(characterPosition.x + dx, gifPanel.getWidth() - avatarLabel.getWidth()));\r\n        characterPosition.y = Math.max(0, Math.min(characterPosition.y + dy, gifPanel.getHeight() - avatarLabel.getHeight()));\r\n\r\n        // 캐릭터 애니메이션 프레임 업데이트\r\n        currentCharacterFrame = (currentCharacterFrame + 1) % 4; // 각 방향별 4개의 프레임\r\n        gifPanel.repaint();\r\n    }\r\n\r\n\r\n\r\n\r\n    // ... 기타 필요한 메소드...\r\n\r\n    public void setUserId(String username) {\r\n        userIdLabel.setText(\"Welcome, \" + username);\r\n    }\r\n    //현재방향에 따라 이미지 프레임 인덱스 계산\r\n    private int getCharacterFrameIndex() {\r\n        int baseIndex;\r\n        switch (characterDirection) {\r\n            case \"front\": baseIndex = 0; break;\r\n            case \"left\": baseIndex = 4; break;\r\n            case \"right\": baseIndex = 8; break;\r\n            case \"back\": baseIndex = 12; break;\r\n            default: baseIndex = 0; break;\r\n        }\r\n        return baseIndex + currentCharacterFrame % 4; // 각 방향별로 4개의 이미지\r\n    }\r\n}\r\n
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/cyworld_01/src/main/java/org/example/MiniHomepage.java b/cyworld_01/src/main/java/org/example/MiniHomepage.java
+--- a/cyworld_01/src/main/java/org/example/MiniHomepage.java	(revision 524d0af4ea6c72bbb1b4545c8860bd9d0ebb5e01)
++++ b/cyworld_01/src/main/java/org/example/MiniHomepage.java	(date 1703174718011)
+@@ -18,13 +18,23 @@
+ import java.util.ArrayList;
+ import java.util.Arrays;
+ import java.util.List;
++import javax.swing.*;
++import java.awt.*;
++import java.awt.event.ActionEvent;
++import java.awt.event.ActionListener;
+ 
+ import javax.swing.JPanel;
++import org.Friend.FriendAddListener;
++
+ 
++public class MiniHomepage extends JFrame {
++    private JButton friendSearchButton;
+ 
+-public class MiniHomepage {
++
+     private JButton notificationButton;
+     private FriendManager friendManager;
++
++
+     private JFrame frame;
+ 
+ 
+@@ -67,8 +77,9 @@
+ 
+     private JLabel playTimeLabel; // 재생 시간을 표시할 레이블
+     private JSlider musicSlider; // 뮤직 바
++    private JButton addFriendButton;
+ 
+-
++    private JPanel friendsPanel;
+     public MiniHomepage() {
+         this.friendManager = new FriendManager();
+         signUpPage = new SignUppage();
+@@ -85,8 +96,57 @@
+         initializeGifAndAvatar();
+ 
+         initializePlayTimeUpdater();
++
++
++
++
++
++
++
++        // 일촌을 표시할 패널 생성
++        friendsPanel = new JPanel();
++        friendsPanel.setLayout(new BoxLayout(friendsPanel, BoxLayout.Y_AXIS));
++
++        // JScrollPane로 감싸서 스크롤 기능 추가
++        JScrollPane friendsScrollPane = new JScrollPane(friendsPanel);
++        friendsScrollPane.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_ALWAYS);
++
++
+     }
+ 
++    private void openFriendSearchDialog() {
++        // '일촌 검색' 버튼 클릭 시 수행할 동작
++        FriendSearchDialog friendSearchDialog = new FriendSearchDialog(this, UserSession.getInstance().getUserId());
++        friendSearchDialog.setFriendAddListener(new FriendAddListener() {
++
++            public void onFriendAdded(String friendName) {
++                addFriendButton(friendName);
++            }
++        });
++        friendSearchDialog.setVisible(true);
++        JOptionPane.showMessageDialog(null, "Friend Search Dialog will open here.");
++
++    }
++
++    private void addFriendButton(String friendName) {
++        // 선택한 일촌을 표시할 버튼 생성
++        JButton friendButton = new JButton("일촌: " + friendName);
++        friendButton.addActionListener(new ActionListener() {
++            @Override
++            public void actionPerformed(ActionEvent e) {
++                // 일촌 버튼 클릭 시 수행할 동작
++                // 예: 해당 일촌의 프로필을 표시하거나 다른 동작 수행
++                JOptionPane.showMessageDialog(MiniHomepage.this, "일촌 버튼 클릭: " + friendName);
++            }
++        });
++
++        // 일촌을 표시하는 패널에 버튼 추가
++        friendsPanel.add(friendButton);
++
++        // 패널을 다시 그리고 레이아웃을 업데이트
++        friendsPanel.revalidate();
++        friendsPanel.repaint();
++    }
+ 
+     private void initializeGifAndAvatar() {
+         // 움직이는 GIF 불러오기
+@@ -123,10 +183,15 @@
+ 
+ 
+     public static void main(String[] args) {
+-        new MiniHomepage().showLogin();
++        MiniHomepage homepage = new MiniHomepage();
++        homepage.showMainPage();
++
+     }
+ 
+-    private void showLogin() {
++    private void showLogin(){loginPage.show();}
++
++
++    private void showMiniHomepage() {
+         loginPage.show();
+     }
+ 
+@@ -294,6 +359,7 @@
+ 
+         // 배경 패널 추가
+         layeredPane.add(backgroundPanel, JLayeredPane.DEFAULT_LAYER);
++
+         //프로필패널메소드
+         ImageIcon profileImageIcon = new ImageIcon(getClass().getResource("/image/DefaultImage.jpg"));
+         Image profileImage = profileImageIcon.getImage();
+@@ -302,8 +368,37 @@
+         layeredPane.add(profilePanel, Integer.valueOf(500));
+ 
+         JButton newButton = new JButton("사진변경");
+-        newButton.setBounds(60, 200 + profileImageIcon.getIconHeight(), 85, 20); // 위치 설정 (가로: 100, 세로: 30)
++        newButton.setBounds(95, 120 + profileImageIcon.getIconHeight(), 100, 20); // 위치 설정 (가로: 100, 세로: 30)
+         layeredPane.add(newButton, Integer.valueOf(501)); // 새로운 버튼을 적절한 레이어에 추가
++
++
++
++        JButton newButton2 = new JButton("일촌신청");
++        newButton2.setBounds(95, 240 + profileImageIcon.getIconHeight(), 100, 20); // 위치 설정 (가로: 100, 세로: 30)
++        layeredPane.add(newButton2, Integer.valueOf(501)); // 새로운 버튼을 적절한 레이어에 추가
++
++        JButton newButton3 = new JButton("일촌목록");
++        newButton3.setBounds(95, 270  + profileImageIcon.getIconHeight(), 100, 20); // 위치 설정 (가로: 100, 세로: 30)
++        layeredPane.add(newButton3, Integer.valueOf(501)); // 새로운 버튼을 적절한 레이어에 추가
++
++
++        JButton rightButton1 = new JButton("사진첩");
++        rightButton1.setBounds(520, 120, 100, 20);
++        layeredPane.add(rightButton1, Integer.valueOf(501)); // 새로운 버튼을 적절한 레이어에 추가
++        rightButton1.setOpaque(true);  // 배경색을 투명으로 설정
++        rightButton1.setContentAreaFilled(false);  // 내용 영역을 투명으로 설정
++        rightButton1.setBorderPainted(false);  // 테두리를 숨김
++
++        JButton rightButton2 = new JButton("방명록");
++        rightButton2.setBounds(520, 155, 100, 20);
++        layeredPane.add(rightButton2, Integer.valueOf(501)); // 새로운 버튼을 적절한 레이어에 추가
++        rightButton2.setOpaque(true);  // 배경색을 투명으로 설정
++        rightButton2.setContentAreaFilled(false);  // 내용 영역을 투명으로 설정
++
++        rightButton2.setBorderPainted(false);  // 테두리를 숨김
++
++
++
+         // '사진변경'에 파일 선택 기능 추가
+         newButton.addActionListener(e -> {
+             profilePanel.uploadAndResizeImage();
+@@ -330,7 +425,7 @@
+ 
+         // 최근 게시물 패널 초기화
+         JPanel recentPostPanel = new JPanel();
+-        recentPostPanel.setBounds(250, 89, 150, 150);
++        recentPostPanel.setBounds(255, 86, 150, 150);
+         recentPostPanel.setOpaque(false); // 패널의 불투명성을 비활성화
+ 
+         // 최근 게시물 패널을 생성하고 추가합니다.
+@@ -357,10 +452,12 @@
+         mainContent.setOpaque(false); // 메인 컨텐츠를 투명하게 설정
+ 
+         // 알림 버튼 추가
+-        URL notificationIconUrl = getClass().getResource("/image/bell.jpg");
++        URL notificationIconUrl = getClass().getResource("/image/notification.png");
+         ImageIcon notificationIcon = new ImageIcon(notificationIconUrl);
+         JButton notificationButton = new JButton(notificationIcon);
+-        notificationButton.setBounds(850, 5, 30, 30);
++        notificationButton.setContentAreaFilled(false);  // 내용 영역을 투명으로 설정
++        notificationButton.setBorderPainted(false);  // 테두리를 숨김
++        notificationButton.setBounds(170, 100, 20, 20);
+         layeredPane.add(notificationButton, Integer.valueOf(JLayeredPane.POPUP_LAYER));
+         notificationButton.addActionListener(e -> {
+             showFriendRequestsDialog();
+@@ -370,10 +467,14 @@
+         layeredPane.add(notificationButton, Integer.valueOf(JLayeredPane.POPUP_LAYER));
+ 
+         //쪽지 버튼 추가
+-        URL messageUrl=getClass().getResource("/image/message.jpeg");
++        URL messageUrl=getClass().getResource("/image/email.png");
+         ImageIcon messageIcon=new ImageIcon(messageUrl);
+         JButton messageButton=new JButton(messageIcon);
+-        messageButton.setBounds(800,5,30,30);
++
++        messageButton.setContentAreaFilled(false);  // 내용 영역을 투명으로 설정
++        messageButton.setBorderPainted(false);  // 테두리를 숨김
++
++        messageButton.setBounds(200,100,20,20);
+         layeredPane.add(messageButton,Integer.valueOf(JLayeredPane.POPUP_LAYER));
+         messageButton.addActionListener(e->{
+             try {
+@@ -403,6 +504,14 @@
+         // 수직 여백 추가
+         recentPost.add(Box.createVerticalStrut(10));
+ 
++// 게시판 패널 생성 및 추가
++        JPanel boardPanel = new JPanel();
++        JLabel boardLabel = new JLabel("게시판");
++        boardLabel.setForeground(Color.WHITE); // 텍스트 색상을 하얀색으로 설정
++        boardPanel.add(boardLabel);
++        recentPost.add(boardPanel);
++        boardPanel.setOpaque(false); // 패널의 불투명성을 비활성화
++
+         // 수직 여백 추가
+         recentPost.add(Box.createVerticalStrut(10));
+ 
+@@ -425,6 +534,8 @@
+         recentPost.add(photoGalleryPanel);
+         photoGalleryPanel.setOpaque(false); // 패널의 불투명성을 비활성화
+ 
++
++
+         // 여기에 추가적으로 작성할 부분이 있는 경우 계속해서 코드를 보완하실 수 있습니다.
+     }
+     //쪽지 다이얼로그 띄우기
+@@ -586,89 +697,50 @@
+ 
+     private JPanel createMenuBar() {
+         JPanel menuBar = new JPanel();
+-        menuBar.setLayout(new BoxLayout(menuBar, BoxLayout.Y_AXIS)); // 세로 방향 레이아웃 설정
++        menuBar.setLayout(new BoxLayout(menuBar, BoxLayout.Y_AXIS));
+ 
+-
+-        // 예시 버튼 추가
+         JButton boardButton1 = new JButton("홈화면");
+         JButton boardButton2 = new JButton("프로필");
+-
+-
+         JButton boardButton3 = new JButton("게시판");
+         JButton boardButton4 = new JButton("방명록");
+         JButton boardButton5 = new JButton("사진첩");
+ 
++        menuBar.add(Box.createHorizontalStrut(0)); // 수평 간격 추가
++
+ 
+-        // 각 버튼의 가로 정렬을 가운데로 설정
+-        boardButton1.setHorizontalAlignment(SwingConstants.CENTER);
+-        boardButton2.setHorizontalAlignment(SwingConstants.CENTER);
+-        boardButton3.setHorizontalAlignment(SwingConstants.CENTER);
+-        boardButton4.setHorizontalAlignment(SwingConstants.CENTER);
+-        boardButton5.setHorizontalAlignment(SwingConstants.CENTER);
++        // 원하는 순서로 버튼을 추가로 변경
++        menuBar.add(boardButton1); // 홈화면 버튼을 마지막으로 추가
+ 
++        menuBar.add(boardButton3); // 게시판 버튼을 먼저 추가
++        menuBar.add(boardButton2); // 프로필 버튼을 다음으로 추가
++        menuBar.add(boardButton4); // 방명록 버튼을 다음으로 추가
++        menuBar.add(boardButton5); // 사진첩 버튼을 다음으로 추가
+ 
++        // 버튼에 대한 동작 설정
+ 
++        boardButton1.addActionListener(e -> {
++            // 홈화면 버튼 클릭 시 수행할 동작 추가
++        });
+ 
++        boardButton2.addActionListener(e -> {
++            // 프로필 버튼 클릭 시 수행할 동작 추가
++        });
+ 
+-        // 버튼들을 오른쪽 정렬 및 투명 설정
+-        for (JButton button : Arrays.asList(boardButton1, boardButton2, boardButton3, boardButton4, boardButton5)) {
+-            button.setAlignmentX(Component.RIGHT_ALIGNMENT);
+-            button.setOpaque(false);
+-        }
+-
+-
+-
+-
+-        // 게시판 버튼 클릭 시 수행할 동작
+-        //boardButton1.addActionListener(e -> new BoardList()); // 게시판 페이지 열기
+-        menuBar.add(boardButton1);
+-        boardButton2.addActionListener(e -> new BoardList()); // 게시판 페이지 열기
+-        menuBar.add(boardButton2);
+-        //boardButton3.addActionListener(e -> new BoardList()); // 게시판 페이지 열기
+-        menuBar.add(boardButton3);
+-        //boardButton4.addActionListener(e -> new BoardList()); // 게시판 페이지 열기
+-        menuBar.add(boardButton4);
+-        //boardButton5.addActionListener(e -> new BoardList()); // 게시판 페이지 열기
+-        menuBar.add(boardButton5);
+-
+-
+-        boardButton3.addActionListener(e -> new BoardList()); // 게시판 페이지 열기판
+-        gifPanel.requestFocusInWindow();
+-        menuBar.add(boardButton3);
+-
+-        //일촌신청
+-        JButton friendsButton=new JButton("일촌신청");
+-        //boardButton.setOpaque(false);
+-
+-        friendsButton.addActionListener(e -> {
+-            FriendSearchDialog searchDialog = new FriendSearchDialog(frame, UserSession.getInstance().getUserId());
+-            searchDialog.setVisible(true);
+-        });
+-        menuBar.add(friendsButton);
+-
+-        JButton friendListButton = new JButton("일촌 목록");
+-        //boardButton.setOpaque(false);
+-
+-        friendListButton.addActionListener(e -> {
+-            try {
+-                showFriendListDialog();
+-                gifPanel.requestFocusInWindow();
+-            } catch (Exception ex) {
+-                throw new RuntimeException(ex);
+-            }
+-        });
+-        menuBar.add(friendListButton);
+-
+-
+-
+-
+-        // 추가 버튼들을 여기에 추가
+-        // 예: JButton otherButton = new JButton("다른 메뉴");
+-        // otherButton.setAlignmentX(Component.RIGHT_ALIGNMENT); // 추가 버튼을 오른쪽 정렬
+-        // menuBar.add(otherButton);
+-
+-        // 각 버튼의 크기 조정
+-        Dimension buttonSize = new Dimension(200, 50); // 가로 200, 세로 50으로 크기를 설정
++        boardButton3.addActionListener(e -> new BoardList());
++        // 게시판 버튼 클릭 시 수행할 동작 추가
++
++        boardButton4.addActionListener(e -> {
++            // 방명록 버튼 클릭 시 수행할 동작 추가
++        });
++
++        boardButton5.addActionListener(e -> {
++            // 사진첩 버튼 클릭 시 수행할 동작 추가
++        });
++
++        // 다른 버튼에 대한 동작 설정
++
++        // 버튼 크기 설정
++        Dimension buttonSize = new Dimension(10, 50);
+         for (JButton button : Arrays.asList(boardButton1, boardButton2, boardButton3, boardButton4, boardButton5)) {
+             button.setPreferredSize(buttonSize);
+             button.setHorizontalAlignment(SwingConstants.CENTER);
+@@ -676,29 +748,23 @@
+             button.setOpaque(false);
+             button.setContentAreaFilled(false);
+             button.setBorderPainted(false);
+-
+-            // 텍스트 색상을 하얀색으로 설정
+             button.setForeground(Color.WHITE);
+         }
+ 
+-
+-        // 패널의 배경을 투명하게 설정
++        // 패널 속성 설정
+         menuBar.setOpaque(false);
+ 
+-        // 버튼 사이에 여백 추가
+-        int HorizontalStrutHeight = 11; // 원하는 여백의 높이
+-        menuBar.add(boardButton1);
++        // 버튼 사이 간격 설정
++        int HorizontalStrutHeight = 11;
+         menuBar.add(Box.createHorizontalStrut(HorizontalStrutHeight));
+-        menuBar.add(boardButton2);
+         menuBar.add(Box.createHorizontalStrut(HorizontalStrutHeight));
+-        menuBar.add(boardButton3);
+         menuBar.add(Box.createHorizontalStrut(HorizontalStrutHeight));
+-        menuBar.add(boardButton4);
+         menuBar.add(Box.createHorizontalStrut(HorizontalStrutHeight));
+-        menuBar.add(boardButton5);
++        menuBar.add(Box.createHorizontalStrut(HorizontalStrutHeight));
+ 
+         return menuBar;
+     }
++
+     //친구리스트보여주는 메소드
+     private void showFriendListDialog() throws Exception {
+         String userId=UserSession.getInstance().getUserId();
+@@ -847,3 +913,4 @@
+         return baseIndex + currentCharacterFrame % 4; // 각 방향별로 4개의 이미지
+     }
+ }
++
+Index: .idea/shelf/2023-12-03_오전_10_42,_업데이트_전에_커밋되지_않은_변경_내용_[변경]1/shelved.patch
+===================================================================
+diff --git a/.idea/shelf/2023-12-03_오전_10_42,_업데이트_전에_커밋되지_않은_변경_내용_[변경]1/shelved.patch b/.idea/shelf/2023-12-03_오전_10_42,_업데이트_전에_커밋되지_않은_변경_내용_[변경]1/shelved.patch
+deleted file mode 100644
+--- a/.idea/shelf/2023-12-03_오전_10_42,_업데이트_전에_커밋되지_않은_변경_내용_[변경]1/shelved.patch	(revision 524d0af4ea6c72bbb1b4545c8860bd9d0ebb5e01)
++++ /dev/null	(revision 524d0af4ea6c72bbb1b4545c8860bd9d0ebb5e01)
+@@ -1,509 +0,0 @@
+-Index: cyworld_01/src/main/java/org/example/BoardList.java
+-IDEA additional info:
+-Subsystem: com.intellij.openapi.diff.impl.patch.BaseRevisionTextPatchEP
+-<+>package org.example;\r\n\r\nimport javax.swing.*;\r\nimport java.awt.*;\r\nimport java.sql.Connection;\r\nimport java.sql.DriverManager;\r\nimport java.sql.PreparedStatement;\r\nimport java.sql.ResultSet;\r\nimport java.sql.SQLException;\r\n\r\npublic class BoardList {\r\n    public BoardList() {\r\n        JFrame boardFrame = new JFrame(\"게시판 목록\");\r\n        boardFrame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);\r\n        boardFrame.setSize(800, 600);\r\n        boardFrame.setLayout(new BorderLayout());\r\n\r\n        JPanel boardPanel = new JPanel();\r\n        boardPanel.setLayout(new BoxLayout(boardPanel, BoxLayout.Y_AXIS)); // 상하로 정렬되는 레이아웃\r\n\r\n        // 데이터베이스 연결 정보\r\n        String url = \"jdbc:mysql://cyworld.cji1ftocbium.ap-northeast-2.rds.amazonaws.com:3306/cyworld\";\r\n        String username = \"tkv00\";\r\n        String password = \"rlaehdus00\";\r\n\r\n        // 데이터베이스 연결\r\n        try (Connection connection = DriverManager.getConnection(url, username, password)) {\r\n            String sql = \"SELECT WriteBoardNum, userId, title FROM WriteBoard\"; // 게시글을 가져오는 쿼리문 (테이블 이름에 맞게 수정 필요)\r\n            PreparedStatement statement = connection.prepareStatement(sql);\r\n            ResultSet resultSet = statement.executeQuery();\r\n\r\n            // 데이터베이스에서 가져온 결과를 이용하여 버튼 생성\r\n            while (resultSet.next()) {\r\n                int userId = resultSet.getInt(\"userId\"); // 게시글 ID 컬럼에 맞게 수정 필요\r\n                String postTitle = resultSet.getString(\"title\"); // 게시글 제목 컬럼에 맞게 수정 필요\r\n                int WriteBoardNum = resultSet.getInt(\"WriteBoardNum\");\r\n\r\n                JButton postButton = new JButton(WriteBoardNum + \". 게시글 작성자: \" + userId + \" / 제목: \" + postTitle);\r\n                postButton.addActionListener(e -> {\r\n                    // 버튼 클릭 시 해당 게시글을 보여주는 동작 수행\r\n                    // postId 등을 이용하여 해당 게시글을 가져오는 로직 구현\r\n                    // 여기에 필요한 처리를 추가하세요\r\n                    JOptionPane.showMessageDialog(null, \"게시글 작성자: \" + userId + \"\\n게시글 제목: \" + postTitle);\r\n                });\r\n\r\n                boardPanel.add(postButton);\r\n            }\r\n        } catch (SQLException e) {\r\n            e.printStackTrace();\r\n            // 데이터베이스 연결 실패 또는 쿼리 실행 중 오류가 발생한 경우 처리\r\n        }\r\n\r\n        JScrollPane scrollPane = new JScrollPane(boardPanel);\r\n        boardFrame.add(scrollPane, BorderLayout.CENTER);\r\n\r\n        boardFrame.setVisible(true);\r\n    }\r\n}\r\n
+-Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+-<+>UTF-8
+-===================================================================
+-diff --git a/cyworld_01/src/main/java/org/example/BoardList.java b/cyworld_01/src/main/java/org/example/BoardList.java
+---- a/cyworld_01/src/main/java/org/example/BoardList.java	
+-+++ b/cyworld_01/src/main/java/org/example/BoardList.java	
+-@@ -1,9 +1,14 @@
+- package org.example;
+- 
+-+import org.example.DatabaseConfig;
+-+
+- import javax.swing.*;
+-+import javax.swing.border.EmptyBorder;
+-+import javax.swing.border.LineBorder;
+- import java.awt.*;
+-+import java.awt.event.ActionEvent;
+-+import java.awt.event.ActionListener;
+- import java.sql.Connection;
+--import java.sql.DriverManager;
+- import java.sql.PreparedStatement;
+- import java.sql.ResultSet;
+- import java.sql.SQLException;
+-@@ -14,36 +19,50 @@
+-         boardFrame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
+-         boardFrame.setSize(800, 600);
+-         boardFrame.setLayout(new BorderLayout());
+-+        JButton createPostButton = new JButton("게시글 작성");
+-+        createPostButton.addActionListener(new ActionListener() {
+-+            @Override
+-+            public void actionPerformed(ActionEvent e) {
+-+                // 게시판 작성 클래스로 이동
+-+                new WriteBoard();
+-+            }
+-+        });
+-+        JPanel topPanel = new JPanel(); // 패널 생성
+-+        topPanel.setLayout(new FlowLayout(FlowLayout.RIGHT)); // 패널에 레이아웃 설정
+-+        topPanel.add(createPostButton); // 패널에 버튼 추가
+-+
+-+        boardFrame.add(topPanel, BorderLayout.NORTH); // 프레임에 패널 추가
+-+
+-+
+-+
+-+
+-+
+- 
+-         JPanel boardPanel = new JPanel();
+-         boardPanel.setLayout(new BoxLayout(boardPanel, BoxLayout.Y_AXIS)); // 상하로 정렬되는 레이아웃
+- 
+--        // 데이터베이스 연결 정보
+--        String url = "jdbc:mysql://cyworld.cji1ftocbium.ap-northeast-2.rds.amazonaws.com:3306/cyworld";
+--        String username = "tkv00";
+--        String password = "rlaehdus00";
+--
+-         // 데이터베이스 연결
+--        try (Connection connection = DriverManager.getConnection(url, username, password)) {
+--            String sql = "SELECT WriteBoardNum, userId, title FROM WriteBoard"; // 게시글을 가져오는 쿼리문 (테이블 이름에 맞게 수정 필요)
+-+        try (Connection connection = DatabaseConfig.getConnection()) {
+-+            String sql = "SELECT WriteBoardNum, userId, time,title  FROM WriteBoard"; // 게시글을 가져오는 쿼리문 (테이블 이름에 맞게 수정 필요)
+-             PreparedStatement statement = connection.prepareStatement(sql);
+-             ResultSet resultSet = statement.executeQuery();
+- 
+-             // 데이터베이스에서 가져온 결과를 이용하여 버튼 생성
+-             while (resultSet.next()) {
+--                int userId = resultSet.getInt("userId"); // 게시글 ID 컬럼에 맞게 수정 필요
+-+                String userId = resultSet.getString("userId"); // 게시글 작성자 ID 컬럼에 맞게 수정 필요
+-                 String postTitle = resultSet.getString("title"); // 게시글 제목 컬럼에 맞게 수정 필요
+-                 int WriteBoardNum = resultSet.getInt("WriteBoardNum");
+-+                String time=resultSet.getString("time");
+- 
+--                JButton postButton = new JButton(WriteBoardNum + ". 게시글 작성자: " + userId + " / 제목: " + postTitle);
+-+                JButton postButton = new JButton(WriteBoardNum + ". 게시글 작성자: " + userId + " / 제목: " + postTitle+"   "+time);
+-                 postButton.addActionListener(e -> {
+-                     // 버튼 클릭 시 해당 게시글을 보여주는 동작 수행
+--                    // postId 등을 이용하여 해당 게시글을 가져오는 로직 구현
+--                    // 여기에 필요한 처리를 추가하세요
+--                    JOptionPane.showMessageDialog(null, "게시글 작성자: " + userId + "\n게시글 제목: " + postTitle);
+-+                    showPostDetailsInNewWindow(WriteBoardNum);
+-                 });
+- 
+-                 boardPanel.add(postButton);
+-+                // 게시판 작성 버튼
+-+
+-             }
+-         } catch (SQLException e) {
+-             e.printStackTrace();
+-@@ -55,4 +74,79 @@
+- 
+-         boardFrame.setVisible(true);
+-     }
+--}
+-+    // 게시글 세부 정보를 보여주는 새 창
+-+    private void showPostDetailsInNewWindow(int postId) {
+-+        JFrame detailsFrame = new JFrame("게시글 세부 정보");
+-+        detailsFrame.setSize(500, 400);
+-+        detailsFrame.setLayout(new BorderLayout());
+-+
+-+        JPanel mainPanel = new JPanel();
+-+        mainPanel.setLayout(new BoxLayout(mainPanel, BoxLayout.Y_AXIS));
+-+
+-+        try (Connection connection = DatabaseConfig.getConnection()) {
+-+            String sql = "SELECT * FROM WriteBoard WHERE WriteBoardNum = ?";
+-+            PreparedStatement statement = connection.prepareStatement(sql);
+-+            statement.setInt(1, postId);
+-+            ResultSet resultSet = statement.executeQuery();
+-+
+-+            if (resultSet.next()) {
+-+                String postTitle = resultSet.getString("title");
+-+                String userId = resultSet.getString("userId");
+-+                String postDate = resultSet.getString("time");
+-+                String postContent = resultSet.getString("content");
+-+
+-+                // 제목 섹션
+-+                JPanel titlePanel = createSectionPanel("제목: " , postTitle);
+-+                mainPanel.add(titlePanel);
+-+
+-+                // 작성자 섹션
+-+                JPanel authorPanel = createSectionPanel("작성자: " , userId);
+-+                mainPanel.add(authorPanel);
+-+
+-+                // 작성 날짜 섹션
+-+                JPanel datePanel = createSectionPanel("작성 날짜: " , postDate);
+-+                mainPanel.add(datePanel);
+-+                // 작성 내용 섹션
+-+                JPanel contentPanel = createSectionPanel("작성 내용: " , postContent);
+-+                mainPanel.add(contentPanel);
+-+
+-+
+-+            }
+-+        } catch (SQLException e) {
+-+            e.printStackTrace();
+-+            JPanel errorPanel = createSectionPanel("게시글 세부 정보를 불러오는 데 실패했습니다.","");
+-+            mainPanel.add(errorPanel);
+-+        }
+-+
+-+        JScrollPane scrollPane = new JScrollPane(mainPanel);
+-+        detailsFrame.add(scrollPane, BorderLayout.CENTER);
+-+        detailsFrame.setVisible(true);
+-+    }
+-+    // 섹션 패널 생성 도우미 메소드
+-+    private JPanel createSectionPanel(String labelText, String text) {
+-+        JPanel panel = new JPanel(new BorderLayout());
+-+        panel.setBorder(new LineBorder(Color.GRAY, 1, true));
+-+        JLabel label = new JLabel(labelText);
+-+        label.setBorder(new EmptyBorder(10, 10, 10, 10)); // 상하좌우 10픽셀의 패딩을 추가합니다.
+-+        panel.add(label, BorderLayout.NORTH);
+-+
+-+        JTextArea textArea = new JTextArea(text);
+-+        textArea.setWrapStyleWord(true);
+-+        textArea.setLineWrap(true);
+-+        textArea.setEditable(false);
+-+        textArea.setBorder(new EmptyBorder(10, 10, 10, 10)); // 상하좌우 10픽셀의 패딩을 추가합니다.
+-+
+-+        // 내용이 길 경우 스크롤바를 자동으로 나타나게 합니다.
+-+        JScrollPane scrollPane = new JScrollPane(textArea);
+-+        panel.add(scrollPane, BorderLayout.CENTER);
+-+
+-+        return panel;
+-+    }
+-+
+-+
+-+
+-+
+-+    public static void main(String[] args) {
+-+        SwingUtilities.invokeLater(() -> new BoardList());
+-+    }
+-+}
+-\ No newline at end of file
+-Index: cyworld_01/src/main/java/org/example/MiniHomepage.java
+-IDEA additional info:
+-Subsystem: com.intellij.openapi.diff.impl.patch.BaseRevisionTextPatchEP
+-<+>package org.example;\r\n\r\nimport javax.swing.*;\r\nimport java.awt.*;\r\nimport java.awt.event.ActionEvent;\r\nimport java.awt.event.ActionListener;\r\n\r\nimport static java.awt.AWTEventMulticaster.add;\r\n\r\npublic class MiniHomepage {\r\n    private LoginPage loginPage;\r\n    private SignUppage signUpPage;\r\n    private JLabel userIdLabel; // 사용자 ID를 표시할 레이블\r\n\r\n\r\n    public MiniHomepage() {\r\n        signUpPage = new SignUppage();\r\n        loginPage = new LoginPage(signUpPage,this);\r\n        // 사용자 ID 레이블 초기화\r\n        userIdLabel = new JLabel();\r\n        add(userIdLabel); // 이 부분은 MiniHomepage의 레이아웃에 따라 달라질 수 있음\r\n    }//\r\n\r\n    private void add(JLabel userIdLabel) {\r\n    }\r\n\r\n    public static void main(String[] args) {\r\n        new MiniHomepage().showLogin(); // 프로그램 시작 시 로그인 페이지를 표시\r\n\r\n    }//\r\n    private void showLogin() {\r\n        loginPage.show();\r\n    }\r\n    public void showMainPage(){\r\n        JFrame frame = new JFrame(\"싸이월드\");\r\n        frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);\r\n        frame.setSize(1200, 900); // 창 크기 설정\r\n        frame.setLayout(new BorderLayout(15, 15));\r\n\r\n        // 배경 설정\r\n        JPanel backgroundPanel = new JPanel();\r\n        backgroundPanel.setLayout(new BorderLayout());\r\n        backgroundPanel.setBackground(new Color(163, 163, 163)); // 배경색 설정\r\n        frame.add(backgroundPanel);\r\n\r\n        // bookcover 패널\r\n        JPanel bookcoverPanel = new JPanel();\r\n        bookcoverPanel.setLayout(new BorderLayout());\r\n        bookcoverPanel.setBackground(Color.GRAY);\r\n        bookcoverPanel.setBorder(BorderFactory.createLineBorder(Color.decode(\"#738186\"), 1));\r\n        bookcoverPanel.setPreferredSize(new Dimension(960, 660));\r\n        backgroundPanel.add(bookcoverPanel, BorderLayout.CENTER);\r\n\r\n        // page 패널\r\n        JPanel pagePanel = new JPanel();\r\n        pagePanel.setLayout(new BorderLayout());\r\n        pagePanel.setBackground(Color.WHITE);\r\n        pagePanel.setBorder(BorderFactory.createLineBorder(Color.BLACK, 1));\r\n        bookcoverPanel.add(pagePanel);\r\n\r\n        // 홈 섹션\r\n        JPanel homePanel = new JPanel();\r\n        homePanel.setLayout(new BorderLayout());\r\n        pagePanel.add(homePanel, BorderLayout.CENTER);\r\n\r\n        // 상단 타이틀 영역\r\n        JLabel title = new JLabel(\"싸이월드\", SwingConstants.CENTER);\r\n        title.setFont(new Font(\"Stylish\", Font.PLAIN, 25));\r\n        homePanel.add(title, BorderLayout.NORTH);\r\n\r\n        // 뉴스 섹션\r\n        JPanel newsSection = new JPanel();\r\n        newsSection.setLayout(new BoxLayout(newsSection, BoxLayout.Y_AXIS));\r\n        JLabel newsTitle = new JLabel(\"오늘의 뉴스\");\r\n        newsSection.add(newsTitle);\r\n        // 뉴스 섹션의 추가적인 구현...\r\n\r\n        // 프로필 섹션\r\n        JPanel profileSection = new JPanel();\r\n        profileSection.setLayout(new BoxLayout(profileSection, BoxLayout.Y_AXIS));\r\n        JLabel profileTitle = new JLabel(\"내 프로필\");\r\n        profileSection.add(profileTitle);\r\n        // 프로필 섹션의 추가적인 구현...\r\n\r\n        // 메뉴 바\r\n        JPanel menuBar = new JPanel();\r\n        menuBar.setLayout(new BoxLayout(menuBar, BoxLayout.Y_AXIS));\r\n        backgroundPanel.add(menuBar, BorderLayout.WEST);\r\n\r\n        // 섹션들을 메인 패널에 추가\r\n        homePanel.add(newsSection, BorderLayout.CENTER);\r\n        homePanel.add(profileSection, BorderLayout.EAST);\r\n\r\n        //게시판버튼\r\n        JButton boardButton=new JButton(\"게시판\");\r\n        boardButton.addActionListener(new ActionListener() {\r\n            @Override\r\n            public void actionPerformed(ActionEvent e) {\r\n                new BoardList(); // 게시판 목록 페이지 열기\r\n            }\r\n        });\r\n        menuBar.add(boardButton);\r\n\r\n        // 프레임 보이기\r\n        frame.setVisible(true);\r\n    }\r\n    // MiniHomepage 클래스 내부\r\n    public void setUserId(String userId) {\r\n        // userId를 사용하여 메인 페이지에 표시하는 로직\r\n        // 예: JLabel에 userId를 설정\r\n        userIdLabel.setText(\"Welcome, \" + userId);\r\n    }\r\n}
+-Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+-<+>UTF-8
+-===================================================================
+-diff --git a/cyworld_01/src/main/java/org/example/MiniHomepage.java b/cyworld_01/src/main/java/org/example/MiniHomepage.java
+---- a/cyworld_01/src/main/java/org/example/MiniHomepage.java	
+-+++ b/cyworld_01/src/main/java/org/example/MiniHomepage.java	
+-@@ -11,7 +11,7 @@
+-     private LoginPage loginPage;
+-     private SignUppage signUpPage;
+-     private JLabel userIdLabel; // 사용자 ID를 표시할 레이블
+--
+-+    private String username; // 사용자 id을 저장할 변수
+- 
+-     public MiniHomepage() {
+-         signUpPage = new SignUppage();
+-@@ -80,7 +80,7 @@
+-         profileSection.setLayout(new BoxLayout(profileSection, BoxLayout.Y_AXIS));
+-         JLabel profileTitle = new JLabel("내 프로필");
+-         profileSection.add(profileTitle);
+--        // 프로필 섹션의 추가적인 구현...
+-+
+- 
+-         // 메뉴 바
+-         JPanel menuBar = new JPanel();
+-@@ -96,18 +96,23 @@
+-         boardButton.addActionListener(new ActionListener() {
+-             @Override
+-             public void actionPerformed(ActionEvent e) {
+--                new BoardList(); // 게시판 목록 페이지 열기
+-+                new BoardList();
+-+                // 게시판 페이지 열기
+-             }
+-         });
+-         menuBar.add(boardButton);
+- 
+-+
+-         // 프레임 보이기
+-         frame.setVisible(true);
+-     }
+-+
+-     // MiniHomepage 클래스 내부
+--    public void setUserId(String userId) {
+-+    public void setUserId(String username) {
+-+        this.username=username;
+-         // userId를 사용하여 메인 페이지에 표시하는 로직
+-         // 예: JLabel에 userId를 설정
+--        userIdLabel.setText("Welcome, " + userId);
+-+        userIdLabel.setText("Welcome, " + username);
+-     }
+-+
+- }
+-\ No newline at end of file
+-Index: src/main/java/org/example/BoardList.java
+-===================================================================
+-diff --git a/src/main/java/org/example/BoardList.java b/src/main/java/org/example/BoardList.java
+-deleted file mode 100644
+---- a/src/main/java/org/example/BoardList.java	
+-+++ /dev/null	
+-@@ -1,152 +0,0 @@
+--package org.example;
+--
+--import org.example.DatabaseConfig;
+--
+--import javax.swing.*;
+--import javax.swing.border.EmptyBorder;
+--import javax.swing.border.LineBorder;
+--import java.awt.*;
+--import java.awt.event.ActionEvent;
+--import java.awt.event.ActionListener;
+--import java.sql.Connection;
+--import java.sql.PreparedStatement;
+--import java.sql.ResultSet;
+--import java.sql.SQLException;
+--
+--public class BoardList {
+--    public BoardList() {
+--        JFrame boardFrame = new JFrame("게시판 목록");
+--        boardFrame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
+--        boardFrame.setSize(800, 600);
+--        boardFrame.setLayout(new BorderLayout());
+--        JButton createPostButton = new JButton("게시글 작성");
+--        createPostButton.addActionListener(new ActionListener() {
+--            @Override
+--            public void actionPerformed(ActionEvent e) {
+--                // 게시판 작성 클래스로 이동
+--                new WriteBoard();
+--            }
+--        });
+--        JPanel topPanel = new JPanel(); // 패널 생성
+--        topPanel.setLayout(new FlowLayout(FlowLayout.RIGHT)); // 패널에 레이아웃 설정
+--        topPanel.add(createPostButton); // 패널에 버튼 추가
+--
+--        boardFrame.add(topPanel, BorderLayout.NORTH); // 프레임에 패널 추가
+--
+--
+--
+--
+--
+--
+--        JPanel boardPanel = new JPanel();
+--        boardPanel.setLayout(new BoxLayout(boardPanel, BoxLayout.Y_AXIS)); // 상하로 정렬되는 레이아웃
+--
+--        // 데이터베이스 연결
+--        try (Connection connection = DatabaseConfig.getConnection()) {
+--            String sql = "SELECT WriteBoardNum, userId, time,title  FROM WriteBoard"; // 게시글을 가져오는 쿼리문 (테이블 이름에 맞게 수정 필요)
+--            PreparedStatement statement = connection.prepareStatement(sql);
+--            ResultSet resultSet = statement.executeQuery();
+--
+--            // 데이터베이스에서 가져온 결과를 이용하여 버튼 생성
+--            while (resultSet.next()) {
+--                String userId = resultSet.getString("userId"); // 게시글 작성자 ID 컬럼에 맞게 수정 필요
+--                String postTitle = resultSet.getString("title"); // 게시글 제목 컬럼에 맞게 수정 필요
+--                int WriteBoardNum = resultSet.getInt("WriteBoardNum");
+--                String time=resultSet.getString("time");
+--
+--                JButton postButton = new JButton(WriteBoardNum + ". 게시글 작성자: " + userId + " / 제목: " + postTitle+"   "+time);
+--                postButton.addActionListener(e -> {
+--                    // 버튼 클릭 시 해당 게시글을 보여주는 동작 수행
+--                    showPostDetailsInNewWindow(WriteBoardNum);
+--                });
+--
+--                boardPanel.add(postButton);
+--                // 게시판 작성 버튼
+--
+--            }
+--        } catch (SQLException e) {
+--            e.printStackTrace();
+--            // 데이터베이스 연결 실패 또는 쿼리 실행 중 오류가 발생한 경우 처리
+--        }
+--
+--        JScrollPane scrollPane = new JScrollPane(boardPanel);
+--        boardFrame.add(scrollPane, BorderLayout.CENTER);
+--
+--        boardFrame.setVisible(true);
+--    }
+--    // 게시글 세부 정보를 보여주는 새 창
+--    private void showPostDetailsInNewWindow(int postId) {
+--        JFrame detailsFrame = new JFrame("게시글 세부 정보");
+--        detailsFrame.setSize(500, 400);
+--        detailsFrame.setLayout(new BorderLayout());
+--
+--        JPanel mainPanel = new JPanel();
+--        mainPanel.setLayout(new BoxLayout(mainPanel, BoxLayout.Y_AXIS));
+--
+--        try (Connection connection = DatabaseConfig.getConnection()) {
+--            String sql = "SELECT * FROM WriteBoard WHERE WriteBoardNum = ?";
+--            PreparedStatement statement = connection.prepareStatement(sql);
+--            statement.setInt(1, postId);
+--            ResultSet resultSet = statement.executeQuery();
+--
+--            if (resultSet.next()) {
+--                String postTitle = resultSet.getString("title");
+--                String userId = resultSet.getString("userId");
+--                String postDate = resultSet.getString("time");
+--                String postContent = resultSet.getString("content");
+--
+--                // 제목 섹션
+--                JPanel titlePanel = createSectionPanel("제목: " , postTitle);
+--                mainPanel.add(titlePanel);
+--
+--                // 작성자 섹션
+--                JPanel authorPanel = createSectionPanel("작성자: " , userId);
+--                mainPanel.add(authorPanel);
+--
+--                // 작성 날짜 섹션
+--                JPanel datePanel = createSectionPanel("작성 날짜: " , postDate);
+--                mainPanel.add(datePanel);
+--                // 작성 내용 섹션
+--                JPanel contentPanel = createSectionPanel("작성 내용: " , postContent);
+--                mainPanel.add(contentPanel);
+--
+--
+--            }
+--        } catch (SQLException e) {
+--            e.printStackTrace();
+--            JPanel errorPanel = createSectionPanel("게시글 세부 정보를 불러오는 데 실패했습니다.","");
+--            mainPanel.add(errorPanel);
+--        }
+--
+--        JScrollPane scrollPane = new JScrollPane(mainPanel);
+--        detailsFrame.add(scrollPane, BorderLayout.CENTER);
+--        detailsFrame.setVisible(true);
+--    }
+--    // 섹션 패널 생성 도우미 메소드
+--    private JPanel createSectionPanel(String labelText, String text) {
+--        JPanel panel = new JPanel(new BorderLayout());
+--        panel.setBorder(new LineBorder(Color.GRAY, 1, true));
+--        JLabel label = new JLabel(labelText);
+--        label.setBorder(new EmptyBorder(10, 10, 10, 10)); // 상하좌우 10픽셀의 패딩을 추가합니다.
+--        panel.add(label, BorderLayout.NORTH);
+--
+--        JTextArea textArea = new JTextArea(text);
+--        textArea.setWrapStyleWord(true);
+--        textArea.setLineWrap(true);
+--        textArea.setEditable(false);
+--        textArea.setBorder(new EmptyBorder(10, 10, 10, 10)); // 상하좌우 10픽셀의 패딩을 추가합니다.
+--
+--        // 내용이 길 경우 스크롤바를 자동으로 나타나게 합니다.
+--        JScrollPane scrollPane = new JScrollPane(textArea);
+--        panel.add(scrollPane, BorderLayout.CENTER);
+--
+--        return panel;
+--    }
+--
+--
+--
+--
+--    public static void main(String[] args) {
+--        SwingUtilities.invokeLater(() -> new BoardList());
+--    }
+--}
+-Index: src/main/java/org/example/MiniHomepage.java
+-===================================================================
+-diff --git a/src/main/java/org/example/MiniHomepage.java b/src/main/java/org/example/MiniHomepage.java
+-deleted file mode 100644
+---- a/src/main/java/org/example/MiniHomepage.java	
+-+++ /dev/null	
+-@@ -1,115 +0,0 @@
+--package org.example;
+--
+--import javax.swing.*;
+--import java.awt.*;
+--import java.awt.event.ActionEvent;
+--import java.awt.event.ActionListener;
+--
+--import static java.awt.AWTEventMulticaster.add;
+--
+--public class MiniHomepage {
+--    private LoginPage loginPage;
+--    private SignUppage signUpPage;
+--    private JLabel userIdLabel; // 사용자 ID를 표시할 레이블
+--    private String username; // 사용자 id을 저장할 변수
+--
+--    public MiniHomepage() {
+--        signUpPage = new SignUppage();
+--        loginPage = new LoginPage(signUpPage,this);
+--        // 사용자 ID 레이블 초기화
+--        userIdLabel = new JLabel();
+--        add(userIdLabel); // 이 부분은 MiniHomepage의 레이아웃에 따라 달라질 수 있음
+--    }//
+--
+--    private void add(JLabel userIdLabel) {
+--    }
+--
+--    public static void main(String[] args) {
+--        new MiniHomepage().showLogin(); // 프로그램 시작 시 로그인 페이지를 표시
+--
+--    }//
+--    private void showLogin() {
+--        loginPage.show();
+--    }
+--    public void showMainPage(){
+--        JFrame frame = new JFrame("싸이월드");
+--        frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+--        frame.setSize(1200, 900); // 창 크기 설정
+--        frame.setLayout(new BorderLayout(15, 15));
+--
+--        // 배경 설정
+--        JPanel backgroundPanel = new JPanel();
+--        backgroundPanel.setLayout(new BorderLayout());
+--        backgroundPanel.setBackground(new Color(163, 163, 163)); // 배경색 설정
+--        frame.add(backgroundPanel);
+--
+--        // bookcover 패널
+--        JPanel bookcoverPanel = new JPanel();
+--        bookcoverPanel.setLayout(new BorderLayout());
+--        bookcoverPanel.setBackground(Color.GRAY);
+--        bookcoverPanel.setBorder(BorderFactory.createLineBorder(Color.decode("#738186"), 1));
+--        bookcoverPanel.setPreferredSize(new Dimension(960, 660));
+--        backgroundPanel.add(bookcoverPanel, BorderLayout.CENTER);
+--
+--        // page 패널
+--        JPanel pagePanel = new JPanel();
+--        pagePanel.setLayout(new BorderLayout());
+--        pagePanel.setBackground(Color.WHITE);
+--        pagePanel.setBorder(BorderFactory.createLineBorder(Color.BLACK, 1));
+--        bookcoverPanel.add(pagePanel);
+--
+--        // 홈 섹션
+--        JPanel homePanel = new JPanel();
+--        homePanel.setLayout(new BorderLayout());
+--        pagePanel.add(homePanel, BorderLayout.CENTER);
+--
+--        // 상단 타이틀 영역
+--        JLabel title = new JLabel("싸이월드", SwingConstants.CENTER);
+--        title.setFont(new Font("Stylish", Font.PLAIN, 25));
+--        homePanel.add(title, BorderLayout.NORTH);
+--
+--        // 뉴스 섹션
+--        JPanel newsSection = new JPanel();
+--        newsSection.setLayout(new BoxLayout(newsSection, BoxLayout.Y_AXIS));
+--        JLabel newsTitle = new JLabel("오늘의 뉴스");
+--        newsSection.add(newsTitle);
+--        // 뉴스 섹션의 추가적인 구현...
+--
+--        // 프로필 섹션
+--        JPanel profileSection = new JPanel();
+--        profileSection.setLayout(new BoxLayout(profileSection, BoxLayout.Y_AXIS));
+--        JLabel profileTitle = new JLabel("내 프로필");
+--        profileSection.add(profileTitle);
+--        // 프로필 섹션의 추가적인 구현...
+--
+--        // 메뉴 바
+--        JPanel menuBar = new JPanel();
+--        menuBar.setLayout(new BoxLayout(menuBar, BoxLayout.Y_AXIS));
+--        backgroundPanel.add(menuBar, BorderLayout.WEST);
+--
+--        // 섹션들을 메인 패널에 추가
+--        homePanel.add(newsSection, BorderLayout.CENTER);
+--        homePanel.add(profileSection, BorderLayout.EAST);
+--
+--        //게시판버튼
+--        JButton boardButton=new JButton("게시판");
+--        boardButton.addActionListener(new ActionListener() {
+--            @Override
+--            public void actionPerformed(ActionEvent e) {
+--                new WriteBoard(username);
+--                // 게시판 페이지 열기
+--            }
+--        });
+--        menuBar.add(boardButton);
+--
+--        // 프레임 보이기
+--        frame.setVisible(true);
+--    }
+--    // MiniHomepage 클래스 내부
+--    public void setUserId(String username) {
+--        this.username=username;
+--        // userId를 사용하여 메인 페이지에 표시하는 로직
+--        // 예: JLabel에 userId를 설정
+--        userIdLabel.setText("Welcome, " + username);
+--    }
+--}
+-\ No newline at end of file
+Index: .idea/shelf/2023-12-03__10_42__________1.xml
+===================================================================
+diff --git a/.idea/shelf/2023-12-03__10_42__________1.xml b/.idea/shelf/2023-12-03__10_42__________1.xml
+deleted file mode 100644
+--- a/.idea/shelf/2023-12-03__10_42__________1.xml	(revision 524d0af4ea6c72bbb1b4545c8860bd9d0ebb5e01)
++++ /dev/null	(revision 524d0af4ea6c72bbb1b4545c8860bd9d0ebb5e01)
+@@ -1,59 +0,0 @@
+-<changelist name="2023-12-03_오전_10_42,_업데이트_전에_커밋되지_않은_변경_내용_[변경]1" date="1701567808961" recycled="true" deleted="true">
+-  <option name="PATH" value="$PROJECT_DIR$/.idea/shelf/2023-12-03_오전_10_42,_업데이트_전에_커밋되지_않은_변경_내용_[변경]1/shelved.patch" />
+-  <option name="DESCRIPTION" value="2023-12-03 오전 10:42, 업데이트 전에 커밋되지 않은 변경 내용 [변경]" />
+-  <binary>
+-    <option name="BEFORE_PATH" value="cyworld_01/.gradle/8.2/executionHistory/executionHistory.bin" />
+-    <option name="AFTER_PATH" value="cyworld_01/.gradle/8.2/executionHistory/executionHistory.bin" />
+-    <option name="SHELVED_PATH" value="$PROJECT_DIR$/.idea/shelf/2023-12-03_오전_10_42,_업데이트_전에_커밋되지_않은_변경_내용_[변경]1/executionHistory.bin" />
+-  </binary>
+-  <binary>
+-    <option name="BEFORE_PATH" value="cyworld_01/.gradle/8.2/fileHashes/fileHashes.bin" />
+-    <option name="AFTER_PATH" value="cyworld_01/.gradle/8.2/fileHashes/fileHashes.bin" />
+-    <option name="SHELVED_PATH" value="$PROJECT_DIR$/.idea/shelf/2023-12-03_오전_10_42,_업데이트_전에_커밋되지_않은_변경_내용_[변경]1/fileHashes.bin" />
+-  </binary>
+-  <binary>
+-    <option name="BEFORE_PATH" value="cyworld_01/build/classes/java/main/org/example/MiniHomepage.class" />
+-    <option name="AFTER_PATH" value="cyworld_01/build/classes/java/main/org/example/MiniHomepage.class" />
+-    <option name="SHELVED_PATH" value="$PROJECT_DIR$/.idea/shelf/2023-12-03_오전_10_42,_업데이트_전에_커밋되지_않은_변경_내용_[변경]1/MiniHomepage.class" />
+-  </binary>
+-  <binary>
+-    <option name="BEFORE_PATH" value="cyworld_01/.gradle/file-system.probe" />
+-    <option name="AFTER_PATH" value="cyworld_01/.gradle/file-system.probe" />
+-    <option name="SHELVED_PATH" value="$PROJECT_DIR$/.idea/shelf/2023-12-03_오전_10_42,_업데이트_전에_커밋되지_않은_변경_내용_[변경]1/file-system.probe" />
+-  </binary>
+-  <binary>
+-    <option name="BEFORE_PATH" value="cyworld_01/.gradle/8.2/executionHistory/executionHistory.lock" />
+-    <option name="AFTER_PATH" value="cyworld_01/.gradle/8.2/executionHistory/executionHistory.lock" />
+-    <option name="SHELVED_PATH" value="$PROJECT_DIR$/.idea/shelf/2023-12-03_오전_10_42,_업데이트_전에_커밋되지_않은_변경_내용_[변경]1/executionHistory.lock" />
+-  </binary>
+-  <binary>
+-    <option name="BEFORE_PATH" value="cyworld_01/build/classes/java/main/org/example/BoardList.class" />
+-    <option name="AFTER_PATH" value="cyworld_01/build/classes/java/main/org/example/BoardList.class" />
+-    <option name="SHELVED_PATH" value="$PROJECT_DIR$/.idea/shelf/2023-12-03_오전_10_42,_업데이트_전에_커밋되지_않은_변경_내용_[변경]1/BoardList.class" />
+-  </binary>
+-  <binary>
+-    <option name="BEFORE_PATH" value="cyworld_01/build/tmp/compileJava/previous-compilation-data.bin" />
+-    <option name="AFTER_PATH" value="cyworld_01/build/tmp/compileJava/previous-compilation-data.bin" />
+-    <option name="SHELVED_PATH" value="$PROJECT_DIR$/.idea/shelf/2023-12-03_오전_10_42,_업데이트_전에_커밋되지_않은_변경_내용_[변경]1/previous-compilation-data.bin" />
+-  </binary>
+-  <binary>
+-    <option name="BEFORE_PATH" value="cyworld_01/build/classes/java/main/org/example/MiniHomepage$1.class" />
+-    <option name="AFTER_PATH" value="cyworld_01/build/classes/java/main/org/example/MiniHomepage$1.class" />
+-    <option name="SHELVED_PATH" value="$PROJECT_DIR$/.idea/shelf/2023-12-03_오전_10_42,_업데이트_전에_커밋되지_않은_변경_내용_[변경]1/MiniHomepage$1.class" />
+-  </binary>
+-  <binary>
+-    <option name="BEFORE_PATH" value="cyworld_01/.gradle/8.2/fileHashes/fileHashes.lock" />
+-    <option name="AFTER_PATH" value="cyworld_01/.gradle/8.2/fileHashes/fileHashes.lock" />
+-    <option name="SHELVED_PATH" value="$PROJECT_DIR$/.idea/shelf/2023-12-03_오전_10_42,_업데이트_전에_커밋되지_않은_변경_내용_[변경]1/fileHashes.lock" />
+-  </binary>
+-  <binary>
+-    <option name="BEFORE_PATH" value="cyworld_01/.gradle/buildOutputCleanup/buildOutputCleanup.lock" />
+-    <option name="AFTER_PATH" value="cyworld_01/.gradle/buildOutputCleanup/buildOutputCleanup.lock" />
+-    <option name="SHELVED_PATH" value="$PROJECT_DIR$/.idea/shelf/2023-12-03_오전_10_42,_업데이트_전에_커밋되지_않은_변경_내용_[변경]1/buildOutputCleanup.lock" />
+-  </binary>
+-  <binary>
+-    <option name="BEFORE_PATH" value="cyworld_01/.gradle/8.2/fileHashes/resourceHashesCache.bin" />
+-    <option name="AFTER_PATH" value="cyworld_01/.gradle/8.2/fileHashes/resourceHashesCache.bin" />
+-    <option name="SHELVED_PATH" value="$PROJECT_DIR$/.idea/shelf/2023-12-03_오전_10_42,_업데이트_전에_커밋되지_않은_변경_내용_[변경]1/resourceHashesCache.bin" />
+-  </binary>
+-</changelist>
+\ No newline at end of file
+Index: .idea/workspace.xml
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.BaseRevisionTextPatchEP
+<+><?xml version=\"1.0\" encoding=\"UTF-8\"?>\r\n<project version=\"4\">\r\n  <component name=\"AutoImportSettings\">\r\n    <option name=\"autoReloadType\" value=\"SELECTIVE\" />\r\n  </component>\r\n  <component name=\"ChangeListManager\">\r\n    <list default=\"true\" id=\"8ad32b2f-77a1-48af-b65e-dc605abe6719\" name=\"변경\" comment=\"\">\r\n      <change afterPath=\"$PROJECT_DIR$/.idea/inspectionProfiles/Project_Default.xml\" afterDir=\"false\" />\r\n      <change beforePath=\"$PROJECT_DIR$/.idea/workspace.xml\" beforeDir=\"false\" afterPath=\"$PROJECT_DIR$/.idea/workspace.xml\" afterDir=\"false\" />\r\n      <change beforePath=\"$PROJECT_DIR$/cyworld_01/.gradle/8.2/executionHistory/executionHistory.bin\" beforeDir=\"false\" afterPath=\"$PROJECT_DIR$/cyworld_01/.gradle/8.2/executionHistory/executionHistory.bin\" afterDir=\"false\" />\r\n      <change beforePath=\"$PROJECT_DIR$/cyworld_01/.gradle/8.2/executionHistory/executionHistory.lock\" beforeDir=\"false\" afterPath=\"$PROJECT_DIR$/cyworld_01/.gradle/8.2/executionHistory/executionHistory.lock\" afterDir=\"false\" />\r\n      <change beforePath=\"$PROJECT_DIR$/cyworld_01/.gradle/8.2/fileHashes/fileHashes.bin\" beforeDir=\"false\" afterPath=\"$PROJECT_DIR$/cyworld_01/.gradle/8.2/fileHashes/fileHashes.bin\" afterDir=\"false\" />\r\n      <change beforePath=\"$PROJECT_DIR$/cyworld_01/.gradle/8.2/fileHashes/fileHashes.lock\" beforeDir=\"false\" afterPath=\"$PROJECT_DIR$/cyworld_01/.gradle/8.2/fileHashes/fileHashes.lock\" afterDir=\"false\" />\r\n      <change beforePath=\"$PROJECT_DIR$/cyworld_01/.gradle/buildOutputCleanup/buildOutputCleanup.lock\" beforeDir=\"false\" afterPath=\"$PROJECT_DIR$/cyworld_01/.gradle/buildOutputCleanup/buildOutputCleanup.lock\" afterDir=\"false\" />\r\n      <change beforePath=\"$PROJECT_DIR$/cyworld_01/.gradle/file-system.probe\" beforeDir=\"false\" afterPath=\"$PROJECT_DIR$/cyworld_01/.gradle/file-system.probe\" afterDir=\"false\" />\r\n      <change beforePath=\"$PROJECT_DIR$/cyworld_01/src/main/java/org/example/LoginPage.java\" beforeDir=\"false\" afterPath=\"$PROJECT_DIR$/cyworld_01/src/main/java/org/example/LoginPage.java\" afterDir=\"false\" />\r\n      <change beforePath=\"$PROJECT_DIR$/cyworld_01/src/main/java/org/example/MiniHomepage.java\" beforeDir=\"false\" afterPath=\"$PROJECT_DIR$/cyworld_01/src/main/java/org/example/MiniHomepage.java\" afterDir=\"false\" />\r\n      <change beforePath=\"$PROJECT_DIR$/cyworld_01/src/main/java/org/example/SignUppage.java\" beforeDir=\"false\" afterPath=\"$PROJECT_DIR$/cyworld_01/src/main/java/org/example/SignUppage.java\" afterDir=\"false\" />\r\n      <change beforePath=\"$PROJECT_DIR$/cyworld_01/src/main/resources/music.mp3\" beforeDir=\"false\" />\r\n    </list>\r\n    <option name=\"SHOW_DIALOG\" value=\"false\" />\r\n    <option name=\"HIGHLIGHT_CONFLICTS\" value=\"true\" />\r\n    <option name=\"HIGHLIGHT_NON_ACTIVE_CHANGELIST\" value=\"false\" />\r\n    <option name=\"LAST_RESOLUTION\" value=\"IGNORE\" />\r\n  </component>\r\n  <component name=\"ExternalProjectsData\">\r\n    <projectState path=\"$PROJECT_DIR$/cyworld_01\">\r\n      <ProjectState />\r\n    </projectState>\r\n  </component>\r\n  <component name=\"ExternalProjectsManager\">\r\n    <system id=\"GRADLE\">\r\n      <state>\r\n        <task path=\"$PROJECT_DIR$/cyworld_01\">\r\n          <activation />\r\n        </task>\r\n        <projects_view>\r\n          <tree_state>\r\n            <expand />\r\n            <select />\r\n          </tree_state>\r\n        </projects_view>\r\n      </state>\r\n    </system>\r\n  </component>\r\n  <component name=\"FileTemplateManagerImpl\">\r\n    <option name=\"RECENT_TEMPLATES\">\r\n      <list>\r\n        <option value=\"Class\" />\r\n      </list>\r\n    </option>\r\n  </component>\r\n  <component name=\"Git.Settings\">\r\n    <option name=\"RECENT_GIT_ROOT_PATH\" value=\"$PROJECT_DIR$\" />\r\n  </component>\r\n  <component name=\"GitHubPullRequestSearchHistory\">{\r\n  &quot;lastFilter&quot;: {\r\n    &quot;state&quot;: &quot;OPEN&quot;,\r\n    &quot;assignee&quot;: &quot;pjs1710&quot;\r\n  }\r\n}</component>\r\n  <component name=\"GithubPullRequestsUISettings\">\r\n    <option name=\"selectedUrlAndAccountId\">\r\n      <UrlAndAccount>\r\n        <option name=\"accountId\" value=\"9cdf8c53-0c69-43b9-8edb-9315708f5204\" />\r\n        <option name=\"url\" value=\"https://github.com/tkv00/CYWORLD.git\" />\r\n      </UrlAndAccount>\r\n    </option>\r\n  </component>\r\n  <component name=\"MarkdownSettingsMigration\">\r\n    <option name=\"stateVersion\" value=\"1\" />\r\n  </component>\r\n  <component name=\"ProblemsViewState\">\r\n    <option name=\"selectedTabId\" value=\"ProjectErrors\" />\r\n  </component>\r\n  <component name=\"ProjectColorInfo\">{\r\n  &quot;associatedIndex&quot;: 6\r\n}</component>\r\n  <component name=\"ProjectId\" id=\"2YyY10GRkDOySsIxqStf1COmJ2L\" />\r\n  <component name=\"ProjectViewState\">\r\n    <option name=\"hideEmptyMiddlePackages\" value=\"true\" />\r\n    <option name=\"showLibraryContents\" value=\"true\" />\r\n  </component>\r\n  <component name=\"PropertiesComponent\">{\r\n  &quot;keyToString&quot;: {\r\n    &quot;RunOnceActivity.OpenProjectViewOnStart&quot;: &quot;true&quot;,\r\n    &quot;RunOnceActivity.ShowReadmeOnStart&quot;: &quot;true&quot;,\r\n    &quot;SHARE_PROJECT_CONFIGURATION_FILES&quot;: &quot;true&quot;,\r\n    &quot;WebServerToolWindowFactoryState&quot;: &quot;false&quot;,\r\n    &quot;codeWithMe.voiceChat.enabledByDefault&quot;: &quot;false&quot;,\r\n    &quot;git-widget-placeholder&quot;: &quot;main&quot;,\r\n    &quot;last_opened_file_path&quot;: &quot;C:/Users/재성/CYWORLD01/cyworld_01/src/main/resources&quot;,\r\n    &quot;node.js.detected.package.eslint&quot;: &quot;true&quot;,\r\n    &quot;node.js.detected.package.tslint&quot;: &quot;true&quot;,\r\n    &quot;node.js.selected.package.eslint&quot;: &quot;(autodetect)&quot;,\r\n    &quot;node.js.selected.package.tslint&quot;: &quot;(autodetect)&quot;,\r\n    &quot;nodejs_package_manager_path&quot;: &quot;npm&quot;,\r\n    &quot;project.structure.last.edited&quot;: &quot;프로젝트&quot;,\r\n    &quot;project.structure.proportion&quot;: &quot;0.15&quot;,\r\n    &quot;project.structure.side.proportion&quot;: &quot;0.2&quot;,\r\n    &quot;settings.editor.selected.configurable&quot;: &quot;reference.settingsdialog.IDE.editor.colors..ignore files&quot;,\r\n    &quot;vue.rearranger.settings.migration&quot;: &quot;true&quot;\r\n  }\r\n}</component>\r\n  <component name=\"RecentsManager\">\r\n    <key name=\"CopyFile.RECENT_KEYS\">\r\n      <recent name=\"C:\\Users\\재성\\CYWORLD01\\cyworld_01\\src\\main\\resources\" />\r\n    </key>\r\n    <key name=\"MoveFile.RECENT_KEYS\">\r\n      <recent name=\"C:\\Users\\재성\\CYWORLD01\\cyworld_01\\src\\main\\resources\" />\r\n    </key>\r\n  </component>\r\n  <component name=\"SpellCheckerSettings\" RuntimeDictionaries=\"0\" Folders=\"0\" CustomDictionaries=\"0\" DefaultDictionary=\"애플리케이션 수준\" UseSingleDictionary=\"true\" transferred=\"true\" />\r\n  <component name=\"TaskManager\">\r\n    <task active=\"true\" id=\"Default\" summary=\"디폴트 작업\">\r\n      <changelist id=\"8ad32b2f-77a1-48af-b65e-dc605abe6719\" name=\"변경\" comment=\"\" />\r\n      <created>1701499067552</created>\r\n      <option name=\"number\" value=\"Default\" />\r\n      <option name=\"presentableId\" value=\"Default\" />\r\n      <updated>1701499067552</updated>\r\n      <workItem from=\"1701499068656\" duration=\"9000\" />\r\n      <workItem from=\"1701499087460\" duration=\"11000\" />\r\n      <workItem from=\"1701499128359\" duration=\"5603000\" />\r\n      <workItem from=\"1701510352051\" duration=\"231000\" />\r\n      <workItem from=\"1701513134804\" duration=\"1460000\" />\r\n      <workItem from=\"1701522186527\" duration=\"16000\" />\r\n      <workItem from=\"1701567736623\" duration=\"214000\" />\r\n      <workItem from=\"1701568095168\" duration=\"600000\" />\r\n      <workItem from=\"1701577193245\" duration=\"17000\" />\r\n      <workItem from=\"1701577276593\" duration=\"3508000\" />\r\n      <workItem from=\"1701653271144\" duration=\"5002000\" />\r\n      <workItem from=\"1701663368749\" duration=\"343000\" />\r\n      <workItem from=\"1701664007649\" duration=\"163000\" />\r\n      <workItem from=\"1701669297300\" duration=\"527000\" />\r\n      <workItem from=\"1701670697738\" duration=\"11972000\" />\r\n      <workItem from=\"1701691377897\" duration=\"956000\" />\r\n    </task>\r\n    <task id=\"LOCAL-00001\" summary=\".\">\r\n      <option name=\"closed\" value=\"true\" />\r\n      <created>1701503204461</created>\r\n      <option name=\"number\" value=\"00001\" />\r\n      <option name=\"presentableId\" value=\"LOCAL-00001\" />\r\n      <option name=\"project\" value=\"LOCAL\" />\r\n      <updated>1701503204462</updated>\r\n    </task>\r\n    <task id=\"LOCAL-00002\" summary=\".\">\r\n      <option name=\"closed\" value=\"true\" />\r\n      <created>1701503235278</created>\r\n      <option name=\"number\" value=\"00002\" />\r\n      <option name=\"presentableId\" value=\"LOCAL-00002\" />\r\n      <option name=\"project\" value=\"LOCAL\" />\r\n      <updated>1701503235278</updated>\r\n    </task>\r\n    <task id=\"LOCAL-00003\" summary=\"a\">\r\n      <option name=\"closed\" value=\"true\" />\r\n      <created>1701580992271</created>\r\n      <option name=\"number\" value=\"00003\" />\r\n      <option name=\"presentableId\" value=\"LOCAL-00003\" />\r\n      <option name=\"project\" value=\"LOCAL\" />\r\n      <updated>1701580992271</updated>\r\n    </task>\r\n    <task id=\"LOCAL-00004\" summary=\"MusicPlayer\">\r\n      <option name=\"closed\" value=\"true\" />\r\n      <created>1701663408777</created>\r\n      <option name=\"number\" value=\"00004\" />\r\n      <option name=\"presentableId\" value=\"LOCAL-00004\" />\r\n      <option name=\"project\" value=\"LOCAL\" />\r\n      <updated>1701663408777</updated>\r\n    </task>\r\n    <task id=\"LOCAL-00005\" summary=\"MusicPlayer\">\r\n      <option name=\"closed\" value=\"true\" />\r\n      <created>1701681921865</created>\r\n      <option name=\"number\" value=\"00005\" />\r\n      <option name=\"presentableId\" value=\"LOCAL-00005\" />\r\n      <option name=\"project\" value=\"LOCAL\" />\r\n      <updated>1701681921865</updated>\r\n    </task>\r\n    <option name=\"localTasksCounter\" value=\"6\" />\r\n    <servers />\r\n  </component>\r\n  <component name=\"TypeScriptGeneratedFilesManager\">\r\n    <option name=\"version\" value=\"3\" />\r\n  </component>\r\n  <component name=\"Vcs.Log.Tabs.Properties\">\r\n    <option name=\"RECENT_FILTERS\">\r\n      <map>\r\n        <entry key=\"Branch\">\r\n          <value>\r\n            <list>\r\n              <RecentGroup>\r\n                <option name=\"FILTER_VALUES\">\r\n                  <option value=\"main\" />\r\n                </option>\r\n              </RecentGroup>\r\n            </list>\r\n          </value>\r\n        </entry>\r\n      </map>\r\n    </option>\r\n    <option name=\"TAB_STATES\">\r\n      <map>\r\n        <entry key=\"MAIN\">\r\n          <value>\r\n            <State>\r\n              <option name=\"FILTERS\">\r\n                <map>\r\n                  <entry key=\"branch\">\r\n                    <value>\r\n                      <list>\r\n                        <option value=\"main\" />\r\n                      </list>\r\n                    </value>\r\n                  </entry>\r\n                </map>\r\n              </option>\r\n            </State>\r\n          </value>\r\n        </entry>\r\n      </map>\r\n    </option>\r\n  </component>\r\n  <component name=\"VcsManagerConfiguration\">\r\n    <MESSAGE value=\".\" />\r\n    <MESSAGE value=\"a\" />\r\n    <MESSAGE value=\"MusicPlayer\" />\r\n    <option name=\"LAST_COMMIT_MESSAGE\" value=\"MusicPlayer\" />\r\n  </component>\r\n</project>
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/.idea/workspace.xml b/.idea/workspace.xml
+--- a/.idea/workspace.xml	(revision 524d0af4ea6c72bbb1b4545c8860bd9d0ebb5e01)
++++ b/.idea/workspace.xml	(date 1703175106850)
+@@ -4,19 +4,38 @@
+     <option name="autoReloadType" value="SELECTIVE" />
+   </component>
+   <component name="ChangeListManager">
+-    <list default="true" id="8ad32b2f-77a1-48af-b65e-dc605abe6719" name="변경" comment="">
+-      <change afterPath="$PROJECT_DIR$/.idea/inspectionProfiles/Project_Default.xml" afterDir="false" />
++    <list default="true" id="8ad32b2f-77a1-48af-b65e-dc605abe6719" name="변경" comment="변경">
++      <change afterPath="$PROJECT_DIR$/cyworld_01/src/main/java/org/Friend/FriendAddListener.java" afterDir="false" />
++      <change afterPath="$PROJECT_DIR$/cyworld_01/src/main/resources/image/email.png" afterDir="false" />
++      <change beforePath="$PROJECT_DIR$/.idea/gradle.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/gradle.xml" afterDir="false" />
++      <change beforePath="$PROJECT_DIR$/.idea/misc.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/misc.xml" afterDir="false" />
++      <change beforePath="$PROJECT_DIR$/.idea/shelf/2023-12-03__10_42__________.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/shelf/2023-12-03__10_42__________.xml" afterDir="false" />
++      <change beforePath="$PROJECT_DIR$/.idea/shelf/2023-12-03__10_42__________1.xml" beforeDir="false" />
++      <change beforePath="$PROJECT_DIR$/.idea/shelf/2023-12-03_오전_10_42,_업데이트_전에_커밋되지_않은_변경_내용_[변경]1/BoardList.class" beforeDir="false" />
++      <change beforePath="$PROJECT_DIR$/.idea/shelf/2023-12-03_오전_10_42,_업데이트_전에_커밋되지_않은_변경_내용_[변경]1/MiniHomepage$1.class" beforeDir="false" />
++      <change beforePath="$PROJECT_DIR$/.idea/shelf/2023-12-03_오전_10_42,_업데이트_전에_커밋되지_않은_변경_내용_[변경]1/MiniHomepage.class" beforeDir="false" />
++      <change beforePath="$PROJECT_DIR$/.idea/shelf/2023-12-03_오전_10_42,_업데이트_전에_커밋되지_않은_변경_내용_[변경]1/buildOutputCleanup.lock" beforeDir="false" />
++      <change beforePath="$PROJECT_DIR$/.idea/shelf/2023-12-03_오전_10_42,_업데이트_전에_커밋되지_않은_변경_내용_[변경]1/executionHistory.bin" beforeDir="false" />
++      <change beforePath="$PROJECT_DIR$/.idea/shelf/2023-12-03_오전_10_42,_업데이트_전에_커밋되지_않은_변경_내용_[변경]1/executionHistory.lock" beforeDir="false" />
++      <change beforePath="$PROJECT_DIR$/.idea/shelf/2023-12-03_오전_10_42,_업데이트_전에_커밋되지_않은_변경_내용_[변경]1/file-system.probe" beforeDir="false" />
++      <change beforePath="$PROJECT_DIR$/.idea/shelf/2023-12-03_오전_10_42,_업데이트_전에_커밋되지_않은_변경_내용_[변경]1/fileHashes.bin" beforeDir="false" />
++      <change beforePath="$PROJECT_DIR$/.idea/shelf/2023-12-03_오전_10_42,_업데이트_전에_커밋되지_않은_변경_내용_[변경]1/fileHashes.lock" beforeDir="false" />
++      <change beforePath="$PROJECT_DIR$/.idea/shelf/2023-12-03_오전_10_42,_업데이트_전에_커밋되지_않은_변경_내용_[변경]1/previous-compilation-data.bin" beforeDir="false" />
++      <change beforePath="$PROJECT_DIR$/.idea/shelf/2023-12-03_오전_10_42,_업데이트_전에_커밋되지_않은_변경_내용_[변경]1/resourceHashesCache.bin" beforeDir="false" />
++      <change beforePath="$PROJECT_DIR$/.idea/shelf/2023-12-03_오전_10_42,_업데이트_전에_커밋되지_않은_변경_내용_[변경]1/shelved.patch" beforeDir="false" />
+       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+       <change beforePath="$PROJECT_DIR$/cyworld_01/.gradle/8.2/executionHistory/executionHistory.bin" beforeDir="false" afterPath="$PROJECT_DIR$/cyworld_01/.gradle/8.2/executionHistory/executionHistory.bin" afterDir="false" />
+       <change beforePath="$PROJECT_DIR$/cyworld_01/.gradle/8.2/executionHistory/executionHistory.lock" beforeDir="false" afterPath="$PROJECT_DIR$/cyworld_01/.gradle/8.2/executionHistory/executionHistory.lock" afterDir="false" />
+       <change beforePath="$PROJECT_DIR$/cyworld_01/.gradle/8.2/fileHashes/fileHashes.bin" beforeDir="false" afterPath="$PROJECT_DIR$/cyworld_01/.gradle/8.2/fileHashes/fileHashes.bin" afterDir="false" />
+       <change beforePath="$PROJECT_DIR$/cyworld_01/.gradle/8.2/fileHashes/fileHashes.lock" beforeDir="false" afterPath="$PROJECT_DIR$/cyworld_01/.gradle/8.2/fileHashes/fileHashes.lock" afterDir="false" />
+       <change beforePath="$PROJECT_DIR$/cyworld_01/.gradle/buildOutputCleanup/buildOutputCleanup.lock" beforeDir="false" afterPath="$PROJECT_DIR$/cyworld_01/.gradle/buildOutputCleanup/buildOutputCleanup.lock" afterDir="false" />
++      <change beforePath="$PROJECT_DIR$/cyworld_01/.gradle/buildOutputCleanup/outputFiles.bin" beforeDir="false" afterPath="$PROJECT_DIR$/cyworld_01/.gradle/buildOutputCleanup/outputFiles.bin" afterDir="false" />
+       <change beforePath="$PROJECT_DIR$/cyworld_01/.gradle/file-system.probe" beforeDir="false" afterPath="$PROJECT_DIR$/cyworld_01/.gradle/file-system.probe" afterDir="false" />
+-      <change beforePath="$PROJECT_DIR$/cyworld_01/src/main/java/org/example/LoginPage.java" beforeDir="false" afterPath="$PROJECT_DIR$/cyworld_01/src/main/java/org/example/LoginPage.java" afterDir="false" />
++      <change beforePath="$PROJECT_DIR$/cyworld_01/build/classes/java/main/org/example/BoardList.class" beforeDir="false" afterPath="$PROJECT_DIR$/cyworld_01/build/classes/java/main/org/example/BoardList.class" afterDir="false" />
++      <change beforePath="$PROJECT_DIR$/cyworld_01/src/main/java/org/Friend/FriendSearchDialog.java" beforeDir="false" afterPath="$PROJECT_DIR$/cyworld_01/src/main/java/org/Friend/FriendSearchDialog.java" afterDir="false" />
+       <change beforePath="$PROJECT_DIR$/cyworld_01/src/main/java/org/example/MiniHomepage.java" beforeDir="false" afterPath="$PROJECT_DIR$/cyworld_01/src/main/java/org/example/MiniHomepage.java" afterDir="false" />
+       <change beforePath="$PROJECT_DIR$/cyworld_01/src/main/java/org/example/SignUppage.java" beforeDir="false" afterPath="$PROJECT_DIR$/cyworld_01/src/main/java/org/example/SignUppage.java" afterDir="false" />
+-      <change beforePath="$PROJECT_DIR$/cyworld_01/src/main/resources/music.mp3" beforeDir="false" />
++      <change beforePath="$PROJECT_DIR$/cyworld_01/src/main/resources/image/notification.png" beforeDir="false" afterPath="$PROJECT_DIR$/cyworld_01/src/main/resources/image/notification.png" afterDir="false" />
+     </list>
+     <option name="SHOW_DIALOG" value="false" />
+     <option name="HIGHLIGHT_CONFLICTS" value="true" />
+@@ -71,7 +90,7 @@
+     <option name="stateVersion" value="1" />
+   </component>
+   <component name="ProblemsViewState">
+-    <option name="selectedTabId" value="ProjectErrors" />
++    <option name="selectedTabId" value="CurrentFile" />
+   </component>
+   <component name="ProjectColorInfo">{
+   &quot;associatedIndex&quot;: 6
+@@ -81,29 +100,30 @@
+     <option name="hideEmptyMiddlePackages" value="true" />
+     <option name="showLibraryContents" value="true" />
+   </component>
+-  <component name="PropertiesComponent">{
+-  &quot;keyToString&quot;: {
+-    &quot;RunOnceActivity.OpenProjectViewOnStart&quot;: &quot;true&quot;,
+-    &quot;RunOnceActivity.ShowReadmeOnStart&quot;: &quot;true&quot;,
+-    &quot;SHARE_PROJECT_CONFIGURATION_FILES&quot;: &quot;true&quot;,
+-    &quot;WebServerToolWindowFactoryState&quot;: &quot;false&quot;,
+-    &quot;codeWithMe.voiceChat.enabledByDefault&quot;: &quot;false&quot;,
+-    &quot;git-widget-placeholder&quot;: &quot;main&quot;,
+-    &quot;last_opened_file_path&quot;: &quot;C:/Users/재성/CYWORLD01/cyworld_01/src/main/resources&quot;,
+-    &quot;node.js.detected.package.eslint&quot;: &quot;true&quot;,
+-    &quot;node.js.detected.package.tslint&quot;: &quot;true&quot;,
+-    &quot;node.js.selected.package.eslint&quot;: &quot;(autodetect)&quot;,
+-    &quot;node.js.selected.package.tslint&quot;: &quot;(autodetect)&quot;,
+-    &quot;nodejs_package_manager_path&quot;: &quot;npm&quot;,
+-    &quot;project.structure.last.edited&quot;: &quot;프로젝트&quot;,
+-    &quot;project.structure.proportion&quot;: &quot;0.15&quot;,
+-    &quot;project.structure.side.proportion&quot;: &quot;0.2&quot;,
+-    &quot;settings.editor.selected.configurable&quot;: &quot;reference.settingsdialog.IDE.editor.colors..ignore files&quot;,
+-    &quot;vue.rearranger.settings.migration&quot;: &quot;true&quot;
++  <component name="PropertiesComponent"><![CDATA[{
++  "keyToString": {
++    "RunOnceActivity.OpenProjectViewOnStart": "true",
++    "RunOnceActivity.ShowReadmeOnStart": "true",
++    "SHARE_PROJECT_CONFIGURATION_FILES": "true",
++    "WebServerToolWindowFactoryState": "false",
++    "codeWithMe.voiceChat.enabledByDefault": "false",
++    "git-widget-placeholder": "main",
++    "last_opened_file_path": "C:/Users/허준우/IdeaProjects/싸이월드/cyworld_01/src/main/resources/image",
++    "node.js.detected.package.eslint": "true",
++    "node.js.detected.package.tslint": "true",
++    "node.js.selected.package.eslint": "(autodetect)",
++    "node.js.selected.package.tslint": "(autodetect)",
++    "nodejs_package_manager_path": "npm",
++    "project.structure.last.edited": "Project",
++    "project.structure.proportion": "0.15",
++    "project.structure.side.proportion": "0.2",
++    "settings.editor.selected.configurable": "reference.settingsdialog.project.gradle",
++    "vue.rearranger.settings.migration": "true"
+   }
+-}</component>
++}]]></component>
+   <component name="RecentsManager">
+     <key name="CopyFile.RECENT_KEYS">
++      <recent name="C:\Users\허준우\IdeaProjects\싸이월드\cyworld_01\src\main\resources\image" />
+       <recent name="C:\Users\재성\CYWORLD01\cyworld_01\src\main\resources" />
+     </key>
+     <key name="MoveFile.RECENT_KEYS">
+@@ -134,6 +154,10 @@
+       <workItem from="1701669297300" duration="527000" />
+       <workItem from="1701670697738" duration="11972000" />
+       <workItem from="1701691377897" duration="956000" />
++      <workItem from="1703151499036" duration="3098000" />
++      <workItem from="1703156005199" duration="67000" />
++      <workItem from="1703163225758" duration="736000" />
++      <workItem from="1703163979497" duration="8058000" />
+     </task>
+     <task id="LOCAL-00001" summary=".">
+       <option name="closed" value="true" />
+@@ -225,4 +249,15 @@
+     <MESSAGE value="MusicPlayer" />
+     <option name="LAST_COMMIT_MESSAGE" value="MusicPlayer" />
+   </component>
++  <component name="XDebuggerManager">
++    <breakpoint-manager>
++      <breakpoints>
++        <line-breakpoint enabled="true" type="java-line">
++          <url>file://$PROJECT_DIR$/cyworld_01/src/main/java/org/example/MiniHomepage.java</url>
++          <line>204</line>
++          <option name="timeStamp" value="1" />
++        </line-breakpoint>
++      </breakpoints>
++    </breakpoint-manager>
++  </component>
+ </project>
+\ No newline at end of file
+Index: cyworld_01/src/main/java/org/Friend/FriendAddListener.java
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/cyworld_01/src/main/java/org/Friend/FriendAddListener.java b/cyworld_01/src/main/java/org/Friend/FriendAddListener.java
+new file mode 100644
+--- /dev/null	(date 1703154124513)
++++ b/cyworld_01/src/main/java/org/Friend/FriendAddListener.java	(date 1703154124513)
+@@ -0,0 +1,9 @@
++package org.Friend;
++
++// FriendAddListener.java
++public interface FriendAddListener {
++    void onFriendAdded(String friendName);
++
++}
++
++
+Index: cyworld_01/src/main/java/org/example/SignUppage.java
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.BaseRevisionTextPatchEP
+<+>package org.example;\r\n\r\nimport org.Utility.DatabaseConfig;\r\n\r\nimport javax.swing.*;\r\nimport java.awt.*;\r\nimport java.sql.Connection;\r\nimport java.sql.PreparedStatement;\r\nimport java.util.regex.Pattern;\r\nimport java.sql.SQLException;\r\n\r\npublic class SignUppage {\r\n\r\n\r\n    private JFrame frame;\r\n    private JTextField usernameField;\r\n    private JPasswordField passwordField;\r\n    private JTextField phoneField;\r\n    private JTextField nameField;\r\n    private JTextField emailField;\r\n\r\n    public SignUppage() {\r\n        initializeUI();\r\n    }\r\n\r\n    private void initializeUI() {\r\n        frame = new JFrame(\"회원가입\");\r\n        frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);\r\n        frame.setSize(400, 300);\r\n        frame.setLayout(new GridLayout(7, 2)); // 로우 개수 증가\r\n\r\n        // UI 컴포넌트 초기화 및 프레임에 추가\r\n        addFormField(\"이름\", nameField = new JTextField());\r\n        addFormField(\"아이디\", usernameField = new JTextField());\r\n        addFormField(\"비밀번호\", passwordField = new JPasswordField());\r\n        addFormField(\"휴대폰 번호\", phoneField = new JTextField());\r\n        addFormField(\"이메일\", emailField = new JTextField());\r\n\r\n\r\n        // 회원가입 버튼 및 이벤트 처리\r\n        JButton signUpButton = createStyledButton(\"회원가입\", 15);\r\n\r\n        frame.add(signUpButton);\r\n\r\n        // 취소 버튼\r\n        JButton cancelButton = createStyledButton(\"취소\", 15);// 텍스트 색을 검은색으로 설정\r\n        cancelButton.setForeground(Color.BLACK);\r\n        cancelButton.addActionListener(e -> frame.dispose());\r\n        frame.add(cancelButton);\r\n    }\r\n\r\n    private void addFormField(String label, JComponent component) {\r\n        frame.add(new JLabel(label));\r\n        frame.add(component);\r\n    }\r\n\r\n    private JButton createStyledButton(String text, int fontSize) {\r\n        JButton button = new JButton(text);\r\n        button.setFont(new Font(\"Nanum Font\", Font.BOLD, fontSize));\r\n        button.setOpaque(false);\r\n        button.setContentAreaFilled(false);\r\n        button.setBorderPainted(false);\r\n        button.setBorder(BorderFactory.createLineBorder(Color.BLACK));\r\n\r\n        button.setForeground(new Color(255, 102, 6));\r\n        return button;\r\n    }\r\n\r\n\r\n    private void performSignUp() {\r\n        String username = usernameField.getText();\r\n        String userPassword = new String(passwordField.getPassword());\r\n        String phone = phoneField.getText();\r\n        String name = nameField.getText();\r\n        // 이메일 필드가 추가되어야 함\r\n        String email = emailField.getText();\r\n\r\n        // 유효성 검사 수행\r\n        if (!isValidUsername(username)) {\r\n            JOptionPane.showMessageDialog(frame, \"아이디는 영문과 숫자를 포함한 6자 이상이어야 합니다.\", \"유효성 오류\", JOptionPane.ERROR_MESSAGE);\r\n            return;\r\n\r\n        }\r\n        if (!isValidPassword(userPassword)) {\r\n            JOptionPane.showMessageDialog(frame, \"비밀번호는 최소 8자이며, 숫자, 대문자, 소문자, 특수문자를 모두 포함해야 합니다.\", \"유효성 오류\", JOptionPane.ERROR_MESSAGE);\r\n            return;\r\n\r\n        }\r\n        if (!isValidPhoneNumber(phone)) {\r\n            JOptionPane.showMessageDialog(frame, \"휴대폰 번호는 숫자 11자리여야 합니다.\", \"유효성 오류\", JOptionPane.ERROR_MESSAGE);\r\n            return;\r\n\r\n        }\r\n        if (!isValidEmail(email)) {\r\n            JOptionPane.showMessageDialog(frame, \"유효하지 않은 이메일 형식입니다.\", \"유효성 오류\", JOptionPane.ERROR_MESSAGE);\r\n            return;\r\n\r\n        }\r\n        if (isUsernameTaken(username)) {\r\n            JOptionPane.showMessageDialog(frame, \"이미 사용 중인 아이디입니다.\", \"아이디 중복 오류\", JOptionPane.ERROR_MESSAGE);\r\n            return; // 중복된 아이디인 경우 회원가입 중단\r\n        }\r\n\r\n        try (Connection conn = DatabaseConfig.getConnection();\r\n             PreparedStatement pstmt = conn.prepareStatement(\"INSERT INTO user (username, password, phonenumber, name,email) VALUES (?, ?, ?, ?,?)\")) {\r\n\r\n            pstmt.setString(1, username);\r\n            pstmt.setString(2, userPassword); // 추후 비밀번호 암호화 고려\r\n            pstmt.setString(3, phone);\r\n            pstmt.setString(4, name);\r\n            pstmt.setString(5, email);\r\n\r\n\r\n            int affectedRows = pstmt.executeUpdate();\r\n\r\n            if (affectedRows > 0) {\r\n                JOptionPane.showMessageDialog(frame, \"회원가입에 성공했습니다.\");\r\n                frame.dispose(); // 회원가입 창 닫기\r\n                // 로그인 창 보여주기\r\n                LoginPage loginPage = new LoginPage(new SignUppage(), new MiniHomepage());\r\n                loginPage.show();\r\n            } else {\r\n                JOptionPane.showMessageDialog(frame, \"회원가입에 실패했습니다.\", \"회원가입 오류\", JOptionPane.ERROR_MESSAGE);\r\n            }\r\n        } catch (SQLException ex) {\r\n            JOptionPane.showMessageDialog(frame, \"데이터베이스 오류: \" + ex.getMessage(), \"데이터베이스 오류\", JOptionPane.ERROR_MESSAGE);\r\n            ex.printStackTrace();//\r\n        }\r\n    }\r\n\r\n\r\n    //이메일 유효성검사\r\n    private boolean isValidEmail(String email) {\r\n        String emailRegex = \"^[a-zA-Z0-9_+&*-]+(?:\\\\.[a-zA-Z0-9_+&*-]+)*@(?:[a-zA-Z0-9-]+\\\\.)+[a-zA-Z]{2,7}$\";\r\n        Pattern pattern = Pattern.compile(emailRegex);\r\n        return pattern.matcher(email).matches();\r\n    }\r\n\r\n    //비번 유효성검사\r\n    private boolean isValidPassword(String password) {\r\n        // 비밀번호는 최소 8자, 최소 하나의 문자와 하나의 숫자를 포함\r\n        String passwordRegex = \"^(?=.*[A-Za-z])(?=.*\\\\d)[A-Za-z\\\\d]{8,}$\";\r\n        Pattern pattern = Pattern.compile(passwordRegex);\r\n        return pattern.matcher(password).matches();\r\n    }\r\n\r\n    //전번 유효성검사\r\n    private boolean isValidPhoneNumber(String phone) {\r\n        // 휴대폰 번호는 숫자로만 구성된 11자리\r\n        String phoneRegex = \"^\\\\d{11}$\";\r\n        return phone.matches(phoneRegex);\r\n    }\r\n\r\n    //아이디 유효성검사\r\n    private boolean isValidUsername(String username) {\r\n        // 아이디는 영문, 숫자 포함 6자 이상\r\n        String usernameRegex = \"^[A-Za-z0-9]{6,}$\";\r\n        return username.matches(usernameRegex);\r\n    }\r\n\r\n    private boolean isUsernameTaken(String username) {\r\n        try (Connection conn = DatabaseConfig.getConnection();\r\n             PreparedStatement pstmt = conn.prepareStatement(\"SELECT * FROM user WHERE username = ?\")) {\r\n            pstmt.setString(1, username);\r\n            return pstmt.executeQuery().next(); // 아이디가 이미 존재하면 true 반환\r\n        } catch (SQLException ex) {\r\n            ex.printStackTrace();\r\n            return true; // 오류 발생 시 중복으로 처리\r\n        }\r\n    }\r\n\r\n    public void show() {\r\n        frame.setVisible(true);\r\n    }\r\n}\r\n\r\n
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/cyworld_01/src/main/java/org/example/SignUppage.java b/cyworld_01/src/main/java/org/example/SignUppage.java
+--- a/cyworld_01/src/main/java/org/example/SignUppage.java	(revision 524d0af4ea6c72bbb1b4545c8860bd9d0ebb5e01)
++++ b/cyworld_01/src/main/java/org/example/SignUppage.java	(date 1703142942431)
+@@ -18,6 +18,7 @@
+     private JTextField phoneField;
+     private JTextField nameField;
+     private JTextField emailField;
++    private LoginPage loginPage;
+ 
+     public SignUppage() {
+         initializeUI();
+@@ -45,7 +46,7 @@
+         // 취소 버튼
+         JButton cancelButton = createStyledButton("취소", 15);// 텍스트 색을 검은색으로 설정
+         cancelButton.setForeground(Color.BLACK);
+-        cancelButton.addActionListener(e -> frame.dispose());
++        cancelButton.addActionListener(e ->loginPage.show() );
+         frame.add(cancelButton);
+     }
+ 
+Index: .idea/gradle.xml
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.BaseRevisionTextPatchEP
+<+><?xml version=\"1.0\" encoding=\"UTF-8\"?>\r\n<project version=\"4\">\r\n  <component name=\"GradleMigrationSettings\" migrationVersion=\"1\" />\r\n  <component name=\"GradleSettings\">\r\n    <option name=\"linkedExternalProjectsSettings\">\r\n      <GradleProjectSettings>\r\n        <option name=\"externalProjectPath\" value=\"$PROJECT_DIR$/cyworld_01\" />\r\n        <option name=\"gradleJvm\" value=\"#JAVA_HOME\" />\r\n        <option name=\"modules\">\r\n          <set>\r\n            <option value=\"$PROJECT_DIR$/cyworld_01\" />\r\n          </set>\r\n        </option>\r\n      </GradleProjectSettings>\r\n    </option>\r\n  </component>\r\n</project>
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/.idea/gradle.xml b/.idea/gradle.xml
+--- a/.idea/gradle.xml	(revision 524d0af4ea6c72bbb1b4545c8860bd9d0ebb5e01)
++++ b/.idea/gradle.xml	(date 1703163733446)
+@@ -4,8 +4,10 @@
+   <component name="GradleSettings">
+     <option name="linkedExternalProjectsSettings">
+       <GradleProjectSettings>
++        <option name="delegatedBuild" value="false" />
++        <option name="testRunner" value="PLATFORM" />
+         <option name="externalProjectPath" value="$PROJECT_DIR$/cyworld_01" />
+-        <option name="gradleJvm" value="#JAVA_HOME" />
++        <option name="gradleJvm" value="openjdk-21 (2)" />
+         <option name="modules">
+           <set>
+             <option value="$PROJECT_DIR$/cyworld_01" />
+Index: cyworld_01/src/main/java/org/Friend/FriendSearchDialog.java
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.BaseRevisionTextPatchEP
+<+>package org.Friend;\r\n\r\nimport org.Friend.FriendManager;\r\nimport org.Utility.PlaceholderTextField;\r\n\r\nimport javax.swing.*;\r\nimport java.awt.*;\r\nimport java.awt.event.FocusEvent;\r\nimport java.awt.event.FocusListener;\r\n\r\npublic class FriendSearchDialog extends JDialog {\r\n    private PlaceholderTextField searchField; // PlaceholderTextField로 변경\r\n    private JButton searchButton;\r\n    private FriendManager friendManager;\r\n    private String currentUserId;\r\n    private JPanel resultsPanel; // 검색 결과를 표시할 패널\r\n\r\n    public FriendSearchDialog(JFrame parent, String currentUserId) {\r\n        super(parent, \"유저 검색\", true);\r\n        this.currentUserId = currentUserId;\r\n        this.friendManager = new FriendManager();\r\n\r\n        // Placeholder 텍스트 설정\r\n        String placeholderText = \"추가할 일촌의 ID를 검색하세요\";\r\n        searchField = new PlaceholderTextField(placeholderText, 20);\r\n        searchButton = new JButton(\"검색\");\r\n\r\n\r\n        // 검색 결과 패널 초기화\r\n        resultsPanel = new JPanel();\r\n        resultsPanel.setLayout(new BoxLayout(resultsPanel, BoxLayout.Y_AXIS));\r\n        JScrollPane scrollPane = new JScrollPane(resultsPanel);\r\n\r\n        // 컴포넌트 추가\r\n        setLayout(new BorderLayout());\r\n        add(searchField, BorderLayout.NORTH);\r\n        add(scrollPane, BorderLayout.CENTER);\r\n        add(searchButton, BorderLayout.SOUTH);\r\n\r\n        // 검색 버튼 이벤트 핸들러\r\n        searchButton.addActionListener(e -> searchFriends());\r\n\r\n        // 창 크기 설정\r\n        setSize(500, 300);\r\n\r\n\r\n    }\r\n\r\n    private void searchFriends() {\r\n        String searchText = searchField.getText().trim();\r\n        if (!searchText.isEmpty()) {\r\n            try {\r\n                // Clear previous results\r\n                resultsPanel.removeAll(); // 이전 검색 결과 제거\r\n\r\n                // Fetch search results from the FriendManager\r\n                java.util.List<String> results = friendManager.searchFriends(currentUserId, searchText);\r\n\r\n                // Create a panel for each result with a button\r\n                for (String friend : results) {\r\n                    JPanel userPanel = new JPanel();\r\n                    userPanel.setLayout(new FlowLayout(FlowLayout.LEFT));\r\n                    userPanel.add(new JLabel(friend));\r\n\r\n                    JButton addButton = new JButton(\"일촌 추가\");\r\n                    addButton.addActionListener(e -> sendFriendRequest(friend));\r\n                    userPanel.add(addButton);\r\n\r\n                    resultsPanel.add(userPanel);\r\n                }\r\n                resultsPanel.revalidate();\r\n                resultsPanel.repaint();\r\n            } catch (Exception e) {\r\n                e.printStackTrace();\r\n                JOptionPane.showMessageDialog(this, \"오류가 발생했습니다: \" + e.getMessage(), \"오류\", JOptionPane.ERROR_MESSAGE);\r\n            }\r\n        }\r\n    }\r\n\r\n    // '일촌 추가' 버튼 이벤트 핸들러\r\n    public void sendFriendRequest(String selectedUserId) {\r\n        try {\r\n            friendManager.sendFriendRequest(currentUserId, selectedUserId);\r\n            JOptionPane.showMessageDialog(this, selectedUserId + \"에게 일촌 신청을 보냈습니다.\", \"일촌 신청\", JOptionPane.INFORMATION_MESSAGE);\r\n        } catch (Exception e) {\r\n            JOptionPane.showMessageDialog(this, \"일촌 신청 중 오류가 발생했습니다: \" + e.getMessage(), \"오류\", JOptionPane.ERROR_MESSAGE);\r\n            e.printStackTrace();\r\n        }\r\n    }\r\n\r\n}\r\n
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/cyworld_01/src/main/java/org/Friend/FriendSearchDialog.java b/cyworld_01/src/main/java/org/Friend/FriendSearchDialog.java
+--- a/cyworld_01/src/main/java/org/Friend/FriendSearchDialog.java	(revision 524d0af4ea6c72bbb1b4545c8860bd9d0ebb5e01)
++++ b/cyworld_01/src/main/java/org/Friend/FriendSearchDialog.java	(date 1703153864217)
+@@ -7,64 +7,62 @@
+ import java.awt.*;
+ import java.awt.event.FocusEvent;
+ import java.awt.event.FocusListener;
++// FriendAddListener.java
++// FriendAddListener.java
+ 
+ public class FriendSearchDialog extends JDialog {
+-    private PlaceholderTextField searchField; // PlaceholderTextField로 변경
++    private FriendAddListener friendAddListener;
++    private PlaceholderTextField searchField;
+     private JButton searchButton;
+     private FriendManager friendManager;
+     private String currentUserId;
+-    private JPanel resultsPanel; // 검색 결과를 표시할 패널
++    private JPanel resultsPanel;
+ 
+     public FriendSearchDialog(JFrame parent, String currentUserId) {
+         super(parent, "유저 검색", true);
+         this.currentUserId = currentUserId;
+         this.friendManager = new FriendManager();
+ 
+-        // Placeholder 텍스트 설정
+         String placeholderText = "추가할 일촌의 ID를 검색하세요";
+         searchField = new PlaceholderTextField(placeholderText, 20);
+         searchButton = new JButton("검색");
+ 
+-
+-        // 검색 결과 패널 초기화
+         resultsPanel = new JPanel();
+         resultsPanel.setLayout(new BoxLayout(resultsPanel, BoxLayout.Y_AXIS));
+         JScrollPane scrollPane = new JScrollPane(resultsPanel);
+ 
+-        // 컴포넌트 추가
+         setLayout(new BorderLayout());
+         add(searchField, BorderLayout.NORTH);
+         add(scrollPane, BorderLayout.CENTER);
+         add(searchButton, BorderLayout.SOUTH);
+ 
+-        // 검색 버튼 이벤트 핸들러
+         searchButton.addActionListener(e -> searchFriends());
+-
+-        // 창 크기 설정
+         setSize(500, 300);
++    }
+ 
++    public void setFriendAddListener(FriendAddListener listener) {
++        this.friendAddListener = listener;
++    }
+ 
+-    }
+ 
+     private void searchFriends() {
+         String searchText = searchField.getText().trim();
+         if (!searchText.isEmpty()) {
+             try {
+-                // Clear previous results
+-                resultsPanel.removeAll(); // 이전 검색 결과 제거
++                resultsPanel.removeAll();
+ 
+-                // Fetch search results from the FriendManager
+                 java.util.List<String> results = friendManager.searchFriends(currentUserId, searchText);
+ 
+-                // Create a panel for each result with a button
+                 for (String friend : results) {
+                     JPanel userPanel = new JPanel();
+-                    userPanel.setLayout(new FlowLayout(FlowLayout.LEFT));
+-                    userPanel.add(new JLabel(friend));
++                    userPanel.setLayout(new BorderLayout());
++
++                    JLabel friendLabel = new JLabel(friend);
++                    userPanel.add(friendLabel, BorderLayout.CENTER);
+ 
+                     JButton addButton = new JButton("일촌 추가");
+                     addButton.addActionListener(e -> sendFriendRequest(friend));
+-                    userPanel.add(addButton);
++                    userPanel.add(addButton, BorderLayout.WEST);
+ 
+                     resultsPanel.add(userPanel);
+                 }
+@@ -77,15 +75,16 @@
+         }
+     }
+ 
+-    // '일촌 추가' 버튼 이벤트 핸들러
+-    public void sendFriendRequest(String selectedUserId) {
++    private void sendFriendRequest(String selectedUserId) {
+         try {
+             friendManager.sendFriendRequest(currentUserId, selectedUserId);
+             JOptionPane.showMessageDialog(this, selectedUserId + "에게 일촌 신청을 보냈습니다.", "일촌 신청", JOptionPane.INFORMATION_MESSAGE);
++            if (friendAddListener != null) {
++                friendAddListener.onFriendAdded(selectedUserId);
++            }
+         } catch (Exception e) {
+             JOptionPane.showMessageDialog(this, "일촌 신청 중 오류가 발생했습니다: " + e.getMessage(), "오류", JOptionPane.ERROR_MESSAGE);
+             e.printStackTrace();
+         }
+     }
+-
+ }
+Index: .idea/misc.xml
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.BaseRevisionTextPatchEP
+<+><?xml version=\"1.0\" encoding=\"UTF-8\"?>\r\n<project version=\"4\">\r\n  <component name=\"ExternalStorageConfigurationManager\" enabled=\"true\" />\r\n  <component name=\"FrameworkDetectionExcludesConfiguration\">\r\n    <file type=\"web\" url=\"file://$PROJECT_DIR$/cyworld_01\" />\r\n  </component>\r\n  <component name=\"ProjectRootManager\" version=\"2\" languageLevel=\"JDK_17\" project-jdk-name=\"17\" project-jdk-type=\"JavaSDK\">\r\n    <output url=\"file://$PROJECT_DIR$/out\" />\r\n  </component>\r\n</project>
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/.idea/misc.xml b/.idea/misc.xml
+--- a/.idea/misc.xml	(revision 524d0af4ea6c72bbb1b4545c8860bd9d0ebb5e01)
++++ b/.idea/misc.xml	(date 1703164035292)
+@@ -4,7 +4,7 @@
+   <component name="FrameworkDetectionExcludesConfiguration">
+     <file type="web" url="file://$PROJECT_DIR$/cyworld_01" />
+   </component>
+-  <component name="ProjectRootManager" version="2" languageLevel="JDK_17" project-jdk-name="17" project-jdk-type="JavaSDK">
++  <component name="ProjectRootManager" version="2" languageLevel="JDK_19" project-jdk-name="corretto-19" project-jdk-type="JavaSDK">
+     <output url="file://$PROJECT_DIR$/out" />
+   </component>
+ </project>
+\ No newline at end of file

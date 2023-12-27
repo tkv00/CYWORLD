@@ -1,57 +1,11 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
   <component name="DataSourceManagerImpl" format="xml" multifile-model="true">
-    <data-source source="LOCAL" name="users" uuid="8a3bf794-efe4-418c-9f96-0b86d4b58489">
-      <driver-ref>sqlite.xerial</driver-ref>
-      <synchronize>true</synchronize>
-      <jdbc-driver>org.sqlite.JDBC</jdbc-driver>
-      <jdbc-url>jdbc:sqlite:$PROJECT_DIR$/users.db</jdbc-url>
-      <working-dir>$ProjectFileDir$</working-dir>
-    </data-source>
-    <data-source source="LOCAL" name="user" uuid="dfabf2be-1944-4493-a22a-3a7197c0ca26">
-      <driver-ref>sqlite.xerial</driver-ref>
-      <synchronize>true</synchronize>
-      <jdbc-driver>org.sqlite.JDBC</jdbc-driver>
-      <jdbc-url>jdbc:sqlite:identifier.sqlite</jdbc-url>
-      <working-dir>$ProjectFileDir$</working-dir>
-    </data-source>
-    <data-source source="LOCAL" name="identifier" uuid="b3c6a00f-8740-4eec-b1e3-09573434adfb">
-      <driver-ref>sqlite.xerial</driver-ref>
-      <synchronize>true</synchronize>
-      <jdbc-driver>org.sqlite.JDBC</jdbc-driver>
-      <jdbc-url>jdbc:sqlite:$PROJECT_DIR$/identifier.sqlite</jdbc-url>
-      <working-dir>$ProjectFileDir$</working-dir>
-      <libraries>
-        <library>
-          <url>file://$APPLICATION_CONFIG_DIR$/jdbc-drivers/Xerial SQLiteJDBC/3.43.0/org/xerial/sqlite-jdbc/3.43.0.0/sqlite-jdbc-3.43.0.0.jar</url>
-        </library>
-      </libraries>
-    </data-source>
-    <data-source source="LOCAL" name="cyworld@cyworld.cji1ftocbium.ap-northeast-2.rds.amazonaws.com" uuid="3e16c9ef-7998-45cd-8e14-60a0b89283cc">
+    <data-source source="LOCAL" name="cyworld" uuid="ff5999c8-0a6f-46a7-ba84-72a97e3c4a95">
       <driver-ref>mysql.8</driver-ref>
       <synchronize>true</synchronize>
       <jdbc-driver>com.mysql.cj.jdbc.Driver</jdbc-driver>
-      <jdbc-url>jdbc:mysql://cyworld.cji1ftocbium.ap-northeast-2.rds.amazonaws.com:3306/cyworld</jdbc-url>
-      <working-dir>$ProjectFileDir$</working-dir>
-    </data-source>
-    <data-source source="LOCAL" name="cyworld" uuid="b49cf1a1-6c32-4af2-bbcb-9fc713acaa9c">
-      <driver-ref>mysql.8</driver-ref>
-      <synchronize>true</synchronize>
-      <jdbc-driver>com.mysql.cj.jdbc.Driver</jdbc-driver>
-      <jdbc-url>jdbc:mysql://cyworld.cji1ftocbium.ap-northeast-2.rds.amazonaws.com:3306/cyworld</jdbc-url>
-      <jdbc-additional-properties>
-        <property name="AWS.RdsSigningPort" value="3306" />
-        <property name="AWS.RegionId" value="ap-northeast-2" />
-        <property name="AWS.CredentialId" value="profile:default" />
-        <property name="AWS.RdsSigningHost" value="cyworld.cji1ftocbium.ap-northeast-2.rds.amazonaws.com" />
-      </jdbc-additional-properties>
-      <working-dir>$ProjectFileDir$</working-dir>
-    </data-source>
-    <data-source source="LOCAL" name="cyworld123" uuid="65ff3598-d523-4a54-bc15-10ed98d22f6e">
-      <driver-ref>mysql.8</driver-ref>
-      <synchronize>true</synchronize>
-      <jdbc-driver>com.mysql.cj.jdbc.Driver</jdbc-driver>
-      <jdbc-url>jdbc:mysql://cyworld.cji1ftocbium.ap-northeast-2.rds.amazonaws.com:3306/cyworld</jdbc-url>
+      <jdbc-url>jdbc:mysql://34.64.208.208:3306/cyworld</jdbc-url>
       <working-dir>$ProjectFileDir$</working-dir>
     </data-source>
   </component>

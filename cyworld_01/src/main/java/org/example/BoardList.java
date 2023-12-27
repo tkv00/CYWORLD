@@ -1,6 +1,11 @@
 package org.example;
 
+<<<<<<< HEAD
 
+=======
+import org.Utility.DatabaseConfig;
+import org.Utility.WriteBoardManager;
+>>>>>>> 80c81737c145a0e34d71f1efd88e3d647eef0fe2
 import javax.swing.*;
 import javax.swing.table.DefaultTableModel;
 import java.awt.*;
@@ -22,24 +27,38 @@ public class BoardList {
     private JTable boardTable;  // JTable 추가
     private JScrollPane scrollPane;
     private WriteBoardManager writeBoardManager;  // WriteBoardManager 추가
+<<<<<<< HEAD
     private boolean authorDatePanelCreated = false;
 
 
 
     public BoardList() {
+=======
+        public BoardList() {
+>>>>>>> 80c81737c145a0e34d71f1efd88e3d647eef0fe2
         boardFrame = new JFrame("싸이월드 - 게시판 목록");
         boardFrame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
         boardFrame.setSize(800, 600);
         boardFrame.setLayout(new BorderLayout());
+<<<<<<< HEAD
+=======
+        // JFrame의 배경색을 설정
+        boardFrame.getContentPane().setBackground(new Color(255, 255, 255));
+>>>>>>> 80c81737c145a0e34d71f1efd88e3d647eef0fe2
         JButton createPostButton = new JButton("글쓰기");
         createPostButton.setBackground(new Color(0, 122, 255)); // 파란색 배경
         createPostButton.setForeground(Color.WHITE); // 흰색 텍스트
         createPostButton.setFocusPainted(false); // 클릭 시 테두리 제거
+<<<<<<< HEAD
 
         writeBoardManager = new WriteBoardManager();  // WriteBoardManager 초기화
 
         writeBoardManager.setPostClickListener(postId -> showPostDetailsInNewWindow(postId));
 
+=======
+        writeBoardManager = new WriteBoardManager();  // WriteBoardManager 초기화
+        writeBoardManager.setPostClickListener(postId -> showPostDetailsInNewWindow(postId));
+>>>>>>> 80c81737c145a0e34d71f1efd88e3d647eef0fe2
         createPostButton.addActionListener(e -> new WriteBoard());
 
         JPanel topPanel = new JPanel(); // 패널 생성
@@ -55,6 +74,7 @@ public class BoardList {
         tableModel.addColumn("NAME");
         tableModel.addColumn("DATE");
         boardTable = new JTable(tableModel) {
+<<<<<<< HEAD
             // Drag-and-Drop을 비활성
             protected TransferHandler createTransferHandler() {
                 return null;
@@ -172,6 +192,120 @@ public class BoardList {
             e.printStackTrace();
         }
     }
+=======
+                // Drag-and-Drop을 비활성
+                protected TransferHandler createTransferHandler() {
+                return null;
+            }
+        };
+        boardTable.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
+
+        // JTable 스타일 설정
+        boardTable.setBackground(new Color(255,255,255)); // 연한 회색 배경
+        boardTable.setSelectionBackground(new Color(240,240,240)); // 파란색 선택 배경
+        boardTable.setSelectionForeground(Color.black); // 검은색 선택 텍스트
+
+        // TableRowSorter를 사용하여 JTable을 오름차순으로 정렬
+        TableRowSorter<UneditableTableModel> sorter = new TableRowSorter<>(tableModel);
+        boardTable.setRowSorter(sorter);
+
+        // 기본적으로 0번 열(No.)을 기준으로 오름차순 정렬
+        sorter.setComparator(0, Comparator.comparingInt(row -> Integer.parseInt(row.toString())));
+        sorter.toggleSortOrder(0);
+
+        // JScrollPane에 JTable을 추가
+        scrollPane = new JScrollPane(boardTable);
+
+        // 열 헤더를 비활성화하여 열을 움직이지 못하게 함
+        scrollPane.setColumnHeaderView(null);
+        boardFrame.add(scrollPane, BorderLayout.CENTER);
+        fetchBoardData();
+        boardFrame.setVisible(true);
+
+        // 파란색 텍스트를 위한 DefaultTableCellRenderer 설정
+            DefaultTableCellRenderer blueTextRenderer = new DefaultTableCellRenderer() {
+                @Override
+                public Component getTableCellRendererComponent(JTable table, Object value, boolean isSelected, boolean hasFocus, int row, int column) {
+                    Component component = super.getTableCellRendererComponent(table, value, isSelected, hasFocus, row, column);
+                    // 수정된 부분: 제목을 볼드체로 설정 및 글자 크기를 20으로 변경
+                    setFont(new Font(getFont().getName(), Font.BOLD, 15));
+                    setForeground(new Color(0, 122, 255));
+                    return component;
+                }
+            };
+
+        // 검은색 텍스트를 위한 DefaultTableCellRenderer 설정
+        DefaultTableCellRenderer blackTextRenderer = new DefaultTableCellRenderer() {
+            @Override
+            public Component getTableCellRendererComponent(JTable table, Object value, boolean isSelected, boolean hasFocus, int row, int column) {
+                Component component = super.getTableCellRendererComponent(table, value, isSelected, hasFocus, row, column);
+
+                // No.와 Date 열의 텍스트 색상을 검은색으로 설정
+                setForeground(Color.BLACK);
+
+                return component;
+            }
+        };
+
+        boardTable.getColumnModel().getColumn(1).setCellRenderer(blueTextRenderer);
+        // NAME 열에 파란색 텍스트 적용
+        boardTable.getColumnModel().getColumn(2).setCellRenderer(blueTextRenderer);
+        // No. 열에 검은색 텍스트 적용
+        boardTable.getColumnModel().getColumn(0).setCellRenderer(blackTextRenderer);
+        // DATE 열에 검은색 텍스트 적용
+        boardTable.getColumnModel().getColumn(3).setCellRenderer(blackTextRenderer);
+
+        // JTable에서 제목 열을 클릭할 때의 동작을 처리하는 MouseListener 추가
+            // JTable에서 제목 열을 클릭할 때의 동작을 처리하는 MouseListener 추가
+            boardTable.addMouseListener(new MouseAdapter() {
+                @Override
+                public void mouseClicked(MouseEvent e) {
+                    int selectedRow = boardTable.getSelectedRow();
+                    int selectedColumn = boardTable.getSelectedColumn();
+
+                    if (selectedColumn == 1 && selectedRow != -1) {
+                        // 클릭한 Title 셀의 텍스트 색상을 변경
+                        blueTextRenderer.setForeground(new Color(0, 0, 0));
+
+                        // 테이블 갱신을 위해 repaint() 호출
+                        boardTable.repaint();
+
+                        int postId = (int) boardTable.getValueAt(selectedRow, 0);
+                        showPostDetailsInNewWindow(postId);
+                        }
+                }
+            });
+        }
+
+        private void fetchBoardData() {
+            try (Connection connection = DatabaseConfig.getConnection()) {
+                String sql = "SELECT WriteBoardNum, userId, time, title FROM WriteBoard";
+                PreparedStatement statement = connection.prepareStatement(sql);
+                ResultSet resultSet = statement.executeQuery();
+
+            // 기존 데이터 삭제
+                tableModel.setRowCount(0);
+
+                while (resultSet.next()) {
+                    int writeBoardNum = resultSet.getInt("WriteBoardNum");
+                    String title = resultSet.getString("title");
+                    String userId = resultSet.getString("userId");
+                    String time = resultSet.getString("time").substring(0, 10);
+
+                    Vector<Object> row = new Vector<>();
+                    row.add(writeBoardNum);
+                    row.add(title);
+                    row.add(userId);
+                    row.add(time);
+
+                // 새로운 행 추가
+                    tableModel.addRow(row);
+                }
+            } catch (SQLException e) {
+                e.printStackTrace();
+            }
+        }
+>>>>>>> 80c81737c145a0e34d71f1efd88e3d647eef0fe2
 
     private void showPostDetailsInNewWindow(int postId) {
         JFrame detailsFrame = new JFrame("Cyworld - 게시글 세부 정보");
@@ -193,6 +327,7 @@ public class BoardList {
                 JPanel mainPanel = new JPanel();
                 mainPanel.setLayout(new BorderLayout());
 
+<<<<<<< HEAD
                 // 상단 패널 (제목, 작성자, 작성 날짜)
                 JPanel headerPanel = new JPanel();
                 headerPanel.setLayout(new BoxLayout(headerPanel, BoxLayout.Y_AXIS));
@@ -201,6 +336,18 @@ public class BoardList {
                 JPanel titlePanel = createStyledSectionPanel("제목", postTitle, false, false, false);
 
                 headerPanel.add(titlePanel);
+=======
+                // 상단 패널 (제목, 작성자, 작성 날짜)의 글씨체와 글씨 크기를 수정
+                JPanel headerPanel = new JPanel();
+                headerPanel.setLayout(new BoxLayout(headerPanel, BoxLayout.Y_AXIS));
+
+                // 변경된 부분: 제목을 볼드체로 설정 및 글자 크기를 20으로 변경
+                JPanel titlePanel = createStyledSectionPanel("", postTitle, true, false, false);
+                headerPanel.add(titlePanel);
+
+                // 중복 텍스트 패널 생성 여부를 확인하기 위한 변수
+                boolean authorDatePanelCreated = false;
+>>>>>>> 80c81737c145a0e34d71f1efd88e3d647eef0fe2
 
                 // 작성자 및 작성 날짜 패널
                 JPanel authorDatePanel = new JPanel();
@@ -209,16 +356,32 @@ public class BoardList {
                 // 중복 생성 방지
                 if (!authorDatePanelCreated) {
                     // 작성자 패널 (변경된 부분: 작성자 텍스트를 파란색으로, 제목과 같은 높이에 배치)
+<<<<<<< HEAD
                     JPanel authorPanel = createStyledSectionPanel("작성자", userId, false, true, false);
 
                     // 작성 날짜 패널 (변경된 부분: 날짜 텍스트를 오른쪽에 배치)
                     JPanel datePanel = createStyledSectionPanel("작성 날짜", postDate, false, false, true);
+=======
+                    JPanel authorPanel = createStyledSectionPanel("", userId, false, true, false);
+
+                    // 변경된 부분: 작성자 텍스트 크기를 20으로 변경
+                    Font authorFont = new Font(authorPanel.getFont().getName(), Font.PLAIN, 20);
+                    authorPanel.setFont(authorFont);
+
+                    // 작성 날짜 패널 (변경된 부분: 날짜 텍스트를 오른쪽에 배치)
+                    JPanel datePanel = createStyledSectionPanel("", postDate, false, false, true);
+
+                    // 변경된 부분: 날짜 텍스트 크기를 20으로 변경
+                    Font dateFont = new Font(datePanel.getFont().getName(), Font.PLAIN, 20);
+                    datePanel.setFont(dateFont);
+>>>>>>> 80c81737c145a0e34d71f1efd88e3d647eef0fe2
 
                     authorDatePanel.add(authorPanel);
                     authorDatePanel.add(Box.createHorizontalGlue()); // 작성자와 날짜 간 여백
                     authorDatePanel.add(datePanel);
 
                     headerPanel.add(authorDatePanel);
+<<<<<<< HEAD
                     authorDatePanelCreated=true;
                 }
 
@@ -226,6 +389,13 @@ public class BoardList {
 
                 // 중앙 패널 (작성 내용)
                 JPanel contentPanel = createStyledSectionPanel("작성 내용", postContent, false, false, false);
+=======
+                    authorDatePanelCreated = true;
+                }
+                mainPanel.add(headerPanel, BorderLayout.NORTH);
+                // 중앙 패널 (작성 내용)의 글씨체와 글씨 크기를 수정
+                JPanel contentPanel = createStyledSectionPanel("", postContent, false, false, false);
+>>>>>>> 80c81737c145a0e34d71f1efd88e3d647eef0fe2
                 contentPanel.setPreferredSize(new Dimension(600, 400)); // 크기 조절
                 mainPanel.add(contentPanel, BorderLayout.CENTER);
 
@@ -239,16 +409,20 @@ public class BoardList {
             detailsFrame.setVisible(true);
         }
     }
+<<<<<<< HEAD
 
 
 
 
 
+=======
+>>>>>>> 80c81737c145a0e34d71f1efd88e3d647eef0fe2
     private JPanel createStyledSectionPanel(String label, String value, boolean isBold, boolean isBlueText, boolean alignRight) {
         JPanel panel = new JPanel(new BorderLayout());
         panel.setBorder(BorderFactory.createCompoundBorder(
                 BorderFactory.createTitledBorder(BorderFactory.createEtchedBorder(), label),
                 BorderFactory.createEmptyBorder(10, 10, 10, 10)));
+<<<<<<< HEAD
 
         JLabel labelComponent = new JLabel(label);
 
@@ -276,14 +450,92 @@ public class BoardList {
             rightPanel.add(new JLabel(value)); // 날짜를 레이블로 추가
             //panel.add(rightPanel, BorderLayout.EAST);
         }
+=======
+        JLabel labelComponent = new JLabel(label);
 
+        // 제목을 볼드체로 설정 및 글자 크기를 20으로 변경
+        if (isBold) {
+            Font boldFont = new Font(labelComponent.getFont().getName(), Font.BOLD, 20);
+            labelComponent.setFont(boldFont);
+        }
+        JTextArea valueComponent = new JTextArea(value);
+        valueComponent.setEditable(false);
+        valueComponent.setLineWrap(true);
+        valueComponent.setWrapStyleWord(true);
+        // 파란색 텍스트 설정 (변경된 부분)
+        if (isBlueText) {
+            valueComponent.setForeground(new Color(0, 122, 255));
+        }
+
+        panel.add(labelComponent, BorderLayout.NORTH);
+>>>>>>> 80c81737c145a0e34d71f1efd88e3d647eef0fe2
+
+        // 값이 비어있지 않은 경우에만 값 컴포넌트를 패널에 추가 (변경된 부분)
+        if (!value.isEmpty()) {
+            // 오른쪽 정렬이 요청된 경우에만 오른쪽에 배치 (변경된 부분)
+            if (alignRight) {
+                JPanel rightPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT));
+                rightPanel.add(new JLabel(value)); // 날짜를 레이블로 추가
+                panel.add(rightPanel, BorderLayout.EAST);
+            } else {
+                panel.add(valueComponent, BorderLayout.CENTER);
+            }
+        }
         return panel;
     }
 
+<<<<<<< HEAD
 
 
+=======
+>>>>>>> 80c81737c145a0e34d71f1efd88e3d647eef0fe2
     public static void main(String[] args) {
-        SwingUtilities.invokeLater(() -> new BoardList());
+            SwingUtilities.invokeLater(() -> new BoardList());
+        }
+    }
+
+/*    class WriteBoardManager {
+
+    public interface PostClickListener {
+        void onPostClick(int postId);
+    }
+    private PostClickListener postClickListener;
+
+    public void setPostClickListener(PostClickListener postClickListener) {
+        this.postClickListener = postClickListener;
+    }
+    // WriteBoardManager에서 수행할 다양한 기능을 추가할 수 있습니다.
+
+    // 예: 게시글 작성 기능
+    public void writePost(String userId, String title, String content) {
+        // 여기에 게시글 작성에 관한 로직을 추가하세요.
+        // 예를 들어, 데이터베이스에 새로운 게시글을 추가하거나 필요한 동작을 수행할 수 있습니다.
+    }
+    // 예: 게시글 삭제 기능
+    public void deletePost(int postId) {
+        // 여기에 게시글 삭제에 관한 로직을 추가하세요.
+        // 예를 들어, 데이터베이스에서 해당 게시글을 삭제하거나 필요한 동작을 수행할 수 있습니다.
+    }
+}*/
+
+// 수정 불가능한 모델로 확장한 클래스
+class UneditableTableModel extends DefaultTableModel {
+    @Override
+    public boolean isCellEditable(int row, int column) {
+        // 모든 열에 대해 수정 불가능하게 만듦
+        return false;
+    }
+
+    // 각 열에 대한 올바른 셀 렌더러를 사용하기 위해 이 메서드를 오버라이드
+    @Override
+    public Class<?> getColumnClass(int columnIndex) {
+        if (getRowCount() > 0 && getValueAt(0, columnIndex) != null) {
+            // 각 열에 대한 올바른 클래스를 반환
+            return getValueAt(0, columnIndex).getClass();
+        } else {
+            // 기본적으로 Object 클래스 반환
+            return Object.class;
+        }
     }
 }
 

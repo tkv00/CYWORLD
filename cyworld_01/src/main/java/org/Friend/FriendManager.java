@@ -1,12 +1,16 @@
 package org.Friend;
 
-import org.example.DatabaseConfig;
+import org.Utility.DatabaseConfig;
+import org.example.Message;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.logging.Level;
+
+import static org.Friend.FriendListManager.LOGGER;
 
 public class FriendManager {
 
@@ -27,7 +31,7 @@ public class FriendManager {
         try (Connection connection = DatabaseConfig.getConnection()) {
             String sql = "UPDATE friends SET status = 'accepted' WHERE user_id = ? AND friend_id = ?";
             try (PreparedStatement statement = connection.prepareStatement(sql)) {
-                statement.setString(1, friendId); // 주의: 순서가 반대입니다.
+                statement.setString(1, friendId);
                 statement.setString(2, userId);
                 statement.executeUpdate();
             }
@@ -141,6 +145,62 @@ public class FriendManager {
     }
 
 
+    public List<Message> getSentMessages(String userId) {
+        List<Message> messages = new ArrayList<>();
+        String sql = "SELECT sender_id, receiver_id, title, message, send_time FROM messages WHERE sender_id = ?";
 
+        try (Connection conn = DatabaseConfig.getConnection();
+             PreparedStatement stmt = conn.prepareStatement(sql)) {
 
+            stmt.setString(1, userId);
+
+            try (ResultSet rs = stmt.executeQuery()) {
+                while (rs.next()) {
+                    String sender = rs.getString("sender_id");
+                    String receiver = rs.getString("receiver_id");
+                    String title = rs.getString("title");
+                    String content = rs.getString("message");
+                    String sentTime = rs.getString("send_time");
+
+                    messages.add(new Message(sender, receiver, title, content, sentTime));
+                }
+            }
+        } catch (Exception e) {
+            LOGGER.log(Level.SEVERE, "Error fetching sent messages", e);
+            // 오류 발생 시 빈 리스트를 반환
+        }
+
+        return messages; // 항상 리스트 반환, null이 아님
+    }
+
+    // 받은 쪽지 목록을 조회하는 메서드
+    public List<Message> getReceivedMessages(String userId) {
+        List<Message> messages = new ArrayList<>();
+        String sql = "SELECT sender_id, receiver_id, title, message, send_time FROM messages WHERE receiver_id = ?";
+
+        try (Connection conn = DatabaseConfig.getConnection(); // 데이터베이스 연결
+             PreparedStatement stmt = conn.prepareStatement(sql)) {
+
+            stmt.setString(1, userId); // 현재 사용자 ID 설정
+
+            try (ResultSet rs = stmt.executeQuery()) {
+                while (rs.next()) {
+                    // 쿼리 결과로부터 쪽지 정보 추출
+                    String sender = rs.getString("sender_id");
+                    String receiver = rs.getString("receiver_id");
+                    String title = rs.getString("title");
+                    String content = rs.getString("message");
+                    String sentTime = String.valueOf(rs.getTimestamp("send_time")); // 보낸 시간
+
+                    // 추출한 정보로 Message 객체 생성 및 리스트에 추가
+                    messages.add(new Message(sender, receiver, title, content, sentTime));
+                }
+            }
+        } catch (Exception e) {
+            LOGGER.log(Level.SEVERE, "Error fetching received messages", e);
+            // 오류 발생 시 빈 리스트를 반환합니다. 이렇게 함으로써 메서드 호출자는 null을 처리할 필요가 없습니다.
+        }
+
+        return messages; // 조회된 쪽지 목록 반환, 항상 null이 아닌 리스트 반환
+    }
 }
