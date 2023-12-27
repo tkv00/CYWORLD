@@ -433,11 +433,10 @@ public class MiniHomepage extends JFrame {
         });
 
         boardButton3.addActionListener(e -> new BoardList());
-        // 게시판 버튼 클릭 시 수행할 동작 추가
-
+        // 게시판 버튼 클릭 시 수행할 동작
         boardButton4.addActionListener(e -> {
-            // 방명록 버튼 클릭 시 수행할 동작 추가
         });
+        // 방명록 버튼 클릭 시 수행할 동작
 
         boardButton5.addActionListener(e ->openPhotoGalleryWindow());
         // 다른 버튼에 대한 동작 설정
@@ -472,7 +471,6 @@ public class MiniHomepage extends JFrame {
         mainContent.setOpaque(false); // 메인 컨텐츠 투명하게 설정
         return mainContent;
     }
-
     public void setUserId(String userId) {
         this.userId = userId;
         // PhotoGalleryManager에 userId를 전달합니다.

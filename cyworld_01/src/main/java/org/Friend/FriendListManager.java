@@ -11,10 +11,10 @@ import java.awt.*;
 import java.awt.event.FocusAdapter;
 import java.awt.event.FocusEvent;
 import java.sql.Connection;
-import java.util.logging.Logger;
-import java.util.logging.Level;
 import java.sql.PreparedStatement;
 import java.util.List;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 public class FriendListManager {
     private JFrame parentFrame;
@@ -338,7 +338,7 @@ public class FriendListManager {
 
         // 사진첩 버튼에 대한 액션 리스너 추가
         friendCyworld.getPhotoGalleryButton().addActionListener(e -> openFriendPhotoGallery(friendCyworld, friend));
-// 일촌의 싸이월드 창을 닫을 때 나의 싸이월드 창이 닫히지 않도록 다른 닫기 동작을 설정합니다.
+        // 일촌의 싸이월드 창을 닫을 때 나의 싸이월드 창이 닫히지 않도록 다른 닫기 동작을 설정합니다.
         friendCyworld.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE); // 필요한 경우 변경
         // 새 창에서 일촌의 싸이월드 표시
         friendCyworld.showMainPage();
@@ -357,8 +357,6 @@ public class FriendListManager {
         friendCyworld.getFriend().setEnabled(false);
         friendCyworld.getFriendList().setEnabled(false);
         friendCyworld.getNotificationButton().setEnabled(false);
-
-
     }
     private void openFriendPhotoGallery(MiniHomepage friendCyworld, String friendId) {
         PhotoGalleryWindow existingGallery = friendCyworld.getPhotoGalleryWindow();
@@ -384,7 +382,6 @@ public class FriendListManager {
             }
         }
     }
-
     private void sendReplyToFriend(String recipient, String title, String content,JDialog parentDialog) {
         // 데이터베이스에 답장 메시지를 삽입하는 로직 또는 API 호출을 여기에 구현합니다.
         try (Connection connection = DatabaseConfig.getConnection()) {
