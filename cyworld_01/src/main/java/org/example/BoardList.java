@@ -32,6 +32,8 @@ public class BoardList {
         boardFrame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
         boardFrame.setSize(800, 600);
         boardFrame.setLayout(new BorderLayout());
+            // JFrame의 배경색을 설정
+        boardFrame.getContentPane().setBackground(new Color(255, 255, 255));
         JButton createPostButton = new JButton("글쓰기");
         createPostButton.setBackground(new Color(0, 122, 255)); // 파란색 배경
         createPostButton.setForeground(Color.WHITE); // 흰색 텍스트
@@ -90,17 +92,16 @@ public class BoardList {
         boardFrame.setVisible(true);
 
         // 파란색 텍스트를 위한 DefaultTableCellRenderer 설정
-        DefaultTableCellRenderer blueTextRenderer = new DefaultTableCellRenderer() {
-            @Override
-            public Component getTableCellRendererComponent(JTable table, Object value, boolean isSelected, boolean hasFocus, int row, int column) {
-                Component component = super.getTableCellRendererComponent(table, value, isSelected, hasFocus, row, column);
-
-                // Title 열의 텍스트 색상을 파란색(RGB: 0, 0, 205)으로 설정
-                setForeground(new Color(0, 122, 255));
-
-                return component;
-            }
-        };
+            DefaultTableCellRenderer blueTextRenderer = new DefaultTableCellRenderer() {
+                @Override
+                public Component getTableCellRendererComponent(JTable table, Object value, boolean isSelected, boolean hasFocus, int row, int column) {
+                    Component component = super.getTableCellRendererComponent(table, value, isSelected, hasFocus, row, column);
+                    // 수정된 부분: 제목을 볼드체로 설정 및 글자 크기를 20으로 변경
+                    setFont(new Font(getFont().getName(), Font.BOLD, 15));
+                    setForeground(new Color(0, 122, 255));
+                    return component;
+                }
+            };
 
         // 검은색 텍스트를 위한 DefaultTableCellRenderer 설정
         DefaultTableCellRenderer blackTextRenderer = new DefaultTableCellRenderer() {
@@ -141,45 +142,45 @@ public class BoardList {
 
                         int postId = (int) boardTable.getValueAt(selectedRow, 0);
                         showPostDetailsInNewWindow(postId);
+                        }
                 }
-            }
-        });
-    }
+            });
+        }
 
-    private void fetchBoardData() {
-        try (Connection connection = DatabaseConfig.getConnection()) {
-            String sql = "SELECT WriteBoardNum, userId, time, title FROM WriteBoard";
-            PreparedStatement statement = connection.prepareStatement(sql);
-            ResultSet resultSet = statement.executeQuery();
+        private void fetchBoardData() {
+            try (Connection connection = DatabaseConfig.getConnection()) {
+                String sql = "SELECT WriteBoardNum, userId, time, title FROM WriteBoard";
+                PreparedStatement statement = connection.prepareStatement(sql);
+                ResultSet resultSet = statement.executeQuery();
 
             // 기존 데이터 삭제
-            tableModel.setRowCount(0);
+                tableModel.setRowCount(0);
 
-            while (resultSet.next()) {
-                int writeBoardNum = resultSet.getInt("WriteBoardNum");
-                String title = resultSet.getString("title");
-                String userId = resultSet.getString("userId");
-                String time = resultSet.getString("time").substring(0, 10);
+                while (resultSet.next()) {
+                    int writeBoardNum = resultSet.getInt("WriteBoardNum");
+                    String title = resultSet.getString("title");
+                    String userId = resultSet.getString("userId");
+                    String time = resultSet.getString("time").substring(0, 10);
 
-                Vector<Object> row = new Vector<>();
-                row.add(writeBoardNum);
-                row.add(title);
-                row.add(userId);
-                row.add(time);
+                    Vector<Object> row = new Vector<>();
+                    row.add(writeBoardNum);
+                    row.add(title);
+                    row.add(userId);
+                    row.add(time);
 
                 // 새로운 행 추가
-                tableModel.addRow(row);
+                    tableModel.addRow(row);
+                }
+            } catch (SQLException e) {
+                e.printStackTrace();
             }
-        } catch (SQLException e) {
-            e.printStackTrace();
         }
-    }
 
-        private void showPostDetailsInNewWindow(int postId) {
-            JFrame detailsFrame = new JFrame("Cyworld - 게시글 세부 정보");
-            detailsFrame.setSize(800, 600);
+    private void showPostDetailsInNewWindow(int postId) {
+        JFrame detailsFrame = new JFrame("Cyworld - 게시글 세부 정보");
+        detailsFrame.setSize(800, 600);
 
-            try (Connection connection = DatabaseConfig.getConnection()) {
+        try (Connection connection = DatabaseConfig.getConnection()) {
             String sql = "SELECT * FROM WriteBoard WHERE WriteBoardNum= ?";
             PreparedStatement statement = connection.prepareStatement(sql);
             statement.setInt(1, postId);
@@ -195,13 +196,12 @@ public class BoardList {
                 JPanel mainPanel = new JPanel();
                 mainPanel.setLayout(new BorderLayout());
 
-                // 상단 패널 (제목, 작성자, 작성 날짜)
+                // 상단 패널 (제목, 작성자, 작성 날짜)의 글씨체와 글씨 크기를 수정
                 JPanel headerPanel = new JPanel();
                 headerPanel.setLayout(new BoxLayout(headerPanel, BoxLayout.Y_AXIS));
 
-                // 변경된 부분: 제목을 볼드체로 설정
-                JPanel titlePanel = createStyledSectionPanel("제목", postTitle, false, false, false);
-
+                // 변경된 부분: 제목을 볼드체로 설정 및 글자 크기를 20으로 변경
+                JPanel titlePanel = createStyledSectionPanel("", postTitle, true, false, false);
                 headerPanel.add(titlePanel);
 
                 // 중복 텍스트 패널 생성 여부를 확인하기 위한 변수
@@ -214,10 +214,18 @@ public class BoardList {
                 // 중복 생성 방지
                 if (!authorDatePanelCreated) {
                     // 작성자 패널 (변경된 부분: 작성자 텍스트를 파란색으로, 제목과 같은 높이에 배치)
-                    JPanel authorPanel = createStyledSectionPanel("작성자", userId, false, true, false);
+                    JPanel authorPanel = createStyledSectionPanel("", userId, false, true, false);
+
+                    // 변경된 부분: 작성자 텍스트 크기를 20으로 변경
+                    Font authorFont = new Font(authorPanel.getFont().getName(), Font.PLAIN, 20);
+                    authorPanel.setFont(authorFont);
 
                     // 작성 날짜 패널 (변경된 부분: 날짜 텍스트를 오른쪽에 배치)
-                    JPanel datePanel = createStyledSectionPanel("작성 날짜", postDate, false, false, true);
+                    JPanel datePanel = createStyledSectionPanel("", postDate, false, false, true);
+
+                    // 변경된 부분: 날짜 텍스트 크기를 20으로 변경
+                    Font dateFont = new Font(datePanel.getFont().getName(), Font.PLAIN, 20);
+                    datePanel.setFont(dateFont);
 
                     authorDatePanel.add(authorPanel);
                     authorDatePanel.add(Box.createHorizontalGlue()); // 작성자와 날짜 간 여백
@@ -229,21 +237,22 @@ public class BoardList {
 
                 mainPanel.add(headerPanel, BorderLayout.NORTH);
 
-                // 중앙 패널 (작성 내용)
-                JPanel contentPanel = createStyledSectionPanel("작성 내용", postContent, false, false, false);
+                // 중앙 패널 (작성 내용)의 글씨체와 글씨 크기를 수정
+                JPanel contentPanel = createStyledSectionPanel("", postContent, false, false, false);
                 contentPanel.setPreferredSize(new Dimension(600, 400)); // 크기 조절
                 mainPanel.add(contentPanel, BorderLayout.CENTER);
 
                 detailsFrame.add(mainPanel);
                 detailsFrame.setVisible(true);
             }
-            } catch (SQLException e) {
-                e.printStackTrace();
-                JPanel errorPanel = createStyledSectionPanel("에러", "게시글 세부 정보를 불러오는 데 실패했습니다.", false, false, false);
-                detailsFrame.add(errorPanel);
-                detailsFrame.setVisible(true);
-            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+            JPanel errorPanel = createStyledSectionPanel("에러", "게시글 세부 정보를 불러오는 데 실패했습니다.", false, false, false);
+            detailsFrame.add(errorPanel);
+            detailsFrame.setVisible(true);
         }
+    }
+
 
 
 
@@ -257,9 +266,10 @@ public class BoardList {
 
         JLabel labelComponent = new JLabel(label);
 
-        // 제목을 볼드체로 설정 (변경된 부분)
+        // 제목을 볼드체로 설정 및 글자 크기를 20으로 변경
         if (isBold) {
-            labelComponent.setFont(new Font("Arial", Font.BOLD, 16));
+            Font boldFont = new Font(labelComponent.getFont().getName(), Font.BOLD, 20);
+            labelComponent.setFont(boldFont);
         }
 
         JTextArea valueComponent = new JTextArea(value);
@@ -273,17 +283,25 @@ public class BoardList {
         }
 
         panel.add(labelComponent, BorderLayout.NORTH);
-        panel.add(valueComponent, BorderLayout.CENTER);
 
-        // 날짜를 오른쪽에 배치 (변경된 부분)
-        if (alignRight) {
-            JPanel rightPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT));
-            rightPanel.add(new JLabel(value)); // 날짜를 레이블로 추가
-            panel.add(rightPanel, BorderLayout.EAST);
+        // 값이 비어있지 않은 경우에만 값 컴포넌트를 패널에 추가 (변경된 부분)
+        if (!value.isEmpty()) {
+            // 오른쪽 정렬이 요청된 경우에만 오른쪽에 배치 (변경된 부분)
+            if (alignRight) {
+                JPanel rightPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT));
+                rightPanel.add(new JLabel(value)); // 날짜를 레이블로 추가
+                panel.add(rightPanel, BorderLayout.EAST);
+            } else {
+                panel.add(valueComponent, BorderLayout.CENTER);
+            }
         }
 
         return panel;
     }
+
+
+
+
 
 
 

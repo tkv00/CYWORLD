@@ -9,8 +9,7 @@ public class DatabaseConfig {
 
     private static final String DATABASE_URL =
     private static final String DATABASE_USER =
-    private static final String DATABASE_PASSWORD = "";
-
+    private static final String DATABASE_PASSWORD =
     private static final String JDBC_DRIVER = "com.mysql.cj.jdbc.Driver";
 
     /**

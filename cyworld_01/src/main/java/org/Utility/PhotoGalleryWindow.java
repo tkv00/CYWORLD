@@ -8,6 +8,10 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.*;
 import java.util.List;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
+
+
 
 
 public class PhotoGalleryWindow extends JFrame {
@@ -18,6 +22,10 @@ public class PhotoGalleryWindow extends JFrame {
     private JPanel tagPanel;
     private JPanel photoPanel;
 
+    // Keep track of clicked tags
+    private Set<String> clickedTags = new HashSet<>();
+
+
     public PhotoGalleryWindow(PhotoGalleryManager manager, String userId) {
         this.photoGalleryManager = manager;
         this.userId = userId;
@@ -27,6 +35,19 @@ public class PhotoGalleryWindow extends JFrame {
             return;  // Handle this situation appropriately
         }
         initializeUI();
+    }
+
+    // 사진첩 패널을 생성하는 메서드
+    private JPanel createPhotoGalleryPanel() {
+        JPanel photoGalleryPanel = new JPanel();
+        JLabel photoGalleryLabel = new JLabel("사진첩");
+
+        // Set font size to 15 and make it bold
+        Font labelFont = photoGalleryLabel.getFont();
+        photoGalleryLabel.setFont(new Font(labelFont.getName(), Font.BOLD, 15));
+
+        photoGalleryPanel.add(photoGalleryLabel);
+        return photoGalleryPanel;
     }
 
     // 사용자 인터페이스 초기화
@@ -45,7 +66,7 @@ public class PhotoGalleryWindow extends JFrame {
         // 사진 패널 초기화
         initializePhotoPanel();
 
-        // 초기 사진 표시
+        // 초기 사진 표시 (Recent 태그로)
         displayPhotos("Recent"); // "Recent"는 최근 사진을 나타내는 가상의 태그입니다.
 
         setVisible(true);
@@ -74,17 +95,18 @@ public class PhotoGalleryWindow extends JFrame {
 
         JPanel topPanel = new JPanel(new BorderLayout());
         topPanel.add(addPhotoButton, BorderLayout.EAST);
-        add(topPanel, BorderLayout.NORTH);
+        add(topPanel, BorderLayout.SOUTH);
     }
+    // 태그 패널 초기화
     // 태그 패널 초기화
     private void initializeTagPanel() {
         tagPanel = new JPanel();
-        tagPanel.setLayout(new BoxLayout(tagPanel, BoxLayout.Y_AXIS));
+        tagPanel.setLayout(new FlowLayout(FlowLayout.LEADING)); // FlowLayout으로 변경
         JScrollPane tagScrollPane = new JScrollPane(tagPanel);
         tagScrollPane.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_ALWAYS);
-        add(tagScrollPane, BorderLayout.WEST);
+        add(tagScrollPane, BorderLayout.NORTH); // 상단에 배치
 
-        // 데이터베이스에서 태그 목록을 검색하고 태그 버튼을 생성
+        // 데이터베이스에서 태그 목록을 검색하고 태그 라벨을 생성
         initializeTags();
     }
 
@@ -101,13 +123,69 @@ public class PhotoGalleryWindow extends JFrame {
     }
 
 
-    // 데이터베이스에서 태그 목록을 검색하고 태그 버튼을 생성하는 메서드
+    // Initialize tags with a clickable behavior
+    // Initialize tags with a clickable behavior
+    // Initialize tags with a clickable behavior
     private void initializeTags() {
         Set<String> tags = photoGalleryManager.retrieveTags();
         for (String tag : tags) {
-            JButton tagButton = new JButton(tag);
-            tagButton.addActionListener(e -> displayPhotos(tag));
-            tagPanel.add(tagButton);
+            JLabel tagLabel = new JLabel(tag);
+
+            // Set font size to 14
+            Font tagFont = tagLabel.getFont();
+            tagLabel.setFont(new Font(tagFont.getName(), Font.PLAIN, 14));
+
+            tagLabel.addMouseListener(new MouseAdapter() {
+                @Override
+                public void mouseClicked(MouseEvent e) {
+                    // Simulate button click action
+                    displayPhotos(tag);
+
+                    // Clear the previous clicked tags
+                    for (Component component : tagPanel.getComponents()) {
+                        JLabel label = (JLabel) component;
+                        updateTagColor(label, false);
+                    }
+
+                    // Toggle the clicked state of the tag
+                    if (clickedTags.contains(tag)) {
+                        clickedTags.remove(tag);
+                    } else {
+                        clickedTags.add(tag);
+                    }
+
+                    // Update the text color based on the clicked state
+                    updateTagColor(tagLabel, clickedTags.contains(tag));
+                }
+
+                @Override
+                public void mouseEntered(MouseEvent e) {
+                    // Change the text color to orange when the mouse enters the label
+                    if (!clickedTags.contains(tag)) {
+                        tagLabel.setForeground(new Color(255, 102, 6));
+                    }
+                }
+
+                @Override
+                public void mouseExited(MouseEvent e) {
+                    // Change the text color back to the default when the mouse exits the label
+                    if (!clickedTags.contains(tag)) {
+                        tagLabel.setForeground(UIManager.getColor("Label.foreground"));
+                    }
+                }
+            });
+
+            tagPanel.add(tagLabel);
+        }
+    }
+
+
+    // Update the text color based on the clicked state
+    private void updateTagColor(JLabel tagLabel, boolean clicked) {
+        if (clicked) {
+            tagLabel.setForeground(new Color(255, 102, 6));
+        } else {
+            tagLabel.setForeground(UIManager.getColor("Label.foreground"));
         }
     }
 
@@ -142,7 +220,9 @@ public class PhotoGalleryWindow extends JFrame {
             String formattedTime = formatDateTime(originalTime); // 변경된 시간 포맷
 
             // 제목 및 시간 라벨 추가
+            // 제목 라벨 및 시간 라벨 추가
             JLabel titleLabel = new JLabel(photoDetail.getTitle(), SwingConstants.CENTER);
+            titleLabel.setFont(new Font(titleLabel.getFont().getName(), Font.BOLD, 16)); // Set font size to 16 and make it bold
             JLabel timeLabel = new JLabel(formattedTime, SwingConstants.CENTER);
             JPanel textPanel = new JPanel(new GridLayout(2, 1));
             textPanel.add(titleLabel);
