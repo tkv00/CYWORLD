@@ -2,12 +2,12 @@ package org.example;
 
 import org.Friend.FriendListManager;
 import org.Friend.FriendManager;
-import java.sql.Timestamp;
 import org.Friend.FriendRequestDialog;
 import org.Utility.*;
 import org.example.Panel.GifPanel;
 import org.example.Panel.MusicPlayerPanel;
 import org.example.Panel.ProfilePanel;
+
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.MouseAdapter;
@@ -16,10 +16,8 @@ import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URL;
-import java.sql.*;
 import java.nio.file.Files;
-import java.sql.SQLException;
-import java.text.SimpleDateFormat;
+import java.sql.*;
 import java.util.Arrays;
 import java.util.List;
 public class MiniHomepage extends JFrame {
@@ -502,15 +500,11 @@ public class MiniHomepage extends JFrame {
 
                 // 프로필 패널에 새로운 이미지를 설정합니다.
                 Image newProfileImage = new ImageIcon(selectedFile.getAbsolutePath()).getImage();
-                ProfileImageUpload profileImageUpload = new ProfileImageUpload();
                 profileImageUpload.getProfileImage(userId); // ProfileImageUpload의 setProfileImage 메서드 호출
                 profilePanel.updateProfileImage(newProfileImage); // 프로필 이미지 변경
                 JOptionPane.showMessageDialog(this, "프로필 이미지가 성공적으로 저장되었습니다.", "성공", JOptionPane.INFORMATION_MESSAGE);
             } catch (Exception ex) {
                 JOptionPane.showMessageDialog(this, "이미지 로딩 실패", "오류", JOptionPane.ERROR_MESSAGE);
-            } catch (IOException ex) {
-                JOptionPane.showMessageDialog(this, "파일 읽기 오류", "오류", JOptionPane.ERROR_MESSAGE);
-                ex.printStackTrace();
             }
         }
     }
