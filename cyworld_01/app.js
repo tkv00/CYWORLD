@@ -8,7 +8,7 @@ app.use(express.json());
 
 app.get('/kakao-map-api', async (req, res) => {
   const keyword = req.query.query;
-  const kakaoApiKey = 'f32e49f5dedd2c37722a3d4f1ada6317'; // 실제 사용하는 API 키로 변경
+  const kakaoApiKey = ''; // 실제 사용하는 API 키로 변경
 
   // 지역 검색 API URL로 수정
   const apiUrl = `https://dapi.kakao.com/v2/local/search/keyword.json?query=${encodeURIComponent(keyword)}`;
